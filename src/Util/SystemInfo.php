@@ -34,14 +34,12 @@ final class SystemInfo
 
         $cores = $this->detectCpuCores();
 
-        // @codeCoverageIgnoreStart
         if (1 > $cores) {
             $this->logger->warning('Failed to detect CPU cores, using fallback', [
                 'fallback' => $fallback,
             ]);
             $cores = $fallback;
         } else {
-            // @codeCoverageIgnoreEnd
             $this->logger->debug('CPU cores detected', [
                 'cores' => $cores,
                 'os' => PHP_OS,
@@ -76,17 +74,13 @@ final class SystemInfo
 
     public function supportsFdPassing(): bool
     {
-        // @codeCoverageIgnoreStart
         if (PHP_OS_FAMILY !== 'Linux') {
             return false;
         }
-        // @codeCoverageIgnoreEnd
 
-        // @codeCoverageIgnoreStart
         if (!function_exists('socket_sendmsg') || !function_exists('socket_recvmsg')) {
             return false;
         }
-        // @codeCoverageIgnoreEnd
 
         return defined('SCM_RIGHTS');
     }
@@ -96,9 +90,6 @@ final class SystemInfo
         return defined('SO_REUSEPORT');
     }
 
-    /**
-     * @codeCoverageIgnore Platform-specific code cannot be tested in unit tests
-     */
     private function detectCpuCores(): int
     {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -126,9 +117,6 @@ final class SystemInfo
         return 0;
     }
 
-    /**
-     * @codeCoverageIgnore Windows-specific code cannot be tested on non-Windows platforms
-     */
     private function detectCpuCoresWindows(): int
     {
         $process = popen('wmic cpu get NumberOfCores', 'rb');
@@ -153,9 +141,6 @@ final class SystemInfo
         return 0;
     }
 
-    /**
-     * @codeCoverageIgnore Linux-specific code cannot be tested on non-Linux platforms
-     */
     private function detectCpuCoresLinux(): int
     {
         $cores = $this->execCommand('nproc');
@@ -182,9 +167,6 @@ final class SystemInfo
         return 0;
     }
 
-    /**
-     * @codeCoverageIgnore BSD-specific code cannot be tested on non-BSD platforms
-     */
     private function detectCpuCoresBsd(): int
     {
         $cores = $this->execCommandString('sysctl -n hw.ncpu');
@@ -205,9 +187,6 @@ final class SystemInfo
         return 0;
     }
 
-    /**
-     * @codeCoverageIgnore Shell command execution cannot be reliably tested in unit tests
-     */
     private function execCommand(string $command): int
     {
         $process = popen($command, 'rb');
@@ -226,9 +205,6 @@ final class SystemInfo
         return $cores > 0 ? $cores : 0;
     }
 
-    /**
-     * @codeCoverageIgnore Shell command execution cannot be reliably tested in unit tests
-     */
     private function execCommandString(string $command): int
     {
         /** @psalm-suppress ForbiddenCode shell_exec needed for system information */

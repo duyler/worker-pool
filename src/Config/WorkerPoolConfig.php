@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Config;
 
+use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Util\SystemInfo;
 use InvalidArgumentException;
 
@@ -12,6 +13,7 @@ final readonly class WorkerPoolConfig
     public int $workerCount;
 
     public function __construct(
+        public ServerConfig $serverConfig,
         int $workerCount = 0,
         public BalancerType $balancer = BalancerType::LeastConnections,
         public int $backlog = 128,
@@ -23,9 +25,6 @@ final readonly class WorkerPoolConfig
         public int $restartDelay = 1,
         public int $fallbackCpuCores = 4,
         public int $pollInterval = 1000,
-        public ?string $socketPath = null,
-        public ?int $port = null,
-        public ?string $host = null,
     ) {
         if (0 === $workerCount) {
             $systemInfo = new SystemInfo();
@@ -38,9 +37,11 @@ final readonly class WorkerPoolConfig
     }
 
     public static function auto(
+        ServerConfig $serverConfig,
         BalancerType $balancer = BalancerType::LeastConnections,
     ): self {
         return new self(
+            serverConfig: $serverConfig,
             workerCount: 0,
             balancer: $balancer,
         );
@@ -75,7 +76,6 @@ final readonly class WorkerPoolConfig
         if ($this->maxIpcMessageSize < 1024) {
             throw new InvalidArgumentException('Max IPC message size must be at least 1024 bytes');
         }
-
         if ($this->fallbackCpuCores < 1) {
             throw new InvalidArgumentException('Fallback CPU cores must be positive');
         }

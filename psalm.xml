@@ -8,6 +8,9 @@
     findUnusedBaselineEntry="true"
     findUnusedCode="false"
 >
+    <stubs>
+        <file name="stubs/ev.php" />
+    </stubs>
     <projectFiles>
         <directory name="src" />
         <ignoreFiles>

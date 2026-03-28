@@ -6,7 +6,7 @@ namespace Duyler\WorkerPool\Config;
 
 enum BalancerType: string
 {
-    case LeastConnections = 'least_connections';
-    case RoundRobin = 'round_robin';
-    case Weighted = 'weighted';
+    case LeastConnections = "least_connections";
+    case RoundRobin = "round_robin";
+    case Weighted = "weighted";
 }

@@ -1,0 +1,190 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Duyler\WorkerPool\IPC;
+
+use Duyler\HttpServer\Socket\SocketErrorSuppressor;
+use Duyler\WorkerPool\Exception\IPCException;
+use JsonException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Socket;
+
+use function array_key_exists;
+use function defined;
+use function function_exists;
+use function gettype;
+use function is_array;
+use function is_resource;
+use function strlen;
+
+use const JSON_THROW_ON_ERROR;
+use const MSG_DONTWAIT;
+use const PHP_OS_FAMILY;
+use const SCM_RIGHTS;
+use const SOL_SOCKET;
+
+final readonly class FdPasser
+{
+    use SocketErrorSuppressor;
+
+    public function __construct(
+        private LoggerInterface $logger = new NullLogger(),
+    ) {}
+
+    public function isSupported(): bool
+    {
+        if (PHP_OS_FAMILY !== 'Linux') {
+            return false;
+        }
+
+        return function_exists('socket_sendmsg') && function_exists('socket_recvmsg');
+    }
+
+    /**
+     * @param array<string, mixed> $metadata
+     */
+    public function sendFd(Socket $controlSocket, Socket $fdToSend, array $metadata = []): bool
+    {
+        if (!function_exists('socket_sendmsg')) {
+            throw new IPCException('socket_sendmsg() is not available');
+        }
+
+        if (!defined('SCM_RIGHTS')) {
+            throw new IPCException('SCM_RIGHTS is not defined');
+        }
+
+        $this->logger->debug('Sending FD with metadata', ['metadata' => $metadata]);
+
+        $metadataJson = json_encode($metadata, JSON_THROW_ON_ERROR);
+        if ('[]' === $metadataJson) {
+            $metadataJson = '{}';
+        }
+
+        $message = [
+            'iov' => [$metadataJson],
+            'control' => [
+                [
+                    'level' => SOL_SOCKET,
+                    'type' => SCM_RIGHTS,
+                    'data' => [$fdToSend],
+                ],
+            ],
+        ];
+
+        $result = socket_sendmsg($controlSocket, $message, 0);
+
+        if (false === $result) {
+            $this->logger->error('sendmsg failed', [
+                'error' => socket_strerror(socket_last_error($controlSocket)),
+            ]);
+        } else {
+            $this->logger->debug('FD sent', ['bytes' => $result]);
+        }
+
+        return false !== $result;
+    }
+
+    /**
+     * @return array{fd: Socket|resource, metadata: array<string, mixed>}|null
+     */
+    public function receiveFd(Socket $controlSocket): ?array
+    {
+        /** @var int $callCount */
+        static $callCount = 0;
+        $callCount++;
+
+        if (!function_exists('socket_recvmsg')) {
+            throw new IPCException('socket_recvmsg() is not available');
+        }
+
+        if (!defined('SCM_RIGHTS')) {
+            throw new IPCException('SCM_RIGHTS is not defined');
+        }
+
+        $message = [
+            'iov' => [''],
+            'control' => [],
+            'controllen' => (socket_cmsg_space(SOL_SOCKET, SCM_RIGHTS, 1) ?? 0) > 0
+                ? socket_cmsg_space(SOL_SOCKET, SCM_RIGHTS, 1)
+                : 256,
+        ];
+
+        $result = $this->suppressSocketWarnings(
+            fn(): int|false => socket_recvmsg($controlSocket, $message, MSG_DONTWAIT),
+        );
+
+        /** @var array{iov: list<string>, control: list<mixed>, controllen: int} $message */
+
+        if (false === $result || 0 === $result) {
+            $errno = socket_last_error($controlSocket);
+            if ($errno !== 11 && $errno !== 0 && $callCount % 1000 === 0) {
+                $this->logger->debug('recvmsg error', [
+                    'errno' => $errno,
+                    'error' => socket_strerror($errno),
+                ]);
+            }
+            return null;
+        }
+
+        $this->logger->debug('recvmsg returned bytes', ['bytes' => $result]);
+        $this->logger->debug('Message type', ['type' => gettype($message)]);
+
+        $this->logger->debug('Message keys', ['keys' => array_keys($message)]);
+
+        if (!array_key_exists(0, $message['control'])) {
+            $this->logger->error('No control data at index 0');
+            return null;
+        }
+
+        $controlData = $message['control'][0];
+
+        if (false === is_array($controlData)) {
+            $this->logger->error('Invalid control array structure');
+            return null;
+        }
+
+        if (!isset($controlData['data']) || !is_array($controlData['data'])) {
+            $this->logger->error('No control data array');
+            return null;
+        }
+
+        if (!isset($controlData['data'][0])) {
+            $this->logger->error('No file descriptor in control data');
+            return null;
+        }
+
+        $receivedFd = $controlData['data'][0];
+
+        if (false === ($receivedFd instanceof Socket) && false === is_resource($receivedFd)) {
+            $this->logger->error('Received FD is not a Socket or resource', ['type' => gettype($receivedFd)]);
+            return null;
+        }
+
+        $metadataJson = $message['iov'][0] ?? '{}';
+        $metadataJson = rtrim($metadataJson, "\0");
+
+        if ('' === $metadataJson) {
+            $metadataJson = '{}';
+        }
+
+        try {
+            /** @var array<string, mixed> $metadata */
+            $metadata = json_decode($metadataJson, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            $this->logger->error('Failed to decode IPC metadata JSON', [
+                'error' => $e->getMessage(),
+                'json_length' => strlen($metadataJson),
+            ]);
+            $metadata = [];
+        }
+
+        $this->logger->debug('FD received successfully', ['metadata' => $metadata]);
+
+        return [
+            'fd' => $receivedFd,
+            'metadata' => $metadata,
+        ];
+    }
+}

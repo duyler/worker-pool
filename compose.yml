@@ -3,4 +3,5 @@ services:
     image: duyler/php-zts:8.5
     volumes:
       - .:/app
+      - ../http-server:/app/vendor/duyler/http-server
     working_dir: /app
