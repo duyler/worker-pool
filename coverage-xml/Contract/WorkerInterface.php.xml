@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="WorkerInterface.php" path="/Contract" hash="160b12927e56236b7e9cc0a317dba25a00140e25">
+    <totals>
+      <lines total="39" comments="28" code="11" executable="0" executed="0" percent="0"/>
+      <methods count="0" tested="0" percent="0"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="0" tested="0" percent="0"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <coverage/>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Duyler\WorkerPool\Contract</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="8">
+        <token name="T_DOC_COMMENT"> * Event-driven worker process interface.</token>
+      </line>
+      <line no="9">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="10">
+        <token name="T_DOC_COMMENT"> * Worker runs once at process start and works infinitely,</token>
+      </line>
+      <line no="11">
+        <token name="T_DOC_COMMENT"> * handling events through its own Event Loop.</token>
+      </line>
+      <line no="12">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="13">
+        <token name="T_DOC_COMMENT"> * @example</token>
+      </line>
+      <line no="14">
+        <token name="T_DOC_COMMENT"> * ```php</token>
+      </line>
+      <line no="15">
+        <token name="T_DOC_COMMENT"> * class HttpWorker implements WorkerInterface {</token>
+      </line>
+      <line no="16">
+        <token name="T_DOC_COMMENT"> *     public function run(int $workerId, WorkerContextInterface $context): void {</token>
+      </line>
+      <line no="17">
+        <token name="T_DOC_COMMENT"> *         $eventLoop = new EventLoop();</token>
+      </line>
+      <line no="18">
+        <token name="T_DOC_COMMENT"> *         $eventLoop-&gt;addSocket($context-&gt;getSocketResource());</token>
+      </line>
+      <line no="19">
+        <token name="T_DOC_COMMENT"> *         while ($context-&gt;isActive()) {</token>
+      </line>
+      <line no="20">
+        <token name="T_DOC_COMMENT"> *             $eventLoop-&gt;run();</token>
+      </line>
+      <line no="21">
+        <token name="T_DOC_COMMENT"> *         }</token>
+      </line>
+      <line no="22">
+        <token name="T_DOC_COMMENT"> *     }</token>
+      </line>
+      <line no="23">
+        <token name="T_DOC_COMMENT"> * }</token>
+      </line>
+      <line no="24">
+        <token name="T_DOC_COMMENT"> * ```</token>
+      </line>
+      <line no="25">
+        <token name="T_DOC_COMMENT"> */</token>
+      </line>
+      <line no="26">
+        <token name="T_INTERFACE">interface</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">WorkerInterface</token>
+      </line>
+      <line no="27">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="28">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="29">
+        <token name="T_DOC_COMMENT">     * Starts worker process.</token>
+      </line>
+      <line no="30">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="31">
+        <token name="T_DOC_COMMENT">     * Called ONCE at worker start and never returns.</token>
+      </line>
+      <line no="32">
+        <token name="T_DOC_COMMENT">     * Application should start Event Loop inside this method.</token>
+      </line>
+      <line no="33">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="34">
+        <token name="T_DOC_COMMENT">     * @param int $workerId Worker identifier (1, 2, 3, ..., N)</token>
+      </line>
+      <line no="35">
+        <token name="T_DOC_COMMENT">     * @param WorkerContextInterface $context Worker context for interaction</token>
+      </line>
+      <line no="36">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="37">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">run</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workerId</token>
+        <token name="T_COMMA">,</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">WorkerContextInterface</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$context</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">void</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="38">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="39"/>
+    </source>
+  </file>
+</phpunit>

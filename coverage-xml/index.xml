@@ -1,0 +1,162 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <build time="Sat Mar 28 7:31:08 UTC 2026" phpunit="13.0.5" coverage="13.0.1">
+    <runtime name="PHP" version="8.5.2" url="https://www.php.net/"/>
+    <driver name="pcov" version="1.0.12"/>
+  </build>
+  <project source="/app/src">
+    <tests>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\BalancerTypeTest::least_connections_case_exists" size="unknown" status="success" time="0.001788"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size" size="unknown" status="success" time="0.002560"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size" size="unknown" status="success" time="0.000191"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum" size="unknown" status="success" time="0.000207"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size" size="unknown" status="success" time="0.000117"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size" size="unknown" status="success" time="0.000176"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect" size="unknown" status="success" time="0.000178"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_worker_count" size="unknown" status="success" time="0.000125"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count" size="unknown" status="success" time="0.000174"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count" size="unknown" status="success" time="0.000158"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count" size="unknown" status="success" time="0.000178"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog" size="unknown" status="success" time="0.000141"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog" size="unknown" status="success" time="0.000181"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size" size="unknown" status="success" time="0.000153"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size" size="unknown" status="success" time="0.000168"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay" size="unknown" status="success" time="0.000145"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay" size="unknown" status="success" time="0.000150"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores" size="unknown" status="success" time="0.000156"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval" size="unknown" status="success" time="0.000129"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval" size="unknown" status="success" time="0.000153"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values" size="unknown" status="success" time="0.000168"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count" size="unknown" status="success" time="0.000194"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer" size="unknown" status="success" time="0.000135"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values" size="unknown" status="success" time="0.000168"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores" size="unknown" status="success" time="0.000176"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores" size="unknown" status="success" time="0.000181"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Contract\ContractTypeSafetyTest::worker_context_interface_has_correct_return_types" size="unknown" status="success" time="0.000349"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Contract\ContractTypeSafetyTest::socket_config_interface_has_correct_return_types" size="unknown" status="success" time="0.000342"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Contract\ContractTypeSafetyTest::socket_factory_interface_has_correct_return_types" size="unknown" status="success" time="0.000377"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Contract\ContractTypeSafetyTest::worker_interface_has_correct_signature" size="unknown" status="success" time="0.000331"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Contract\ContractTypeSafetyTest::worker_factory_interface_has_correct_signature" size="unknown" status="success" time="0.000347"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::get_cpu_cores_returns_positive_value" size="unknown" status="success" time="0.000888"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::get_cpu_cores_with_custom_logger" size="unknown" status="success" time="0.002031"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::get_cpu_cores_uses_fallback" size="unknown" status="success" time="0.000698"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::cpu_cores_are_cached" size="unknown" status="success" time="0.000661"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::reset_cache_clears_cached_value" size="unknown" status="success" time="0.000685"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::get_os_info_returns_array" size="unknown" status="success" time="0.000741"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::supports_fd_passing_returns_bool" size="unknown" status="success" time="0.000120"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::supports_fd_passing_on_linux" size="unknown" status="success" time="0.000161"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::supports_reuse_port_returns_bool" size="unknown" status="success" time="0.000163"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::supports_reuse_port_depends_on_constant" size="unknown" status="success" time="0.000120"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::is_container_environment_returns_bool" size="unknown" status="success" time="0.000206"/>
+      <test name="Duyler\WorkerPool\Tests\Unit\Util\SystemInfoTest::is_container_environment_checks_dockerenv" size="unknown" status="success" time="0.000108"/>
+    </tests>
+    <directory name="/">
+      <totals>
+        <lines total="555" comments="170" code="385" executable="59" executed="53" percent="89.83"/>
+        <methods count="10" tested="8" percent="80.00"/>
+        <functions count="0" tested="0" percent="0"/>
+        <classes count="2" tested="1" percent="50.00"/>
+        <traits count="0" tested="0" percent="0"/>
+      </totals>
+      <directory name="Config">
+        <totals>
+          <lines total="99" comments="0" code="99" executable="29" executed="29" percent="100.00"/>
+          <methods count="3" tested="3" percent="100.00"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="1" tested="1" percent="100.00"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <file name="BalancerType.php" href="Config/BalancerType.php.xml" hash="0da5d40fd6fe3b62c06e9c25395627ef31a31788">
+          <totals>
+            <lines total="12" comments="0" code="12" executable="0" executed="0" percent="0"/>
+            <methods count="0" tested="0" percent="0"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="0" tested="0" percent="0"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="WorkerPoolConfig.php" href="Config/WorkerPoolConfig.php.xml" hash="f459ff559e628187b56a2d388c8ec8ed75db2d28">
+          <totals>
+            <lines total="87" comments="0" code="87" executable="29" executed="29" percent="100.00"/>
+            <methods count="3" tested="3" percent="100.00"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="1" percent="100.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+      </directory>
+      <directory name="Contract">
+        <totals>
+          <lines total="230" comments="151" code="79" executable="0" executed="0" percent="0"/>
+          <methods count="0" tested="0" percent="0"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="0" tested="0" percent="0"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <file name="SocketConfigInterface.php" href="Contract/SocketConfigInterface.php.xml" hash="e880a1affb5ec460860a7b34155f4bd5c5c370b7">
+          <totals>
+            <lines total="44" comments="27" code="17" executable="0" executed="0" percent="0"/>
+            <methods count="0" tested="0" percent="0"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="0" tested="0" percent="0"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="SocketFactoryInterface.php" href="Contract/SocketFactoryInterface.php.xml" hash="0d6aaa2596bd323008d97c788ed0855505ef9be4">
+          <totals>
+            <lines total="51" comments="34" code="17" executable="0" executed="0" percent="0"/>
+            <methods count="0" tested="0" percent="0"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="0" tested="0" percent="0"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="WorkerContextInterface.php" href="Contract/WorkerContextInterface.php.xml" hash="f43d9ce139d5fe7ab7ed5be54646eda965f9cec0">
+          <totals>
+            <lines total="63" comments="42" code="21" executable="0" executed="0" percent="0"/>
+            <methods count="0" tested="0" percent="0"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="0" tested="0" percent="0"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="WorkerFactoryInterface.php" href="Contract/WorkerFactoryInterface.php.xml" hash="b3b1753b670a2254fe016d368fdc939a3b8fec0d">
+          <totals>
+            <lines total="33" comments="20" code="13" executable="0" executed="0" percent="0"/>
+            <methods count="0" tested="0" percent="0"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="0" tested="0" percent="0"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+        <file name="WorkerInterface.php" href="Contract/WorkerInterface.php.xml" hash="160b12927e56236b7e9cc0a317dba25a00140e25">
+          <totals>
+            <lines total="39" comments="28" code="11" executable="0" executed="0" percent="0"/>
+            <methods count="0" tested="0" percent="0"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="0" tested="0" percent="0"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+      </directory>
+      <directory name="Util">
+        <totals>
+          <lines total="226" comments="19" code="207" executable="30" executed="24" percent="80.00"/>
+          <methods count="7" tested="5" percent="71.43"/>
+          <functions count="0" tested="0" percent="0"/>
+          <classes count="1" tested="0" percent="0.00"/>
+          <traits count="0" tested="0" percent="0"/>
+        </totals>
+        <file name="SystemInfo.php" href="Util/SystemInfo.php.xml" hash="868f7dbf0185ca105a7e02236eb59a495ec78602">
+          <totals>
+            <lines total="226" comments="19" code="207" executable="30" executed="24" percent="80.00"/>
+            <methods count="7" tested="5" percent="71.43"/>
+            <functions count="0" tested="0" percent="0"/>
+            <classes count="1" tested="0" percent="0.00"/>
+            <traits count="0" tested="0" percent="0"/>
+          </totals>
+        </file>
+      </directory>
+    </directory>
+  </project>
+</phpunit>

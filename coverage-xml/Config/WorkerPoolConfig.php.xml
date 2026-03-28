@@ -1,0 +1,1082 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="WorkerPoolConfig.php" path="/Config" hash="f459ff559e628187b56a2d388c8ec8ed75db2d28">
+    <totals>
+      <lines total="87" comments="0" code="87" executable="29" executed="29" percent="100.00"/>
+      <methods count="3" tested="3" percent="100.00"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="1" tested="1" percent="100.00"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <class name="Duyler\WorkerPool\Config\WorkerPoolConfig" start="10" executable="29" executed="29" crap="12">
+      <namespace name="Duyler\WorkerPool\Config"/>
+      <method name="__construct" signature="__construct(int $workerCount, BalancerType $balancer, int $backlog, int $maxQueueSize, int $maxIpcMessageSize, bool $enableStickySession, bool $enableGracefulReload, bool $autoRestart, int $restartDelay, int $fallbackCpuCores, int $pollInterval, ?string $socketPath, ?int $port, ?string $host)" start="14" end="38" crap="2" executable="5" executed="5" coverage="100"/>
+      <method name="validate" signature="validate(): void" start="40" end="77" crap="9" executable="20" executed="20" coverage="100"/>
+      <method name="auto" signature="auto(BalancerType $balancer): self" start="79" end="86" crap="1" executable="4" executed="4" coverage="100"/>
+    </class>
+    <coverage>
+      <line nr="30">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="31">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="32">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="34">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+      </line>
+      <line nr="37">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="42">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="43">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_worker_count"/>
+      </line>
+      <line nr="44">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_worker_count"/>
+      </line>
+      <line nr="48">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="49">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count"/>
+      </line>
+      <line nr="50">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count"/>
+      </line>
+      <line nr="54">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="55">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_backlog"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_backlog"/>
+      </line>
+      <line nr="58">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="59">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_max_queue_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_max_queue_size"/>
+      </line>
+      <line nr="62">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="63">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_restart_delay"/>
+      </line>
+      <line nr="66">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="67">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_max_ipc_message_size_below_minimum"/>
+      </line>
+      <line nr="70">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="71">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_zero_fallback_cpu_cores"/>
+      </line>
+      <line nr="74">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::default_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::custom_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_large_max_ipc_message_size"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_worker_count_as_auto_detect"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_maximum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_zero_restart_delay"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_minimum_poll_interval"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_all_default_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::accepts_custom_values"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_detects_cpu_cores"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::uses_custom_fallback_cpu_cores"/>
+      </line>
+      <line nr="75">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_small_poll_interval"/>
+      </line>
+      <line nr="82">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+      </line>
+      <line nr="83">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+      </line>
+      <line nr="45">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_negative_worker_count"/>
+      </line>
+      <line nr="51">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::rejects_too_large_worker_count"/>
+      </line>
+      <line nr="84">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+      </line>
+      <line nr="85">
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_creates_config_with_auto_worker_count"/>
+        <covered by="Duyler\WorkerPool\Tests\Unit\Config\WorkerPoolConfigTest::auto_method_accepts_balancer"/>
+      </line>
+    </coverage>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Duyler\WorkerPool\Config</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Duyler\WorkerPool\Util\SystemInfo</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="9"/>
+      <line no="10">
+        <token name="T_FINAL">final</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_READONLY">readonly</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_CLASS">class</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">WorkerPoolConfig</token>
+      </line>
+      <line no="11">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="12">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workerCount</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="13"/>
+      <line no="14">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">__construct</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="15">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workerCount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="16">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">BalancerType</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$balancer</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">BalancerType</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">LeastConnections</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="17">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$backlog</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">128</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="18">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$maxQueueSize</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1000</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="19">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$maxIpcMessageSize</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1048576</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="20">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">bool</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$enableStickySession</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">false</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="21">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">bool</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$enableGracefulReload</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">false</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="22">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">bool</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$autoRestart</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">true</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="23">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$restartDelay</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="24">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$fallbackCpuCores</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">4</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="25">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$pollInterval</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1000</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="26">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$socketPath</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="27">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$port</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="28">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_QUESTION_MARK">?</token>
+        <token name="T_STRING">string</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$host</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">null</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="29">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="30">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_IS_IDENTICAL">===</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workerCount</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="31">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$systemInfo</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">SystemInfo</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="32">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">workerCount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$systemInfo</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">getCpuCores</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">fallbackCpuCores</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="33">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_ELSE">else</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="34">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">workerCount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workerCount</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="35">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="36"/>
+      <line no="37">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">validate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="38">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="39"/>
+      <line no="40">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PRIVATE">private</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">validate</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">void</token>
+      </line>
+      <line no="41">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="42">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">workerCount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="43">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="44">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">Worker count must be positive, got: </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">workerCount</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="45">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="46">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="47"/>
+      <line no="48">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">workerCount</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_GT">&gt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1024</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="49">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="50">
+        <token name="T_WHITESPACE">                </token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_ENCAPSED_AND_WHITESPACE">Worker count too large (max 1024), got: </token>
+        <token name="T_OPEN_CURLY">{</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">workerCount</token>
+        <token name="T_CLOSE_CURLY">}</token>
+        <token name="T_DOUBLE_QUOTES">"</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="51">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="52">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="53"/>
+      <line no="54">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">backlog</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="55">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Backlog must be positive'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="56">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="57"/>
+      <line no="58">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">maxQueueSize</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="59">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Max queue size must be positive'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="60">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="61"/>
+      <line no="62">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">restartDelay</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="63">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Restart delay must be non-negative'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="64">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="65"/>
+      <line no="66">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">maxIpcMessageSize</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1024</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="67">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Max IPC message size must be at least 1024 bytes'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="68">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="69"/>
+      <line no="70">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">fallbackCpuCores</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="71">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Fallback CPU cores must be positive'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="72">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="73"/>
+      <line no="74">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_IF">if</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_VARIABLE">$this</token>
+        <token name="T_OBJECT_OPERATOR">-&gt;</token>
+        <token name="T_STRING">pollInterval</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LT">&lt;</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">100</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="75">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_THROW">throw</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">InvalidArgumentException</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CONSTANT_ENCAPSED_STRING">'Poll interval must be at least 100 microseconds'</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="76">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="77">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="78"/>
+      <line no="79">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STATIC">static</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">auto</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="80">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_STRING">BalancerType</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$balancer</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">BalancerType</token>
+        <token name="T_DOUBLE_COLON">::</token>
+        <token name="T_STRING">LeastConnections</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="81">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">self</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="82">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_RETURN">return</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NEW">new</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">self</token>
+        <token name="T_OPEN_BRACKET">(</token>
+      </line>
+      <line no="83">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">workerCount</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_LNUMBER">0</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="84">
+        <token name="T_WHITESPACE">            </token>
+        <token name="T_STRING">balancer</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$balancer</token>
+        <token name="T_COMMA">,</token>
+      </line>
+      <line no="85">
+        <token name="T_WHITESPACE">        </token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="86">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="87">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+    </source>
+  </file>
+</phpunit>

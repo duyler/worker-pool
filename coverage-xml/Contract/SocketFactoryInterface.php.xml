@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<phpunit xmlns="https://schema.phpunit.de/coverage/1.0">
+  <file name="SocketFactoryInterface.php" path="/Contract" hash="0d6aaa2596bd323008d97c788ed0855505ef9be4">
+    <totals>
+      <lines total="51" comments="34" code="17" executable="0" executed="0" percent="0"/>
+      <methods count="0" tested="0" percent="0"/>
+      <functions count="0" tested="0" percent="0"/>
+      <classes count="0" tested="0" percent="0"/>
+      <traits count="0" tested="0" percent="0"/>
+    </totals>
+    <coverage/>
+    <source xmlns="https://schema.phpunit.de/coverage/1.0">
+      <line no="1">
+        <token name="T_OPEN_TAG">&lt;?php</token>
+      </line>
+      <line no="2"/>
+      <line no="3">
+        <token name="T_DECLARE">declare</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">strict_types</token>
+        <token name="T_EQUAL">=</token>
+        <token name="T_LNUMBER">1</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="4"/>
+      <line no="5">
+        <token name="T_NAMESPACE">namespace</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_NAME_QUALIFIED">Duyler\WorkerPool\Contract</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="6"/>
+      <line no="7">
+        <token name="T_USE">use</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Socket</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="8"/>
+      <line no="9">
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="10">
+        <token name="T_DOC_COMMENT"> * Factory for creating sockets.</token>
+      </line>
+      <line no="11">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="12">
+        <token name="T_DOC_COMMENT"> * Allows delegating socket creation to HTTP package or other implementations.</token>
+      </line>
+      <line no="13">
+        <token name="T_DOC_COMMENT"> *</token>
+      </line>
+      <line no="14">
+        <token name="T_DOC_COMMENT"> * @example</token>
+      </line>
+      <line no="15">
+        <token name="T_DOC_COMMENT"> * ```php</token>
+      </line>
+      <line no="16">
+        <token name="T_DOC_COMMENT"> * class HttpSocketFactory implements SocketFactoryInterface {</token>
+      </line>
+      <line no="17">
+        <token name="T_DOC_COMMENT"> *     public function createListeningSocket(int $workerId): Socket {</token>
+      </line>
+      <line no="18">
+        <token name="T_DOC_COMMENT"> *         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);</token>
+      </line>
+      <line no="19">
+        <token name="T_DOC_COMMENT"> *         socket_bind($socket, $this-&gt;config-&gt;getHost(), $this-&gt;config-&gt;getPort());</token>
+      </line>
+      <line no="20">
+        <token name="T_DOC_COMMENT"> *         socket_listen($socket, $this-&gt;config-&gt;getBacklog());</token>
+      </line>
+      <line no="21">
+        <token name="T_DOC_COMMENT"> *         return $socket;</token>
+      </line>
+      <line no="22">
+        <token name="T_DOC_COMMENT"> *     }</token>
+      </line>
+      <line no="23">
+        <token name="T_DOC_COMMENT"> *     public function createSharedSocket(int $workerId): Socket {</token>
+      </line>
+      <line no="24">
+        <token name="T_DOC_COMMENT"> *         // Creates socket with SO_REUSEPORT for shared binding</token>
+      </line>
+      <line no="25">
+        <token name="T_DOC_COMMENT"> *     }</token>
+      </line>
+      <line no="26">
+        <token name="T_DOC_COMMENT"> *     public function getConfig(): SocketConfigInterface { return $this-&gt;config; }</token>
+      </line>
+      <line no="27">
+        <token name="T_DOC_COMMENT"> * }</token>
+      </line>
+      <line no="28">
+        <token name="T_DOC_COMMENT"> * ```</token>
+      </line>
+      <line no="29">
+        <token name="T_DOC_COMMENT"> */</token>
+      </line>
+      <line no="30">
+        <token name="T_INTERFACE">interface</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">SocketFactoryInterface</token>
+      </line>
+      <line no="31">
+        <token name="T_OPEN_CURLY">{</token>
+      </line>
+      <line no="32">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="33">
+        <token name="T_DOC_COMMENT">     * Creates listening socket for worker.</token>
+      </line>
+      <line no="34">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="35">
+        <token name="T_DOC_COMMENT">     * @param int $workerId Worker process identifier</token>
+      </line>
+      <line no="36">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="37">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">createListeningSocket</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workerId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Socket</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="38"/>
+      <line no="39">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="40">
+        <token name="T_DOC_COMMENT">     * Creates shared socket with SO_REUSEPORT.</token>
+      </line>
+      <line no="41">
+        <token name="T_DOC_COMMENT">     *</token>
+      </line>
+      <line no="42">
+        <token name="T_DOC_COMMENT">     * @param int $workerId Worker process identifier</token>
+      </line>
+      <line no="43">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="44">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">createSharedSocket</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_STRING">int</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_VARIABLE">$workerId</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">Socket</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="45"/>
+      <line no="46">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_DOC_COMMENT">/**</token>
+      </line>
+      <line no="47">
+        <token name="T_DOC_COMMENT">     * Returns socket configuration.</token>
+      </line>
+      <line no="48">
+        <token name="T_DOC_COMMENT">     */</token>
+      </line>
+      <line no="49">
+        <token name="T_WHITESPACE">    </token>
+        <token name="T_PUBLIC">public</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_FUNCTION">function</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">getConfig</token>
+        <token name="T_OPEN_BRACKET">(</token>
+        <token name="T_CLOSE_BRACKET">)</token>
+        <token name="T_COLON">:</token>
+        <token name="T_WHITESPACE"> </token>
+        <token name="T_STRING">SocketConfigInterface</token>
+        <token name="T_SEMICOLON">;</token>
+      </line>
+      <line no="50">
+        <token name="T_CLOSE_CURLY">}</token>
+      </line>
+      <line no="51"/>
+    </source>
+  </file>
+</phpunit>
