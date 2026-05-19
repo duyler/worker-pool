@@ -47,6 +47,17 @@ final readonly class WorkerPoolConfig
         );
     }
 
+    public static function single(
+        ServerConfig $serverConfig,
+        BalancerType $balancer = BalancerType::LeastConnections,
+    ): self {
+        return new self(
+            serverConfig: $serverConfig,
+            workerCount: 1,
+            balancer: $balancer,
+        );
+    }
+
     private function validate(): void
     {
         if ($this->workerCount < 1) {
