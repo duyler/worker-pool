@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Signal;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Signal\SignalHandler;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
@@ -18,6 +20,7 @@ use const SIGUSR1;
 use const SIGUSR2;
 
 #[Group('pcntl')]
+#[CoversClass(SignalHandler::class)]
 class SignalHandlerTest extends TestCase
 {
     private SignalHandler $handler;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\Server;
 use Duyler\HttpServer\ServerInterface;
@@ -17,6 +19,7 @@ use Override;
 use PHPUnit\Framework\TestCase;
 use Socket;
 
+#[CoversClass(CentralizedMaster::class)]
 class CentralizedMasterEventDrivenTest extends TestCase
 {
     private ServerConfig $serverConfig;

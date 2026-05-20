@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
@@ -26,6 +28,7 @@ use const SOCK_STREAM;
 use const SIGKILL;
 
 #[Group('pcntl')]
+#[CoversClass(CentralizedMaster::class)]
 final class CentralizedMasterSpawnTest extends TestCase
 {
     private ServerConfig $sc;

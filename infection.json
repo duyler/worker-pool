@@ -1,0 +1,24 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": [
+            "src"
+        ],
+        "excludes": [
+            "Process/ProcessState.php",
+            "Process/ProcessInfo.php",
+            "IPC/MessageType.php",
+            "Config/BalancerType.php",
+            "Exception"
+        ]
+    },
+    "logs": {
+        "text": "infection-report.txt",
+        "summary": "infection-summary.log"
+    },
+    "minMsi": 80,
+    "minCoveredMsi": 80,
+    "mutators": {
+        "@default": true
+    }
+}

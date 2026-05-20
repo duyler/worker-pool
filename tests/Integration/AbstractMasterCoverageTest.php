@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use Duyler\WorkerPool\Master\AbstractMaster;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
@@ -23,6 +26,7 @@ use const SIGTERM;
 use const SIGINT;
 
 #[Group('pcntl')]
+#[CoversClass(AbstractMaster::class)]
 final class AbstractMasterCoverageTest extends TestCase
 {
     private ServerConfig $sc;

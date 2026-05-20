@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
@@ -16,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 use function count;
 use function function_exists;
 
+#[CoversClass(CentralizedMaster::class)]
 class CentralizedMasterTest extends TestCase
 {
     private WorkerPoolConfig $config;

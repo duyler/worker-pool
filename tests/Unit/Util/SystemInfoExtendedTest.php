@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Util\SystemInfo;
 use Override;
 use PHPUnit\Framework\TestCase;
@@ -14,6 +16,7 @@ use function function_exists;
 
 use const PHP_OS_FAMILY;
 
+#[CoversClass(SystemInfo::class)]
 class SystemInfoExtendedTest extends TestCase
 {
     #[Override]
@@ -48,7 +51,7 @@ class SystemInfoExtendedTest extends TestCase
             ->method('debug')
             ->with(
                 'CPU cores detected',
-                $this->callback(fn(array $context) => isset($context['cores']) && isset($context['os'])),
+                $this->callback(fn(array $context): bool => isset($context['cores']) && isset($context['os'])),
             );
 
         $systemInfo = new SystemInfo($logger);

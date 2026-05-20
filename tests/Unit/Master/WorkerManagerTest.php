@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\WorkerManager;
@@ -12,6 +14,7 @@ use Duyler\WorkerPool\Process\ProcessState;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(WorkerManager::class)]
 final class WorkerManagerTest extends TestCase
 {
     private WorkerPoolConfig $config;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Worker;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Worker\HttpWorkerAdapter;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
@@ -14,6 +16,7 @@ use function strlen;
 use const AF_UNIX;
 use const SOCK_STREAM;
 
+#[CoversClass(HttpWorkerAdapter::class)]
 final class HttpWorkerAdapterCoverageTest extends TestCase
 {
     private HttpWorkerAdapter $adapter;

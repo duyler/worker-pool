@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Master\ConnectionRouter;
 use Duyler\WorkerPool\Process\ProcessInfo;
@@ -19,6 +21,7 @@ use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
+#[CoversClass(ConnectionRouter::class)]
 final class ConnectionRouterCoverageTest extends TestCase
 {
     private ConnectionRouter $router;

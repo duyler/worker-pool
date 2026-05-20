@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
 use Duyler\WorkerPool\Exception\IPCException;
 use Duyler\WorkerPool\IPC\FdPasser;
@@ -20,6 +22,7 @@ use const PHP_OS_FAMILY;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
+#[CoversClass(FdPasser::class)]
 class FdPasserExtendedTest extends TestCase
 {
     public function testThrowsExceptionWhenSocketSendmsgNotAvailable(): void

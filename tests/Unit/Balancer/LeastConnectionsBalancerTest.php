@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Balancer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(LeastConnectionsBalancer::class)]
 class LeastConnectionsBalancerTest extends TestCase
 {
     private LeastConnectionsBalancer $balancer;

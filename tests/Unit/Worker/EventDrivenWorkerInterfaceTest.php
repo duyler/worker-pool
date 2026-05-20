@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Worker;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\HttpServer\Server;
 use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
@@ -13,7 +15,9 @@ use Nyholm\Psr7\Response;
 use Override;
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Psr\Log\NullLogger;
 
+#[CoversClass(EventDrivenWorkerInterface::class)]
 class EventDrivenWorkerInterfaceTest extends TestCase
 {
     private ?Server $server = null;
@@ -28,7 +32,7 @@ class EventDrivenWorkerInterfaceTest extends TestCase
             } catch (Throwable) {
             }
         }
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 

@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Worker;
 
-use Duyler\HttpServer\ErrorHandler;
+use PHPUnit\Framework\Attributes\CoversClass;
+
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Worker\HttpWorkerAdapter;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Psr\Log\NullLogger;
 
 use function strlen;
 
@@ -18,6 +21,7 @@ use const SOCK_STREAM;
 use const STDERR;
 
 #[Group('pcntl')]
+#[CoversClass(HttpWorkerAdapter::class)]
 class HttpWorkerAdapterTest extends TestCase
 {
     private HttpWorkerAdapter $adapter;
@@ -32,7 +36,7 @@ class HttpWorkerAdapterTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 

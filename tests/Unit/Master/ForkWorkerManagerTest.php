@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Master\WorkerManager;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -12,6 +14,7 @@ use PHPUnit\Framework\TestCase;
 use function count;
 
 #[Group('pcntl')]
+#[CoversClass(WorkerManager::class)]
 final class ForkWorkerManagerTest extends TestCase
 {
     #[Test]

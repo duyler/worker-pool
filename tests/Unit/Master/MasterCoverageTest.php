@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use Duyler\WorkerPool\Master\AbstractMaster;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
@@ -19,6 +22,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionProperty;
 
+#[CoversClass(AbstractMaster::class)]
 final class MasterCoverageTest extends TestCase
 {
     private ServerConfig $serverConfig;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\IPC\Message;
 use Duyler\WorkerPool\IPC\MessageType;
 use InvalidArgumentException;
@@ -11,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ValueError;
 
+#[CoversClass(Message::class)]
 class MessageTest extends TestCase
 {
     public function testCreatesMessageWithTypeAndData(): void

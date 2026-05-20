@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Util\SystemInfo;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
+#[CoversClass(SystemInfo::class)]
 final class SystemInfoFullCoverageTest extends TestCase
 {
     #[Override]

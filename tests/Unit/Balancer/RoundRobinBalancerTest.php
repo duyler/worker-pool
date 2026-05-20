@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Balancer;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(RoundRobinBalancer::class)]
 class RoundRobinBalancerTest extends TestCase
 {
     private RoundRobinBalancer $balancer;

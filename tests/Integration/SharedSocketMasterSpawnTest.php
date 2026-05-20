@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
@@ -18,6 +20,7 @@ use ReflectionMethod;
 use const SIGKILL;
 
 #[Group('pcntl')]
+#[CoversClass(SharedSocketMaster::class)]
 final class SharedSocketMasterSpawnTest extends TestCase
 {
     private ServerConfig $sc;

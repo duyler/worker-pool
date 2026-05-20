@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
@@ -23,6 +25,7 @@ use function function_exists;
 
 use const PHP_OS_FAMILY;
 
+#[CoversClass(MasterFactory::class)]
 final class MasterFactoryTest extends TestCase
 {
     private WorkerPoolConfig $config;

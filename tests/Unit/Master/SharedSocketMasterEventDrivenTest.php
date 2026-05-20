@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
@@ -14,6 +16,7 @@ use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(SharedSocketMaster::class)]
 class SharedSocketMasterEventDrivenTest extends TestCase
 {
     private ServerConfig $serverConfig;

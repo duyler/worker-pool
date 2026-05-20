@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Master\ConnectionQueue;
 use PHPUnit\Framework\TestCase;
 
@@ -11,6 +13,7 @@ use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
+#[CoversClass(ConnectionQueue::class)]
 class ConnectionQueueTest extends TestCase
 {
     public function testCreatesEmptyQueue(): void

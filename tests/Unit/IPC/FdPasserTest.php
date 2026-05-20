@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
 use Duyler\WorkerPool\IPC\FdPasser;
 use Exception;
@@ -16,6 +18,7 @@ use const AF_UNIX;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
+#[CoversClass(FdPasser::class)]
 class FdPasserTest extends TestCase
 {
     public function testChecksScmRightsSupport(): void

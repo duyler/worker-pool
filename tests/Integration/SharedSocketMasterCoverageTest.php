@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
 use Duyler\WorkerPool\Process\ProcessInfo;
@@ -19,10 +21,12 @@ use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
 use ReflectionMethod;
 use ReflectionProperty;
+use Psr\Log\NullLogger;
 
 use const SIGTERM;
 
 #[Group('pcntl')]
+#[CoversClass(SharedSocketMaster::class)]
 final class SharedSocketMasterCoverageTest extends TestCase
 {
     private ServerConfig $sc;
@@ -36,7 +40,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 

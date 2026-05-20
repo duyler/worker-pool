@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Util\SystemInfo;
 use Override;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +15,7 @@ use function function_exists;
 
 use const PHP_OS_FAMILY;
 
+#[CoversClass(SystemInfo::class)]
 final class SystemInfoFdPassingTest extends TestCase
 {
     private SystemInfo $systemInfo;

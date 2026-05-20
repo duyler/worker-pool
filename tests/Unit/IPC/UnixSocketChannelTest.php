@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Exception\IPCException;
 use Duyler\WorkerPool\IPC\Message;
 use Duyler\WorkerPool\IPC\UnixSocketChannel;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(UnixSocketChannel::class)]
 class UnixSocketChannelTest extends TestCase
 {
     private string $socketPath;

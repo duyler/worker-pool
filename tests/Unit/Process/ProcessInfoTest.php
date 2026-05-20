@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Process;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(ProcessInfo::class)]
 class ProcessInfoTest extends TestCase
 {
     public function testCreatesProcessInfoWithDefaults(): void

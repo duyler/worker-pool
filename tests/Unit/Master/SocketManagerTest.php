@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Exception\WorkerPoolException;
 use Duyler\WorkerPool\Master\SocketManager;
@@ -14,6 +16,7 @@ use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
+#[CoversClass(SocketManager::class)]
 class SocketManagerTest extends TestCase
 {
     private ServerConfig $config;
