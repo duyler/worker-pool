@@ -20,8 +20,12 @@ use Socket;
 
 use function assert;
 use function count;
+use function pcntl_signal;
+use function pcntl_signal_dispatch;
 
 use const AF_INET;
+use const SIGINT;
+use const SIGTERM;
 use const SOCK_STREAM;
 use const SOL_SOCKET;
 use const SOL_TCP;
@@ -87,16 +91,20 @@ final class SharedSocketMaster extends AbstractMaster
     #[Override]
     protected function run(): void
     {
+        $this->installSigchldHandler();
+
         $this->logger->info('Entering main loop');
 
         while (false === $this->shouldStop) {
             $this->signalHandler->dispatch();
             $this->checkWorkers();
+            $this->processPendingRestarts();
             usleep($this->config->pollInterval);
         }
 
         $this->logger->info('Exiting main loop, waiting for workers');
         $this->waitForWorkers();
+        $this->uninstallSigchldHandler();
     }
 
     #[Override]
@@ -212,11 +220,21 @@ final class SharedSocketMaster extends AbstractMaster
     {
         assert(null !== $this->workerCallback);
 
+        $workerShouldStop = false;
+
+        pcntl_signal(SIGTERM, function () use (&$workerShouldStop): void {
+            $workerShouldStop = true;
+        });
+
+        pcntl_signal(SIGINT, function () use (&$workerShouldStop): void {
+            $workerShouldStop = true;
+        });
+
         try {
             $socket = $this->createReusePortSocket($workerId);
         } catch (WorkerPoolException $e) {
             $this->logger->error($e->getMessage(), ['worker_id' => $workerId]);
-            exit(1);
+            throw $e;
         }
 
         $this->logger->info('Worker listening', [
@@ -225,7 +243,9 @@ final class SharedSocketMaster extends AbstractMaster
             'port' => $this->serverConfig->port,
         ]);
 
-        while (true) {
+        while (false === $workerShouldStop && false === $this->shouldStop) {
+            pcntl_signal_dispatch();
+
             $clientSocket = $this->socketWrapper->accept($socket);
 
             if (false !== $clientSocket) {

@@ -24,8 +24,13 @@ use Socket;
 
 use function assert;
 use function count;
+use function fclose;
+use function pcntl_signal;
+use function pcntl_signal_dispatch;
 
 use const AF_UNIX;
+use const SIGINT;
+use const SIGTERM;
 use const SOCKET_EINTR;
 use const SOCK_STREAM;
 
@@ -120,6 +125,8 @@ final class CentralizedMaster extends AbstractMaster
     #[Override]
     protected function run(): void
     {
+        $this->installSigchldHandler();
+
         $iteration = 0;
 
         while (false === $this->shouldStop) {
@@ -159,6 +166,7 @@ final class CentralizedMaster extends AbstractMaster
             }
 
             $this->checkWorkers();
+            $this->processPendingRestarts();
 
             $iteration++;
             if ($iteration % 1000 === 0) {
@@ -171,21 +179,20 @@ final class CentralizedMaster extends AbstractMaster
 
         $this->logger->info('Exiting main loop, waiting for workers');
         $this->waitForWorkers();
+        $this->uninstallSigchldHandler();
     }
 
     #[Override]
     protected function checkWorkers(): void
     {
-        $deadWorkerIds = $this->workerManager->check();
+        $deadWorkerIds = $this->detectDeadWorkers();
 
         foreach ($deadWorkerIds as $workerId) {
             $this->balancer->onWorkerRemoved($workerId);
             unset($this->workerSockets[$workerId]);
 
             if ($this->config->autoRestart && false === $this->shouldStop) {
-                $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
-                sleep($this->config->restartDelay);
-                $this->spawnWorker($workerId);
+                $this->scheduleRestart($workerId);
             }
         }
     }
@@ -357,9 +364,21 @@ final class CentralizedMaster extends AbstractMaster
 
     private function runCallbackWorker(int $workerId, Socket $workerSocket): void
     {
+        $workerShouldStop = false;
+
+        pcntl_signal(SIGTERM, function () use (&$workerShouldStop): void {
+            $workerShouldStop = true;
+        });
+
+        pcntl_signal(SIGINT, function () use (&$workerShouldStop): void {
+            $workerShouldStop = true;
+        });
+
         $this->logger->info('Worker entering receive loop', ['worker_id' => $workerId]);
 
-        while (true) {
+        while (false === $workerShouldStop && false === $this->shouldStop) {
+            pcntl_signal_dispatch();
+
             $result = $this->fdPasser->receiveFd($workerSocket);
 
             if (null === $result) {
