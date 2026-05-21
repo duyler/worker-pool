@@ -129,8 +129,8 @@ final class CentralizedMaster extends AbstractMaster
 
         $iteration = 0;
 
-        while (false === $this->shouldStop) {
-            $this->signalHandler->dispatch();
+        while (false === $this->signalManager->isShutdownRequested()) {
+            $this->signalManager->dispatch();
 
             if (null !== $this->socketManager && null !== $this->connectionQueue) {
                 $socket = $this->socketManager->getSocket();
@@ -191,7 +191,7 @@ final class CentralizedMaster extends AbstractMaster
             $this->balancer->onWorkerRemoved($workerId);
             unset($this->workerSockets[$workerId]);
 
-            if ($this->config->autoRestart && false === $this->shouldStop) {
+            if ($this->config->autoRestart && false === $this->signalManager->isShutdownRequested()) {
                 $this->scheduleRestart($workerId);
             }
         }
@@ -252,18 +252,7 @@ final class CentralizedMaster extends AbstractMaster
 
     private function acceptConnections(): void
     {
-        /** @var int $callCount */
-        static $callCount = 0;
-        $callCount++;
-
-        if ($callCount % 1000 === 0) {
-            $this->logger->debug('Accept connections called', ['count' => $callCount]);
-        }
-
         if (null === $this->socketManager || null === $this->connectionQueue) {
-            if (1 === $callCount) {
-                $this->logger->error('Socket manager or connection queue is null');
-            }
             return;
         }
 
@@ -376,7 +365,7 @@ final class CentralizedMaster extends AbstractMaster
 
         $this->logger->info('Worker entering receive loop', ['worker_id' => $workerId]);
 
-        while (false === $workerShouldStop && false === $this->shouldStop) {
+        while (false === $workerShouldStop && false === $this->signalManager->isShutdownRequested()) {
             pcntl_signal_dispatch();
 
             $result = $this->fdPasser->receiveFd($workerSocket);

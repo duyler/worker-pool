@@ -95,8 +95,8 @@ final class SharedSocketMaster extends AbstractMaster
 
         $this->logger->info('Entering main loop');
 
-        while (false === $this->shouldStop) {
-            $this->signalHandler->dispatch();
+        while (false === $this->signalManager->isShutdownRequested()) {
+            $this->signalManager->dispatch();
             $this->checkWorkers();
             $this->processPendingRestarts();
             usleep($this->config->pollInterval);
@@ -243,7 +243,7 @@ final class SharedSocketMaster extends AbstractMaster
             'port' => $this->serverConfig->port,
         ]);
 
-        while (false === $workerShouldStop && false === $this->shouldStop) {
+        while (false === $workerShouldStop && false === $this->signalManager->isShutdownRequested()) {
             pcntl_signal_dispatch();
 
             $clientSocket = $this->socketWrapper->accept($socket);

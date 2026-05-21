@@ -58,6 +58,11 @@ final class SignalManager
         $this->handler->dispatch();
     }
 
+    public function requestShutdown(): void
+    {
+        $this->shutdownRequested = true;
+    }
+
     public function isShutdownRequested(): bool
     {
         return $this->shutdownRequested;

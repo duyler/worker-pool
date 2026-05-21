@@ -8,6 +8,7 @@ use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Process\ForkWrapperInterface;
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use InvalidArgumentException;
@@ -20,14 +21,12 @@ use function in_array;
 use function pcntl_waitpid;
 
 use const SIGCHLD;
-use const SIGINT;
-use const SIGTERM;
 use const WNOHANG;
 
 abstract class AbstractMaster implements MasterInterface
 {
-    protected bool $shouldStop = false;
     protected SignalHandler $signalHandler;
+    protected SignalManager $signalManager;
     protected LoggerInterface $logger;
     protected readonly WorkerManager $workerManager;
 
@@ -49,6 +48,7 @@ abstract class AbstractMaster implements MasterInterface
 
         $this->logger = $logger ?? new NullLogger();
         $this->signalHandler = new SignalHandler();
+        $this->signalManager = new SignalManager($this->signalHandler);
         $this->workerManager = new WorkerManager($this->forkWrapper, $this->logger);
         $this->setupSignals();
     }
@@ -56,7 +56,7 @@ abstract class AbstractMaster implements MasterInterface
     #[Override]
     public function stop(): void
     {
-        $this->shouldStop = true;
+        $this->signalManager->requestShutdown();
         $this->workerManager->stopAll();
     }
 
@@ -76,7 +76,7 @@ abstract class AbstractMaster implements MasterInterface
     #[Override]
     public function isRunning(): bool
     {
-        return false === $this->shouldStop;
+        return false === $this->signalManager->isShutdownRequested();
     }
 
     abstract protected function run(): void;
@@ -88,7 +88,7 @@ abstract class AbstractMaster implements MasterInterface
         $deadWorkerIds = $this->detectDeadWorkers();
 
         foreach ($deadWorkerIds as $workerId) {
-            if ($this->config->autoRestart && false === $this->shouldStop) {
+            if ($this->config->autoRestart && false === $this->signalManager->isShutdownRequested()) {
                 $this->scheduleRestart($workerId);
             }
         }
@@ -102,7 +102,7 @@ abstract class AbstractMaster implements MasterInterface
             if ($now >= $restartAt) {
                 unset($this->pendingRestarts[$workerId]);
 
-                if (false === $this->shouldStop) {
+                if (false === $this->signalManager->isShutdownRequested()) {
                     $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
                     $this->spawnWorker($workerId);
                 }
@@ -117,15 +117,15 @@ abstract class AbstractMaster implements MasterInterface
 
     protected function setupSignals(): void
     {
-        $this->signalHandler->register(SIGTERM, function (): void {
-            $this->logger->info('Received SIGTERM');
-            $this->stop();
-        });
-
-        $this->signalHandler->register(SIGINT, function (): void {
-            $this->logger->info('Received SIGINT');
-            $this->stop();
-        });
+        $this->signalManager->setupMasterSignals(
+            onShutdown: function (int $signal): void {
+                $this->logger->info('Received shutdown signal', ['signal' => $signal]);
+                $this->stop();
+            },
+            onReload: function (int $signal): void {
+                $this->logger->info('Received reload signal', ['signal' => $signal]);
+            },
+        );
     }
 
     protected function installSigchldHandler(): void

@@ -101,14 +101,7 @@ final class SocketManager
 
     public function accept(): ?Socket
     {
-        /** @var int $acceptCalls */
-        static $acceptCalls = 0;
-        $acceptCalls++;
-
         if (false === $this->isListening) {
-            if ($acceptCalls % 1000 === 0) {
-                $this->logger->warning('accept() called but not listening', ['calls' => $acceptCalls]);
-            }
             return null;
         }
 

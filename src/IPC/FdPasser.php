@@ -92,10 +92,6 @@ final readonly class FdPasser
      */
     public function receiveFd(Socket $controlSocket): ?array
     {
-        /** @var int $callCount */
-        static $callCount = 0;
-        $callCount++;
-
         if (!function_exists('socket_recvmsg')) {
             throw new IPCException('socket_recvmsg() is not available');
         }
@@ -118,7 +114,7 @@ final readonly class FdPasser
 
         if (false === $result || 0 === $result) {
             $errno = $this->socketWrapper->lastError($controlSocket);
-            if ($errno !== 11 && $errno !== 0 && $callCount % 1000 === 0) {
+            if ($errno !== 11 && $errno !== 0) {
                 $this->logger->debug('recvmsg error', [
                     'errno' => $errno,
                     'error' => $this->socketWrapper->strerror($errno),

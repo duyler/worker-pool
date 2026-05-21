@@ -102,7 +102,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function run_loop_exits_immediately_when_should_stop_is_true(): void
+    public function run_loop_exits_immediately_when_shutdown_requested(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -118,8 +118,9 @@ final class SharedSocketMasterCoverageTest extends TestCase
             workerCallback: $callback,
         );
 
-        $shouldStopRef = new ReflectionProperty($master, 'shouldStop');
-        $shouldStopRef->setValue($master, true);
+        $signalManagerRef = new ReflectionProperty($master, 'signalManager');
+        $signalManager = $signalManagerRef->getValue($master);
+        $signalManager->requestShutdown();
 
         $runRef = new ReflectionMethod($master, 'run');
         $runRef->invoke($master);
