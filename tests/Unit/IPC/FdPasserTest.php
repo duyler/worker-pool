@@ -13,6 +13,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Socket;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
 use const AF_INET;
 use const AF_UNIX;
 use const SOCK_STREAM;
@@ -23,7 +26,7 @@ class FdPasserTest extends TestCase
 {
     public function testChecksScmRightsSupport(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         $isSupported = $passer->isSupported();
 
@@ -32,7 +35,7 @@ class FdPasserTest extends TestCase
 
     public function testSendsAndReceivesFd(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(
@@ -83,7 +86,7 @@ class FdPasserTest extends TestCase
 
     public function testReturnsNullWhenNoFdToReceive(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!$passer->isSupported()) {
             $this->markTestSkipped(
@@ -108,7 +111,7 @@ class FdPasserTest extends TestCase
 
     public function testSendsFdWithEmptyMetadata(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(
@@ -143,7 +146,7 @@ class FdPasserTest extends TestCase
     public function testAcceptsLoggerViaConstructor(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $passer = new FdPasser($logger);
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper(), $logger);
 
         $this->assertIsBool($passer->isSupported());
     }

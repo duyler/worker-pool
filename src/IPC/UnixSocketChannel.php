@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\IPC;
 
 use Duyler\WorkerPool\Exception\IPCException;
+use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Socket;
 
 use function assert;
@@ -22,6 +23,7 @@ final class UnixSocketChannel
 
     public function __construct(
         private readonly string $socketPath,
+        private readonly SocketWrapperInterface $socketWrapper,
         private readonly bool $isServer = false,
         private readonly int $maxIpcMessageSize = 1048576,
     ) {}
@@ -33,9 +35,9 @@ final class UnixSocketChannel
 
     public function connect(): bool
     {
-        $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
+        $socket = $this->socketWrapper->create(AF_UNIX, SOCK_STREAM, 0);
         if (false === $socket) {
-            throw new IPCException('Failed to create Unix socket: ' . socket_strerror(socket_last_error()));
+            throw new IPCException('Failed to create Unix socket: ' . $this->socketWrapper->strerror($this->socketWrapper->lastError()));
         }
         $this->socket = $socket;
 
@@ -44,20 +46,20 @@ final class UnixSocketChannel
                 unlink($this->socketPath);
             }
 
-            if (!socket_bind($this->socket, $this->socketPath)) {
-                throw new IPCException('Failed to bind Unix socket: ' . socket_strerror(socket_last_error($this->socket)));
+            if (!$this->socketWrapper->bind($this->socket, $this->socketPath)) {
+                throw new IPCException('Failed to bind Unix socket: ' . $this->socketWrapper->strerror($this->socketWrapper->lastError($this->socket)));
             }
 
-            if (!socket_listen($this->socket)) {
-                throw new IPCException('Failed to listen on Unix socket: ' . socket_strerror(socket_last_error($this->socket)));
+            if (!$this->socketWrapper->listen($this->socket)) {
+                throw new IPCException('Failed to listen on Unix socket: ' . $this->socketWrapper->strerror($this->socketWrapper->lastError($this->socket)));
             }
         } else {
-            if (!socket_connect($this->socket, $this->socketPath)) {
-                throw new IPCException('Failed to connect to Unix socket: ' . socket_strerror(socket_last_error($this->socket)));
+            if (!$this->socketWrapper->connect($this->socket, $this->socketPath)) {
+                throw new IPCException('Failed to connect to Unix socket: ' . $this->socketWrapper->strerror($this->socketWrapper->lastError($this->socket)));
             }
         }
 
-        socket_set_nonblock($this->socket);
+        $this->socketWrapper->setNonBlock($this->socket);
         $this->isConnected = true;
 
         return true;
@@ -69,7 +71,7 @@ final class UnixSocketChannel
             throw new IPCException('Cannot accept on non-server socket');
         }
 
-        $clientSocket = socket_accept($this->socket);
+        $clientSocket = $this->socketWrapper->accept($this->socket);
 
         if (false === $clientSocket) {
             return null;
@@ -90,7 +92,7 @@ final class UnixSocketChannel
         $header = pack('N', $length);
         $packet = $header . $data;
 
-        $written = socket_write($this->socket, $packet, strlen($packet));
+        $written = $this->socketWrapper->write($this->socket, $packet, strlen($packet));
 
         return false !== $written && 0 < $written;
     }
@@ -101,7 +103,7 @@ final class UnixSocketChannel
             throw new IPCException('Socket is not connected');
         }
 
-        $lengthData = socket_read($this->socket, 4, PHP_BINARY_READ);
+        $lengthData = $this->socketWrapper->read($this->socket, 4, PHP_BINARY_READ);
 
         if (false === $lengthData || '' === $lengthData) {
             return null;
@@ -127,7 +129,7 @@ final class UnixSocketChannel
         $remaining = $length;
 
         while ($remaining > 0) {
-            $chunk = socket_read($this->socket, $remaining, PHP_BINARY_READ);
+            $chunk = $this->socketWrapper->read($this->socket, $remaining, PHP_BINARY_READ);
 
             if (false === $chunk || '' === $chunk) {
                 return null;
@@ -153,7 +155,7 @@ final class UnixSocketChannel
     public function close(): void
     {
         if (null !== $this->socket) {
-            socket_close($this->socket);
+            $this->socketWrapper->close($this->socket);
             $this->socket = null;
             $this->isConnected = false;
         }

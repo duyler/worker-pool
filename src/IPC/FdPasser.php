@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\IPC;
 
-use Duyler\HttpServer\Socket\SocketErrorSuppressor;
 use Duyler\WorkerPool\Exception\IPCException;
+use Duyler\WorkerPool\Socket\SocketMsgWrapperInterface;
+use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use JsonException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -27,9 +28,9 @@ use const SOL_SOCKET;
 
 final readonly class FdPasser
 {
-    use SocketErrorSuppressor;
-
     public function __construct(
+        private SocketWrapperInterface $socketWrapper,
+        private SocketMsgWrapperInterface $socketMsgWrapper,
         private LoggerInterface $logger = new NullLogger(),
     ) {}
 
@@ -73,11 +74,11 @@ final readonly class FdPasser
             ],
         ];
 
-        $result = socket_sendmsg($controlSocket, $message, 0);
+        $result = $this->socketMsgWrapper->sendmsg($controlSocket, $message, 0);
 
         if (false === $result) {
             $this->logger->error('sendmsg failed', [
-                'error' => socket_strerror(socket_last_error($controlSocket)),
+                'error' => $this->socketWrapper->strerror($this->socketWrapper->lastError($controlSocket)),
             ]);
         } else {
             $this->logger->debug('FD sent', ['bytes' => $result]);
@@ -103,26 +104,26 @@ final readonly class FdPasser
             throw new IPCException('SCM_RIGHTS is not defined');
         }
 
+        $cmsgSpace = $this->socketMsgWrapper->cmsgSpace(SOL_SOCKET, SCM_RIGHTS, 1);
+
         $message = [
             'iov' => [''],
             'control' => [],
-            'controllen' => (socket_cmsg_space(SOL_SOCKET, SCM_RIGHTS, 1) ?? 0) > 0
-                ? socket_cmsg_space(SOL_SOCKET, SCM_RIGHTS, 1)
+            'controllen' => (null !== $cmsgSpace && $cmsgSpace > 0)
+                ? $cmsgSpace
                 : 256,
         ];
 
-        $result = $this->suppressSocketWarnings(
-            fn(): int|false => socket_recvmsg($controlSocket, $message, MSG_DONTWAIT),
-        );
+        $result = $this->socketMsgWrapper->recvmsg($controlSocket, $message, MSG_DONTWAIT);
 
         /** @var array{iov: list<string>, control: list<mixed>, controllen: int} $message */
 
         if (false === $result || 0 === $result) {
-            $errno = socket_last_error($controlSocket);
+            $errno = $this->socketWrapper->lastError($controlSocket);
             if ($errno !== 11 && $errno !== 0 && $callCount % 1000 === 0) {
                 $this->logger->debug('recvmsg error', [
                     'errno' => $errno,
-                    'error' => socket_strerror($errno),
+                    'error' => $this->socketWrapper->strerror($errno),
                 ]);
             }
             return null;

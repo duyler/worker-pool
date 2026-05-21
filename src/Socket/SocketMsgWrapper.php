@@ -11,6 +11,8 @@ use function socket_cmsg_space;
 use function socket_recvmsg;
 use function socket_sendmsg;
 
+use const E_WARNING;
+
 final class SocketMsgWrapper implements SocketMsgWrapperInterface
 {
     #[Override]
@@ -22,7 +24,13 @@ final class SocketMsgWrapper implements SocketMsgWrapperInterface
     #[Override]
     public function recvmsg(Socket $socket, array &$message, int $flags = 0): int|false
     {
-        return socket_recvmsg($socket, $message, $flags);
+        set_error_handler(static fn(int $errno, string $errstr): bool => true, E_WARNING);
+
+        try {
+            return socket_recvmsg($socket, $message, $flags);
+        } finally {
+            restore_error_handler();
+        }
     }
 
     #[Override]

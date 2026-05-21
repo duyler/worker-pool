@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\Process\ForkWrapper;
 
 #[CoversClass(ProcessInfo::class)]
 class ProcessInfoTest extends TestCase
@@ -19,6 +20,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 12345,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->assertSame(1, $info->workerId);
@@ -40,6 +42,7 @@ class ProcessInfoTest extends TestCase
             workerId: 5,
             pid: 99999,
             state: ProcessState::Busy,
+            forkWrapper: new ForkWrapper(),
             connections: 10,
             totalRequests: 500,
             startedAt: $startedAt,
@@ -63,6 +66,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 123,
             state: ProcessState::Starting,
+            forkWrapper: new ForkWrapper(),
         );
 
         $info2 = $info1->withState(ProcessState::Ready);
@@ -80,6 +84,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 123,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
             connections: 5,
         );
 
@@ -96,6 +101,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 123,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
             totalRequests: 100,
         );
 
@@ -113,6 +119,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 123,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
         );
 
         usleep(10000);
@@ -128,6 +135,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 123,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
             memoryUsage: 1024,
         );
 
@@ -146,6 +154,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 123,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
             startedAt: $startedAt,
         );
 
@@ -163,6 +172,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 123,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
             lastActivityAt: $lastActivityAt,
         );
 
@@ -180,6 +190,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: $currentPid,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->assertTrue($info->isAlive());
@@ -191,6 +202,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 999999,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->assertFalse($info->isAlive());
@@ -202,6 +214,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 0,
             state: ProcessState::Stopped,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->assertFalse($info->isAlive());
@@ -213,6 +226,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: -1,
             state: ProcessState::Failed,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->assertFalse($info->isAlive());
@@ -227,6 +241,7 @@ class ProcessInfoTest extends TestCase
             workerId: 3,
             pid: 55555,
             state: ProcessState::Busy,
+            forkWrapper: new ForkWrapper(),
             connections: 7,
             totalRequests: 250,
             startedAt: $startedAt,
@@ -256,6 +271,7 @@ class ProcessInfoTest extends TestCase
             workerId: 1,
             pid: 123,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
             connections: 5,
             totalRequests: 100,
         );

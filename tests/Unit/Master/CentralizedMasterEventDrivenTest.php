@@ -12,12 +12,14 @@ use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\TestCase;
-use Socket;
 
 #[CoversClass(CentralizedMaster::class)]
 class CentralizedMasterEventDrivenTest extends TestCase
@@ -25,6 +27,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
     private ServerConfig $serverConfig;
     private WorkerPoolConfig $workerPoolConfig;
     private RoundRobinBalancer $balancer;
+    private SocketWrapper $socketWrapper;
+    private SocketMsgWrapper $socketMsgWrapper;
+    private ForkWrapper $forkWrapper;
 
     #[Override]
     protected function setUp(): void
@@ -42,6 +47,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
         );
 
         $this->balancer = new RoundRobinBalancer($this->workerPoolConfig->workerCount);
+        $this->socketWrapper = new SocketWrapper();
+        $this->socketMsgWrapper = new SocketMsgWrapper();
+        $this->forkWrapper = new ForkWrapper();
     }
 
     public function testCreatesMasterWithEventDrivenWorker(): void
@@ -53,6 +61,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             eventDrivenWorker: $worker,
         );
@@ -69,6 +80,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             workerCallback: $callback,
         );
@@ -84,6 +98,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
         new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             workerCallback: null,
             eventDrivenWorker: null,
@@ -100,10 +117,12 @@ class CentralizedMasterEventDrivenTest extends TestCase
             public function run(int $workerId, ServerInterface $server): void {}
         };
 
-        // Should not throw - both interfaces provided
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             workerCallback: $callback,
             eventDrivenWorker: $worker,
@@ -118,10 +137,12 @@ class CentralizedMasterEventDrivenTest extends TestCase
             public function run(int $workerId, ServerInterface $server): void {}
         };
 
-        // CentralizedMaster can work without serverConfig (external socket mode)
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: null,
             eventDrivenWorker: $worker,
         );
@@ -150,6 +171,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             eventDrivenWorker: $worker,
         );

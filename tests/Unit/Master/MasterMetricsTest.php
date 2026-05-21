@@ -11,6 +11,9 @@ use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\TestCase;
@@ -22,6 +25,9 @@ final class MasterMetricsTest extends TestCase
     private WorkerPoolConfig $config;
     private ServerConfig $serverConfig;
     private WorkerCallbackInterface $callback;
+    private SocketWrapper $socketWrapper;
+    private SocketMsgWrapper $socketMsgWrapper;
+    private ForkWrapper $forkWrapper;
 
     #[Override]
     protected function setUp(): void
@@ -45,6 +51,10 @@ final class MasterMetricsTest extends TestCase
                 socket_close($clientSocket);
             }
         };
+
+        $this->socketWrapper = new SocketWrapper();
+        $this->socketMsgWrapper = new SocketMsgWrapper();
+        $this->forkWrapper = new ForkWrapper();
     }
 
     public function testCentralizedMasterReturnsMetrics(): void
@@ -53,6 +63,9 @@ final class MasterMetricsTest extends TestCase
         $master = new CentralizedMaster(
             config: $this->config,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 
@@ -79,6 +92,8 @@ final class MasterMetricsTest extends TestCase
         $master = new SharedSocketMaster(
             config: $this->config,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 
@@ -104,12 +119,17 @@ final class MasterMetricsTest extends TestCase
         $centralizedMaster = new CentralizedMaster(
             config: $this->config,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 
         $sharedSocketMaster = new SharedSocketMaster(
             config: $this->config,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 
@@ -127,6 +147,9 @@ final class MasterMetricsTest extends TestCase
         $master = new CentralizedMaster(
             config: $this->config,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 

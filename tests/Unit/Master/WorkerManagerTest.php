@@ -13,6 +13,7 @@ use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
 use Override;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\Process\ForkWrapper;
 
 #[CoversClass(WorkerManager::class)]
 final class WorkerManagerTest extends TestCase
@@ -36,7 +37,7 @@ final class WorkerManagerTest extends TestCase
             autoRestart: false,
         );
 
-        $this->manager = new WorkerManager();
+        $this->manager = new WorkerManager(new ForkWrapper());
     }
 
     public function testStartsWithEmptyWorkers(): void
@@ -60,6 +61,7 @@ final class WorkerManagerTest extends TestCase
             workerId: 1,
             pid: 12345,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->manager->updateWorker(1, $processInfo);
@@ -77,6 +79,7 @@ final class WorkerManagerTest extends TestCase
             workerId: 1,
             pid: 12345,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->manager->updateWorker(1, $processInfo);

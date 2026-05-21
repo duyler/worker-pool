@@ -15,6 +15,12 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Socket;
 
+use Duyler\WorkerPool\Process\ForkWrapper;
+
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\IPC\FdPasser;
+
 use function assert;
 
 use const AF_INET;
@@ -31,7 +37,7 @@ final class ConnectionRouterCoverageTest extends TestCase
     protected function setUp(): void
     {
         $this->balancer = new LeastConnectionsBalancer();
-        $this->router = new ConnectionRouter($this->balancer);
+        $this->router = new ConnectionRouter(new SocketWrapper(), $this->balancer, new FdPasser(new SocketWrapper(), new SocketMsgWrapper()));
     }
 
     #[Test]
@@ -58,7 +64,7 @@ final class ConnectionRouterCoverageTest extends TestCase
         assert($clientSocket instanceof Socket);
 
         $workers = [
-            1 => new ProcessInfo(1, 100, ProcessState::Ready),
+            1 => new ProcessInfo(1, 100, ProcessState::Ready, new ForkWrapper()),
         ];
 
         $result = $this->router->route($clientSocket, $workers, []);
@@ -73,7 +79,7 @@ final class ConnectionRouterCoverageTest extends TestCase
         assert($clientSocket instanceof Socket);
 
         $workers = [
-            1 => new ProcessInfo(1, 100, ProcessState::Stopped),
+            1 => new ProcessInfo(1, 100, ProcessState::Stopped, new ForkWrapper()),
         ];
 
         $workerSockets = [

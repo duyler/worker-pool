@@ -20,6 +20,8 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
 use function count;
 
 use const AF_INET;
@@ -60,7 +62,7 @@ class MasterHttpIntegrationTest extends TestCase
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
             {
-                $adapter = new HttpWorkerAdapter();
+                $adapter = new HttpWorkerAdapter(new SocketWrapper());
                 $adapter->handleConnection($clientSocket, $metadata);
             }
         };
@@ -136,7 +138,7 @@ class MasterHttpIntegrationTest extends TestCase
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
             {
-                $adapter = new HttpWorkerAdapter();
+                $adapter = new HttpWorkerAdapter(new SocketWrapper());
                 $adapter->handleConnection($clientSocket, $metadata);
             }
         };

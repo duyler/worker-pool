@@ -24,6 +24,11 @@ use ReflectionProperty;
 use Socket;
 use Psr\Log\NullLogger;
 
+use Duyler\WorkerPool\Process\ForkWrapper;
+
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
 use function function_exists;
 
 use const SIGTERM;
@@ -61,6 +66,9 @@ final class ForkBasedMasterTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $serverConfig,
             workerCallback: $callback,
         );
@@ -80,7 +88,7 @@ final class ForkBasedMasterTest extends TestCase
         }
 
         $workersRef = $masterRef->getProperty('workers');
-        $processInfo = new ProcessInfo(1, $pid, ProcessState::Ready);
+        $processInfo = new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper());
         $workersRef->setValue($master, [1 => $processInfo]);
 
         $this->assertSame(1, $master->getWorkerCount());
@@ -114,6 +122,8 @@ final class ForkBasedMasterTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $serverConfig,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -156,6 +166,9 @@ final class ForkBasedMasterTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $serverConfig,
             workerCallback: $callback,
         );
@@ -168,7 +181,7 @@ final class ForkBasedMasterTest extends TestCase
 
         $workersRef = new ReflectionProperty($master, 'workers');
         $workersRef->setValue($master, [
-            1 => new ProcessInfo(1, $pid, ProcessState::Ready),
+            1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()),
         ]);
 
         $this->assertTrue($master->isRunning());

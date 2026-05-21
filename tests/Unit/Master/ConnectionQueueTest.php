@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Duyler\WorkerPool\Master\ConnectionQueue;
 use PHPUnit\Framework\TestCase;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
 use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
@@ -18,7 +20,7 @@ class ConnectionQueueTest extends TestCase
 {
     public function testCreatesEmptyQueue(): void
     {
-        $queue = new ConnectionQueue(maxSize: 10);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
         $this->assertTrue($queue->isEmpty());
         $this->assertFalse($queue->isFull());
@@ -27,7 +29,7 @@ class ConnectionQueueTest extends TestCase
 
     public function testEnqueuesSocket(): void
     {
-        $queue = new ConnectionQueue(maxSize: 10);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $this->assertNotFalse($socket);
@@ -43,7 +45,7 @@ class ConnectionQueueTest extends TestCase
 
     public function testDequeuesSocket(): void
     {
-        $queue = new ConnectionQueue(maxSize: 10);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
         $socket1 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $socket2 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -65,7 +67,7 @@ class ConnectionQueueTest extends TestCase
 
     public function testReturnsNullWhenEmpty(): void
     {
-        $queue = new ConnectionQueue(maxSize: 10);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
         $result = $queue->dequeue();
 
@@ -74,7 +76,7 @@ class ConnectionQueueTest extends TestCase
 
     public function testRespectsMaxSize(): void
     {
-        $queue = new ConnectionQueue(maxSize: 2);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 2);
 
         $socket1 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $socket2 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -96,7 +98,7 @@ class ConnectionQueueTest extends TestCase
 
     public function testMaintainsFifoOrder(): void
     {
-        $queue = new ConnectionQueue(maxSize: 10);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
         $socket1 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $socket2 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -121,7 +123,7 @@ class ConnectionQueueTest extends TestCase
 
     public function testClearsAllSockets(): void
     {
-        $queue = new ConnectionQueue(maxSize: 10);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
         $socket1 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $socket2 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -142,7 +144,7 @@ class ConnectionQueueTest extends TestCase
 
     public function testChecksIfFull(): void
     {
-        $queue = new ConnectionQueue(maxSize: 1);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 1);
 
         $this->assertFalse($queue->isFull());
 
@@ -158,7 +160,7 @@ class ConnectionQueueTest extends TestCase
 
     public function testHandlesMultipleEnqueueDequeueCycles(): void
     {
-        $queue = new ConnectionQueue(maxSize: 3);
+        $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 3);
 
         $socket1 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $socket2 = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);

@@ -17,6 +17,9 @@ use PHPUnit\Framework\TestCase;
 
 use ReflectionMethod;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Process\ForkWrapper;
+
 use const SIGKILL;
 
 #[Group('pcntl')]
@@ -45,6 +48,8 @@ final class SharedSocketMasterSpawnTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -73,6 +78,8 @@ final class SharedSocketMasterSpawnTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -103,6 +110,8 @@ final class SharedSocketMasterSpawnTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 

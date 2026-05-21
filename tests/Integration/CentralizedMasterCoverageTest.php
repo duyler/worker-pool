@@ -24,6 +24,10 @@ use ReflectionMethod;
 use ReflectionProperty;
 use Psr\Log\NullLogger;
 
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
 use const SIGTERM;
 
 #[Group('pcntl')]
@@ -52,6 +56,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         new CentralizedMaster(
             config: new WorkerPoolConfig(serverConfig: $this->sc, workerCount: 1),
             balancer: new RoundRobinBalancer(1),
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
         );
     }
 
@@ -68,6 +75,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $this->sc,
             workerCallback: $callback,
         );
@@ -88,6 +98,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -105,8 +118,8 @@ final class CentralizedMasterCoverageTest extends TestCase
 
         $workersRef = new ReflectionProperty($master, 'workers');
         $workersRef->setValue($master, [
-            1 => new ProcessInfo(1, $pid1, ProcessState::Ready),
-            2 => new ProcessInfo(2, $pid2, ProcessState::Ready),
+            1 => new ProcessInfo(1, $pid1, ProcessState::Ready, new ForkWrapper()),
+            2 => new ProcessInfo(2, $pid2, ProcessState::Ready, new ForkWrapper()),
         ]);
 
         $this->assertTrue($master->isRunning());
@@ -130,6 +143,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -155,6 +171,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -164,7 +183,7 @@ final class CentralizedMasterCoverageTest extends TestCase
         }
 
         $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper())]);
 
         usleep(50000);
 
@@ -187,6 +206,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -197,7 +219,7 @@ final class CentralizedMasterCoverageTest extends TestCase
         }
 
         $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper())]);
 
         $metrics = $master->getMetrics();
         $this->assertSame(1, $metrics['total_workers']);
@@ -224,6 +246,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -244,6 +269,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $serverConfig,
             workerCallback: $callback,
         );
@@ -270,6 +298,9 @@ final class CentralizedMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $serverConfig,
             workerCallback: $callback,
         );

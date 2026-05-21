@@ -9,6 +9,8 @@ use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,6 +20,16 @@ use Psr\Log\NullLogger;
 #[CoversClass(SharedSocketMaster::class)]
 class SharedSocketMasterSocketResourceTest extends TestCase
 {
+    private SocketWrapper $socketWrapper;
+    private ForkWrapper $forkWrapper;
+
+    #[Override]
+    protected function setUp(): void
+    {
+        $this->socketWrapper = new SocketWrapper();
+        $this->forkWrapper = new ForkWrapper();
+    }
+
     #[Override]
     protected function tearDown(): void
     {
@@ -61,6 +73,8 @@ class SharedSocketMasterSocketResourceTest extends TestCase
         $master = new SharedSocketMaster(
             config: $workerPoolConfig,
             serverConfig: $serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             eventDrivenWorker: $testWorker,
         );
 

@@ -13,6 +13,11 @@ use Duyler\WorkerPool\Process\ProcessState;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\IPC\FdPasser;
+
 use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
@@ -29,7 +34,7 @@ final class ConnectionRouterTest extends TestCase
         parent::setUp();
 
         $this->balancer = new LeastConnectionsBalancer();
-        $this->router = new ConnectionRouter($this->balancer);
+        $this->router = new ConnectionRouter(new SocketWrapper(), $this->balancer, new FdPasser(new SocketWrapper(), new SocketMsgWrapper()));
     }
 
     public function testCanGetBalancer(): void
@@ -69,6 +74,7 @@ final class ConnectionRouterTest extends TestCase
                 workerId: 1,
                 pid: 12345,
                 state: ProcessState::Ready,
+                forkWrapper: new ForkWrapper(),
             ),
         ];
 

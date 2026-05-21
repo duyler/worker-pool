@@ -16,6 +16,8 @@ use PHPUnit\Framework\TestCase;
 
 use ReflectionProperty;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
 use const AF_UNIX;
 use const SOCK_STREAM;
 use const E_WARNING;
@@ -44,7 +46,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function constructorSetsDefaults(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, false);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), false);
         $this->assertFalse($channel->isConnected());
         $this->assertNull($channel->getSocket());
     }
@@ -52,7 +54,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function connectAsServerCreatesSocket(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, true);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), true);
         $result = $channel->connect();
 
         $this->assertTrue($result);
@@ -67,7 +69,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     {
         set_error_handler(static fn(): bool => true, E_WARNING);
         try {
-            $channel = new UnixSocketChannel($this->socketPath, false);
+            $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), false);
 
             $this->expectException(IPCException::class);
             $channel->connect();
@@ -79,7 +81,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function closeCleansUpServerSocket(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, true);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), true);
         $channel->connect();
 
         $this->assertTrue($channel->isConnected());
@@ -94,7 +96,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function closeIsIdempotent(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, true);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), true);
         $channel->connect();
         $channel->close();
         $channel->close();
@@ -105,7 +107,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function acceptThrowsOnNonServerSocket(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, false);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), false);
 
         $this->expectException(IPCException::class);
         $this->expectExceptionMessage('Cannot accept on non-server socket');
@@ -115,7 +117,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function acceptReturnsNullWhenNoClients(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, true);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), true);
         $channel->connect();
 
         $result = $channel->accept();
@@ -127,7 +129,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function sendThrowsWhenNotConnected(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, false);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), false);
         $message = new Message(MessageType::WorkerReady, []);
 
         $this->expectException(IPCException::class);
@@ -138,7 +140,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function receiveThrowsWhenNotConnected(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, false);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), false);
 
         $this->expectException(IPCException::class);
         $this->expectExceptionMessage('Socket is not connected');
@@ -150,7 +152,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     {
         set_error_handler(static fn(): bool => true, E_WARNING);
         try {
-            $server = new UnixSocketChannel($this->socketPath, true);
+            $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), true);
             $server->connect();
 
             $clientSocket = socket_create(AF_UNIX, SOCK_STREAM, 0);
@@ -159,7 +161,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
             $accepted = $server->accept();
             $this->assertNotNull($accepted);
 
-            $clientChannel = new UnixSocketChannel($this->socketPath, false);
+            $clientChannel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), false);
             $ref = new ReflectionProperty($clientChannel, 'socket');
             $ref->setValue($clientChannel, $clientSocket);
 
@@ -190,7 +192,7 @@ final class UnixSocketChannelCoverageTest extends TestCase
     #[Test]
     public function destructorCallsClose(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath, true);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper(), true);
         $channel->connect();
         $this->assertTrue($channel->isConnected());
 

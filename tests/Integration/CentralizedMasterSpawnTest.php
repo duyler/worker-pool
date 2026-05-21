@@ -10,10 +10,13 @@ use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
+use Duyler\WorkerPool\IPC\FdPasser;
 use Duyler\WorkerPool\Master\CentralizedMaster;
 use Duyler\WorkerPool\Master\ConnectionRouter;
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
@@ -22,6 +25,8 @@ use PHPUnit\Framework\TestCase;
 
 use ReflectionMethod;
 use ReflectionProperty;
+
+use Duyler\WorkerPool\Process\ForkWrapper;
 
 use const AF_UNIX;
 use const SOCK_STREAM;
@@ -54,6 +59,9 @@ final class CentralizedMasterSpawnTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $this->sc,
             workerCallback: $callback,
         );
@@ -84,6 +92,9 @@ final class CentralizedMasterSpawnTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -112,6 +123,9 @@ final class CentralizedMasterSpawnTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $this->sc,
             workerCallback: $callback,
         );
@@ -144,6 +158,9 @@ final class CentralizedMasterSpawnTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $this->sc,
             workerCallback: $callback,
         );
@@ -176,6 +193,9 @@ final class CentralizedMasterSpawnTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $this->sc,
             workerCallback: $callback,
         );
@@ -202,14 +222,20 @@ final class CentralizedMasterSpawnTest extends TestCase
     public function connectionRouterRouteWithNoAliveWorkers(): void
     {
         $balancer = new LeastConnectionsBalancer();
-        $router = new ConnectionRouter($balancer);
+        $socketWrapper = new SocketWrapper();
+        $socketMsgWrapper = new SocketMsgWrapper();
+        $router = new ConnectionRouter(
+            $socketWrapper,
+            $balancer,
+            new FdPasser($socketWrapper, $socketMsgWrapper),
+        );
 
         $sockets = [];
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $sockets);
         [$clientSocket] = $sockets;
 
         $workers = [
-            1 => new ProcessInfo(1, 99999, ProcessState::Stopped),
+            1 => new ProcessInfo(1, 99999, ProcessState::Stopped, new ForkWrapper()),
         ];
         $workerSockets = [];
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $workerSockets);

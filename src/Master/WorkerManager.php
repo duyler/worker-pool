@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Master;
 
 use Duyler\WorkerPool\Exception\WorkerPoolException;
+use Duyler\WorkerPool\Process\ForkWrapperInterface;
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
 use Psr\Log\LoggerInterface;
@@ -20,11 +21,14 @@ final class WorkerManager
      */
     private array $workers = [];
 
-    public function __construct(private readonly LoggerInterface $logger = new NullLogger()) {}
+    public function __construct(
+        private readonly ForkWrapperInterface $forkWrapper,
+        private readonly LoggerInterface $logger = new NullLogger(),
+    ) {}
 
     public function spawn(int $workerId, callable $workerProcess): ProcessInfo
     {
-        $pid = pcntl_fork();
+        $pid = $this->forkWrapper->fork();
 
         if (-1 === $pid) {
             throw new WorkerPoolException('Failed to fork worker process');
@@ -43,6 +47,7 @@ final class WorkerManager
             workerId: $workerId,
             pid: $pid,
             state: ProcessState::Ready,
+            forkWrapper: $this->forkWrapper,
         );
 
         $this->workers[$workerId] = $processInfo;
@@ -93,8 +98,9 @@ final class WorkerManager
 
     public function check(bool $shouldRestart = true): void
     {
+        $status = 0;
         foreach ($this->workers as $workerId => $worker) {
-            $result = pcntl_waitpid($worker->pid, $status, WNOHANG);
+            $result = $this->forkWrapper->waitpid($worker->pid, $status, WNOHANG);
 
             if ($result === $worker->pid) {
                 $this->logger->warning('Worker died', [
@@ -111,15 +117,16 @@ final class WorkerManager
     {
         foreach ($this->workers as $worker) {
             if ($worker->pid > 0) {
-                posix_kill($worker->pid, SIGTERM);
+                $this->forkWrapper->kill($worker->pid, SIGTERM);
             }
         }
     }
 
     public function waitAll(): void
     {
+        $status = 0;
         foreach ($this->workers as $worker) {
-            pcntl_waitpid($worker->pid, $status);
+            $this->forkWrapper->waitpid($worker->pid, $status);
         }
     }
 }

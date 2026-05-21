@@ -11,6 +11,8 @@ use Override;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
 use function strlen;
 
 use const AF_UNIX;
@@ -24,13 +26,13 @@ final class HttpWorkerAdapterCoverageTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
-        $this->adapter = new HttpWorkerAdapter();
+        $this->adapter = new HttpWorkerAdapter(new SocketWrapper());
     }
 
     #[Test]
     public function createsAdapterWithHttpParser(): void
     {
-        $adapter = new HttpWorkerAdapter();
+        $adapter = new HttpWorkerAdapter(new SocketWrapper());
         $this->assertInstanceOf(HttpWorkerAdapter::class, $adapter);
     }
 

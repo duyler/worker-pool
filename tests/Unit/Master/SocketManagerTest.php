@@ -12,6 +12,8 @@ use Duyler\WorkerPool\Master\SocketManager;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
 use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
@@ -36,7 +38,7 @@ class SocketManagerTest extends TestCase
 
     public function testCreatesSocketManager(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $this->assertFalse($manager->isListening());
         $this->assertNull($manager->getSocket());
@@ -44,7 +46,7 @@ class SocketManagerTest extends TestCase
 
     public function testStartsListening(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $manager->listen();
 
@@ -56,7 +58,7 @@ class SocketManagerTest extends TestCase
 
     public function testDoesNotThrowOnMultipleListenCalls(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $manager->listen();
         $manager->listen();
@@ -68,7 +70,7 @@ class SocketManagerTest extends TestCase
 
     public function testClosesSocket(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $manager->listen();
         $this->assertTrue($manager->isListening());
@@ -81,7 +83,7 @@ class SocketManagerTest extends TestCase
 
     public function testReturnsNullWhenNoConnections(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $manager->listen();
 
@@ -94,7 +96,7 @@ class SocketManagerTest extends TestCase
 
     public function testReturnsNullWhenNotListening(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $client = $manager->accept();
 
@@ -103,7 +105,7 @@ class SocketManagerTest extends TestCase
 
     public function testAcceptsConnection(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
 
         $serverSocket = $manager->getSocket();
@@ -139,7 +141,7 @@ class SocketManagerTest extends TestCase
             port: 8080,
         );
 
-        $manager = new SocketManager($config);
+        $manager = new SocketManager($config, new SocketWrapper());
 
         $this->expectException(WorkerPoolException::class);
         $this->expectExceptionMessage('Failed to bind');
@@ -149,7 +151,7 @@ class SocketManagerTest extends TestCase
 
     public function testCleansUpOnDestruct(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
 
         $socket = $manager->getSocket();

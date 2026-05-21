@@ -14,6 +14,8 @@ use PHPUnit\Framework\TestCase;
 use Throwable;
 use Psr\Log\NullLogger;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
 use function strlen;
 
 use const AF_UNIX;
@@ -30,7 +32,7 @@ class HttpWorkerAdapterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->adapter = new HttpWorkerAdapter();
+        $this->adapter = new HttpWorkerAdapter(new SocketWrapper());
     }
 
     #[Override]

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Master;
 
+use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Socket;
 
 use function count;
@@ -17,6 +18,7 @@ final class ConnectionQueue
 
     public function __construct(
         private readonly int $maxSize,
+        private readonly SocketWrapperInterface $socketWrapper,
     ) {}
 
     public function __destruct()
@@ -62,7 +64,7 @@ final class ConnectionQueue
     public function clear(): void
     {
         foreach ($this->queue as $socket) {
-            socket_close($socket);
+            $this->socketWrapper->close($socket);
         }
 
         $this->queue = [];

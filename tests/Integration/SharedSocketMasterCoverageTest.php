@@ -23,6 +23,9 @@ use ReflectionMethod;
 use ReflectionProperty;
 use Psr\Log\NullLogger;
 
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
 use const SIGTERM;
 
 #[Group('pcntl')]
@@ -51,6 +54,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
         new SharedSocketMaster(
             config: new WorkerPoolConfig(serverConfig: $this->sc, workerCount: 1),
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
         );
     }
 
@@ -66,6 +71,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -83,8 +90,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
 
         $workersRef = new ReflectionProperty($master, 'workers');
         $workersRef->setValue($master, [
-            1 => new ProcessInfo(1, $pid1, ProcessState::Ready),
-            2 => new ProcessInfo(2, $pid2, ProcessState::Ready),
+            1 => new ProcessInfo(1, $pid1, ProcessState::Ready, new ForkWrapper()),
+            2 => new ProcessInfo(2, $pid2, ProcessState::Ready, new ForkWrapper()),
         ]);
 
         $this->assertTrue($master->isRunning());
@@ -107,6 +114,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -131,6 +140,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -140,7 +151,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
         }
 
         $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper())]);
 
         usleep(50000);
 
@@ -162,6 +173,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -172,7 +185,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
         }
 
         $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper())]);
 
         $metrics = $master->getMetrics();
         $this->assertSame('shared_socket', $metrics['architecture']);

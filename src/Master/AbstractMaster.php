@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Master;
 
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
+use Duyler\WorkerPool\Process\ForkWrapperInterface;
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Signal\SignalHandler;
 use Override;
@@ -31,6 +32,7 @@ abstract class AbstractMaster implements MasterInterface
 
     public function __construct(
         protected readonly WorkerPoolConfig $config,
+        protected readonly ForkWrapperInterface $forkWrapper,
         ?LoggerInterface $logger = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
@@ -45,7 +47,7 @@ abstract class AbstractMaster implements MasterInterface
 
         foreach ($this->workers as $worker) {
             if ($worker->pid > 0) {
-                posix_kill($worker->pid, SIGTERM);
+                $this->forkWrapper->kill($worker->pid, SIGTERM);
             }
         }
     }
@@ -75,8 +77,9 @@ abstract class AbstractMaster implements MasterInterface
 
     protected function checkWorkers(): void
     {
+        $status = 0;
         foreach ($this->workers as $workerId => $worker) {
-            $result = pcntl_waitpid($worker->pid, $status, WNOHANG);
+            $result = $this->forkWrapper->waitpid($worker->pid, $status, WNOHANG);
 
             if ($result === $worker->pid) {
                 $this->logger->warning('Worker died', [
@@ -97,8 +100,9 @@ abstract class AbstractMaster implements MasterInterface
 
     protected function waitForWorkers(): void
     {
+        $status = 0;
         foreach ($this->workers as $worker) {
-            pcntl_waitpid($worker->pid, $status);
+            $this->forkWrapper->waitpid($worker->pid, $status);
         }
     }
 

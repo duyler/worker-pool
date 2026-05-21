@@ -10,6 +10,9 @@ use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
@@ -22,6 +25,9 @@ class CentralizedMasterExtendedTest extends TestCase
 {
     private WorkerPoolConfig $config;
     private LeastConnectionsBalancer $balancer;
+    private SocketWrapper $socketWrapper;
+    private SocketMsgWrapper $socketMsgWrapper;
+    private ForkWrapper $forkWrapper;
 
     protected function setUp(): void
     {
@@ -37,6 +43,9 @@ class CentralizedMasterExtendedTest extends TestCase
         );
 
         $this->balancer = new LeastConnectionsBalancer();
+        $this->socketWrapper = new SocketWrapper();
+        $this->socketMsgWrapper = new SocketMsgWrapper();
+        $this->forkWrapper = new ForkWrapper();
     }
 
     public function testThrowsExceptionWhenNeitherWorkerCallbackNorEventDrivenWorkerProvided(): void
@@ -44,7 +53,7 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either workerCallback or eventDrivenWorker must be provided');
 
-        new CentralizedMaster($this->config, $this->balancer);
+        new CentralizedMaster($this->config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper);
     }
 
     public function testCreatesMasterWithWorkerCallback(): void
@@ -56,6 +65,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $this->config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -72,6 +84,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $this->config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -89,6 +104,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $this->config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -117,6 +135,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $this->config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -136,6 +157,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $this->config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -151,6 +175,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $this->config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -170,6 +197,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $this->config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
             logger: $logger,
         );
@@ -198,6 +228,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             serverConfig: $serverConfig,
             workerCallback: $workerCallback,
         );
@@ -226,6 +259,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             serverConfig: $serverConfig,
             workerCallback: $workerCallback,
         );
@@ -254,6 +290,9 @@ class CentralizedMasterExtendedTest extends TestCase
         $master = new CentralizedMaster(
             $config,
             $this->balancer,
+            $this->socketWrapper,
+            $this->socketMsgWrapper,
+            $this->forkWrapper,
             serverConfig: $serverConfig,
             workerCallback: $workerCallback,
         );

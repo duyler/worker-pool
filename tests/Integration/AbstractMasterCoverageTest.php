@@ -22,6 +22,10 @@ use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
 
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
 use const SIGTERM;
 use const SIGINT;
 
@@ -49,6 +53,9 @@ final class AbstractMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -59,7 +66,7 @@ final class AbstractMasterCoverageTest extends TestCase
         }
 
         $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper())]);
 
         $master->stop();
         $this->assertFalse($master->isRunning());
@@ -79,6 +86,9 @@ final class AbstractMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -88,7 +98,7 @@ final class AbstractMasterCoverageTest extends TestCase
         }
 
         $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper())]);
 
         $waitRef = new ReflectionMethod($master, 'waitForWorkers');
         $waitRef->invoke($master);
@@ -108,6 +118,9 @@ final class AbstractMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 

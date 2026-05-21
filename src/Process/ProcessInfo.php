@@ -13,6 +13,7 @@ final readonly class ProcessInfo
         public int $workerId,
         public int $pid,
         public ProcessState $state,
+        private ForkWrapperInterface $forkWrapper,
         public int $connections = 0,
         public int $totalRequests = 0,
         ?float $startedAt = null,
@@ -30,6 +31,7 @@ final readonly class ProcessInfo
             workerId: $this->workerId,
             pid: $this->pid,
             state: $state,
+            forkWrapper: $this->forkWrapper,
             connections: $this->connections,
             totalRequests: $this->totalRequests,
             startedAt: $this->startedAt,
@@ -44,6 +46,7 @@ final readonly class ProcessInfo
             workerId: $this->workerId,
             pid: $this->pid,
             state: $this->state,
+            forkWrapper: $this->forkWrapper,
             connections: $connections,
             totalRequests: $this->totalRequests,
             startedAt: $this->startedAt,
@@ -58,6 +61,7 @@ final readonly class ProcessInfo
             workerId: $this->workerId,
             pid: $this->pid,
             state: $this->state,
+            forkWrapper: $this->forkWrapper,
             connections: $this->connections,
             totalRequests: $this->totalRequests + 1,
             startedAt: $this->startedAt,
@@ -72,6 +76,7 @@ final readonly class ProcessInfo
             workerId: $this->workerId,
             pid: $this->pid,
             state: $this->state,
+            forkWrapper: $this->forkWrapper,
             connections: $this->connections,
             totalRequests: $this->totalRequests,
             startedAt: $this->startedAt,
@@ -96,7 +101,7 @@ final readonly class ProcessInfo
             return false;
         }
 
-        return posix_kill($this->pid, 0);
+        return $this->forkWrapper->kill($this->pid, 0);
     }
 
     /**

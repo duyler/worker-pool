@@ -12,6 +12,9 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Socket;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
 use const AF_INET;
 use const AF_UNIX;
 use const SOCK_STREAM;
@@ -25,7 +28,7 @@ final class FdPasserCoverageTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
-        $this->fdPasser = new FdPasser();
+        $this->fdPasser = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
     }
 
     #[Test]

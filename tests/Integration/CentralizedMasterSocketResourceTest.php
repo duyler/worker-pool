@@ -10,6 +10,9 @@ use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -20,6 +23,18 @@ use Psr\Log\NullLogger;
 #[CoversClass(CentralizedMaster::class)]
 class CentralizedMasterSocketResourceTest extends TestCase
 {
+    private SocketWrapper $socketWrapper;
+    private SocketMsgWrapper $socketMsgWrapper;
+    private ForkWrapper $forkWrapper;
+
+    #[Override]
+    protected function setUp(): void
+    {
+        $this->socketWrapper = new SocketWrapper();
+        $this->socketMsgWrapper = new SocketMsgWrapper();
+        $this->forkWrapper = new ForkWrapper();
+    }
+
     #[Override]
     protected function tearDown(): void
     {
@@ -48,6 +63,9 @@ class CentralizedMasterSocketResourceTest extends TestCase
         $master = new CentralizedMaster(
             config: $workerPoolConfig,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $serverConfig,
             eventDrivenWorker: $testWorker,
         );
@@ -94,6 +112,9 @@ class CentralizedMasterSocketResourceTest extends TestCase
         $master = new CentralizedMaster(
             config: $workerPoolConfig,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $serverConfig,
             eventDrivenWorker: $testWorker,
         );

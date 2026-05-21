@@ -10,6 +10,8 @@ use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use InvalidArgumentException;
@@ -21,6 +23,8 @@ class SharedSocketMasterEventDrivenTest extends TestCase
 {
     private ServerConfig $serverConfig;
     private WorkerPoolConfig $workerPoolConfig;
+    private SocketWrapper $socketWrapper;
+    private ForkWrapper $forkWrapper;
 
     #[Override]
     protected function setUp(): void
@@ -36,6 +40,9 @@ class SharedSocketMasterEventDrivenTest extends TestCase
             serverConfig: $this->serverConfig,
             workerCount: 2,
         );
+
+        $this->socketWrapper = new SocketWrapper();
+        $this->forkWrapper = new ForkWrapper();
     }
 
     public function testCreatesMasterWithEventDrivenWorker(): void
@@ -47,6 +54,8 @@ class SharedSocketMasterEventDrivenTest extends TestCase
         $master = new SharedSocketMaster(
             config: $this->workerPoolConfig,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             eventDrivenWorker: $worker,
         );
 
@@ -62,6 +71,8 @@ class SharedSocketMasterEventDrivenTest extends TestCase
         $master = new SharedSocketMaster(
             config: $this->workerPoolConfig,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $callback,
         );
 
@@ -76,6 +87,8 @@ class SharedSocketMasterEventDrivenTest extends TestCase
         new SharedSocketMaster(
             config: $this->workerPoolConfig,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: null,
             eventDrivenWorker: null,
         );
@@ -91,10 +104,11 @@ class SharedSocketMasterEventDrivenTest extends TestCase
             public function run(int $workerId, ServerInterface $server): void {}
         };
 
-        // Should not throw - both interfaces provided
         $master = new SharedSocketMaster(
             config: $this->workerPoolConfig,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $callback,
             eventDrivenWorker: $worker,
         );
@@ -121,6 +135,8 @@ class SharedSocketMasterEventDrivenTest extends TestCase
         $master = new SharedSocketMaster(
             config: $this->workerPoolConfig,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             eventDrivenWorker: $worker,
         );
 

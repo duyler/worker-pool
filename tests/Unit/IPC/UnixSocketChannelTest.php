@@ -11,6 +11,7 @@ use Duyler\WorkerPool\IPC\Message;
 use Duyler\WorkerPool\IPC\UnixSocketChannel;
 use Override;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 
 #[CoversClass(UnixSocketChannel::class)]
 class UnixSocketChannelTest extends TestCase
@@ -36,7 +37,7 @@ class UnixSocketChannelTest extends TestCase
 
     public function testCreatesServerSocket(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
 
         $this->assertTrue($server->connect());
         $this->assertTrue($server->isConnected());
@@ -47,10 +48,10 @@ class UnixSocketChannelTest extends TestCase
 
     public function testCreatesClientSocket(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
         $server->connect();
 
-        $client = new UnixSocketChannel($this->socketPath, isServer: false);
+        $client = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: false);
 
         $this->assertTrue($client->connect());
         $this->assertTrue($client->isConnected());
@@ -61,10 +62,10 @@ class UnixSocketChannelTest extends TestCase
 
     public function testServerAcceptsClientConnection(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
         $server->connect();
 
-        $client = new UnixSocketChannel($this->socketPath, isServer: false);
+        $client = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: false);
         $client->connect();
 
         usleep(10000);
@@ -79,10 +80,10 @@ class UnixSocketChannelTest extends TestCase
 
     public function testSendsAndReceivesMessage(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
         $server->connect();
 
-        $client = new UnixSocketChannel($this->socketPath, isServer: false);
+        $client = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: false);
         $client->connect();
 
         usleep(10000);
@@ -102,7 +103,7 @@ class UnixSocketChannelTest extends TestCase
 
     public function testThrowsOnSendWithoutConnection(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper());
 
         $this->expectException(IPCException::class);
         $this->expectExceptionMessage('Socket is not connected');
@@ -112,7 +113,7 @@ class UnixSocketChannelTest extends TestCase
 
     public function testThrowsOnReceiveWithoutConnection(): void
     {
-        $channel = new UnixSocketChannel($this->socketPath);
+        $channel = new UnixSocketChannel($this->socketPath, new SocketWrapper());
 
         $this->expectException(IPCException::class);
         $this->expectExceptionMessage('Socket is not connected');
@@ -122,10 +123,10 @@ class UnixSocketChannelTest extends TestCase
 
     public function testThrowsOnAcceptFromNonServer(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
         $server->connect();
 
-        $client = new UnixSocketChannel($this->socketPath, isServer: false);
+        $client = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: false);
         $client->connect();
 
         $this->expectException(IPCException::class);
@@ -139,7 +140,7 @@ class UnixSocketChannelTest extends TestCase
 
     public function testClosesSocketProperly(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
         $server->connect();
 
         $this->assertTrue($server->isConnected());
@@ -152,7 +153,7 @@ class UnixSocketChannelTest extends TestCase
 
     public function testRemovesSocketFileOnServerClose(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
         $server->connect();
 
         $this->assertFileExists($this->socketPath);
@@ -164,7 +165,7 @@ class UnixSocketChannelTest extends TestCase
 
     public function testReturnsNullWhenNoClientToAccept(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
         $server->connect();
 
         $clientSocket = $server->accept();
@@ -176,10 +177,10 @@ class UnixSocketChannelTest extends TestCase
 
     public function testReturnsNullWhenNoMessageToReceive(): void
     {
-        $server = new UnixSocketChannel($this->socketPath, isServer: true);
+        $server = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: true);
         $server->connect();
 
-        $client = new UnixSocketChannel($this->socketPath, isServer: false);
+        $client = new UnixSocketChannel($this->socketPath, new SocketWrapper(), isServer: false);
         $client->connect();
 
         usleep(10000);

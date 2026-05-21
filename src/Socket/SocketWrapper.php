@@ -24,6 +24,7 @@ use function socket_strerror;
 use function socket_write;
 
 use const PHP_BINARY_READ;
+use const E_WARNING;
 
 final class SocketWrapper implements SocketWrapperInterface
 {
@@ -36,7 +37,13 @@ final class SocketWrapper implements SocketWrapperInterface
     #[Override]
     public function bind(Socket $socket, string $address, int $port = 0): bool
     {
-        return socket_bind($socket, $address, $port);
+        set_error_handler(static fn(int $errno, string $errstr): bool => true, E_WARNING);
+
+        try {
+            return socket_bind($socket, $address, $port);
+        } finally {
+            restore_error_handler();
+        }
     }
 
     #[Override]

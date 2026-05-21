@@ -13,6 +13,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Socket;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
 use function defined;
 use function function_exists;
 
@@ -31,7 +34,7 @@ class FdPasserExtendedTest extends TestCase
             $this->markTestSkipped('socket_sendmsg is available on this system');
         }
 
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
         $this->assertInstanceOf(Socket::class, $socket);
 
@@ -47,7 +50,7 @@ class FdPasserExtendedTest extends TestCase
             $this->markTestSkipped('SCM_RIGHTS is defined on this system');
         }
 
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
         $this->assertInstanceOf(Socket::class, $socket);
 
@@ -63,7 +66,7 @@ class FdPasserExtendedTest extends TestCase
             $this->markTestSkipped('socket_recvmsg is available on this system');
         }
 
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
         $this->assertInstanceOf(Socket::class, $socket);
 
@@ -75,7 +78,7 @@ class FdPasserExtendedTest extends TestCase
 
     public function testSendFdReturnsFalseOnFailure(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -91,7 +94,7 @@ class FdPasserExtendedTest extends TestCase
 
     public function testReceiveFdReturnsNullWhenSocketNotReadable(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!$passer->isSupported()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -113,7 +116,7 @@ class FdPasserExtendedTest extends TestCase
 
     public function testReceivesFdWithComplexMetadata(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -161,7 +164,7 @@ class FdPasserExtendedTest extends TestCase
         $logger->expects($this->atLeastOnce())
             ->method('debug');
 
-        $passer = new FdPasser($logger);
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper(), $logger);
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -192,7 +195,7 @@ class FdPasserExtendedTest extends TestCase
         $logger->expects($this->atLeastOnce())
             ->method('error');
 
-        $passer = new FdPasser($logger);
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper(), $logger);
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -207,7 +210,7 @@ class FdPasserExtendedTest extends TestCase
 
     public function testHandlesCorruptedMetadataJson(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -240,7 +243,7 @@ class FdPasserExtendedTest extends TestCase
 
     public function testReturnsEmptyArrayWhenNoMetadataSent(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -273,7 +276,7 @@ class FdPasserExtendedTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
 
-        $passer = new FdPasser($logger);
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper(), $logger);
 
         if (!$passer->isSupported()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -295,7 +298,7 @@ class FdPasserExtendedTest extends TestCase
 
     public function testHandlesEmptyIovData(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -326,7 +329,7 @@ class FdPasserExtendedTest extends TestCase
 
     public function testHandlesNullByteInMetadata(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped('SCM_RIGHTS not supported on this platform');
@@ -359,7 +362,7 @@ class FdPasserExtendedTest extends TestCase
 
     public function testIsSupportedReturnsFalseOnNonLinux(): void
     {
-        $passer = new FdPasser();
+        $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
         $isSupported = $passer->isSupported();
 

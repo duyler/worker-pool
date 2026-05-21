@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
@@ -21,6 +23,8 @@ class SharedSocketMasterExtendedTest extends TestCase
 {
     private WorkerPoolConfig $config;
     private ServerConfig $serverConfig;
+    private SocketWrapper $socketWrapper;
+    private ForkWrapper $forkWrapper;
 
     protected function setUp(): void
     {
@@ -34,6 +38,9 @@ class SharedSocketMasterExtendedTest extends TestCase
             workerCount: 1,
             autoRestart: false,
         );
+
+        $this->socketWrapper = new SocketWrapper();
+        $this->forkWrapper = new ForkWrapper();
     }
 
     public function testThrowsExceptionWhenNeitherWorkerCallbackNorEventDrivenWorkerProvided(): void
@@ -41,7 +48,7 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either workerCallback or eventDrivenWorker must be provided');
 
-        new SharedSocketMaster($this->config, $this->serverConfig);
+        new SharedSocketMaster($this->config, $this->serverConfig, $this->socketWrapper, $this->forkWrapper);
     }
 
     public function testCreatesMasterWithWorkerCallback(): void
@@ -53,6 +60,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $this->config,
             $this->serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -69,6 +78,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $this->config,
             $this->serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -96,6 +107,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $this->config,
             $this->serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -115,6 +128,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $this->config,
             $this->serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -130,6 +145,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $this->config,
             $this->serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -149,6 +166,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $this->config,
             $this->serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
             logger: $logger,
         );
@@ -176,6 +195,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $config,
             $serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -203,6 +224,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $config,
             $serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -230,6 +253,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $config,
             $serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -257,6 +282,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $config,
             $serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
@@ -284,6 +311,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $master = new SharedSocketMaster(
             $config,
             $serverConfig,
+            $this->socketWrapper,
+            $this->forkWrapper,
             workerCallback: $workerCallback,
         );
 
