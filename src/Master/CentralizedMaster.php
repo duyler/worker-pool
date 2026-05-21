@@ -62,7 +62,7 @@ final class CentralizedMaster extends AbstractMaster
 
         if (null !== $this->serverConfig) {
             $this->socketManager = new SocketManager($this->serverConfig, $this->socketWrapper, $this->logger);
-            $this->connectionQueue = new ConnectionQueue(maxSize: 1000, socketWrapper: $this->socketWrapper);
+            $this->connectionQueue = new ConnectionQueue(maxSize: $this->config->maxQueueSize, socketWrapper: $this->socketWrapper);
         }
     }
 

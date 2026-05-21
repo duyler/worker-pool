@@ -19,6 +19,8 @@ use Override;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+use ReflectionClass;
+
 use function count;
 use function function_exists;
 
@@ -167,5 +169,34 @@ class CentralizedMasterTest extends TestCase
         $workers = $master->getWorkers();
 
         $this->assertEmpty($workers);
+    }
+
+    #[Test]
+    public function uses_max_queue_size_from_config(): void
+    {
+        $serverConfig = new ServerConfig(
+            host: '127.0.0.1',
+            port: 8080,
+        );
+
+        $config = new WorkerPoolConfig(
+            serverConfig: $serverConfig,
+            workerCount: 1,
+            maxQueueSize: 500,
+            autoRestart: false,
+        );
+
+        $master = new CentralizedMaster($config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper, serverConfig: $serverConfig, workerCallback: $this->workerCallback);
+
+        $reflection = new ReflectionClass($master);
+        $queueProperty = $reflection->getProperty('connectionQueue');
+        $queue = $queueProperty->getValue($master);
+
+        $this->assertNotNull($queue);
+
+        $queueReflection = new ReflectionClass($queue);
+        $maxSizeProperty = $queueReflection->getProperty('maxSize');
+
+        $this->assertSame(500, $maxSizeProperty->getValue($queue));
     }
 }
