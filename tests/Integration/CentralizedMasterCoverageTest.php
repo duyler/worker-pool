@@ -116,11 +116,10 @@ final class CentralizedMasterCoverageTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [
-            1 => new ProcessInfo(1, $pid1, ProcessState::Ready, new ForkWrapper()),
-            2 => new ProcessInfo(2, $pid2, ProcessState::Ready, new ForkWrapper()),
-        ]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid1, ProcessState::Ready, new ForkWrapper()));
+        $workerManager->updateWorker(2, new ProcessInfo(2, $pid2, ProcessState::Ready, new ForkWrapper()));
 
         $this->assertTrue($master->isRunning());
         $master->stop();
@@ -182,8 +181,9 @@ final class CentralizedMasterCoverageTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper())]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         usleep(50000);
 
@@ -218,8 +218,9 @@ final class CentralizedMasterCoverageTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper())]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         $metrics = $master->getMetrics();
         $this->assertSame(1, $metrics['total_workers']);

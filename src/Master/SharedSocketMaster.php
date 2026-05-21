@@ -14,7 +14,6 @@ use Duyler\WorkerPool\Process\ProcessState;
 use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
-use InvalidArgumentException;
 use Override;
 use Psr\Log\LoggerInterface;
 use Socket;
@@ -51,26 +50,16 @@ use const SO_REUSEPORT;
  */
 final class SharedSocketMaster extends AbstractMaster
 {
-    private readonly WorkerManager $workerManager;
-
     public function __construct(
         WorkerPoolConfig $config,
         private readonly ServerConfig $serverConfig,
         private readonly SocketWrapperInterface $socketWrapper,
         ForkWrapperInterface $forkWrapper,
-        private readonly ?WorkerCallbackInterface $workerCallback = null,
-        private readonly ?EventDrivenWorkerInterface $eventDrivenWorker = null,
+        ?WorkerCallbackInterface $workerCallback = null,
+        ?EventDrivenWorkerInterface $eventDrivenWorker = null,
         ?LoggerInterface $logger = null,
     ) {
-        parent::__construct($config, $forkWrapper, $logger);
-
-        if (null === $this->workerCallback && null === $this->eventDrivenWorker) {
-            throw new InvalidArgumentException(
-                'Either workerCallback or eventDrivenWorker must be provided',
-            );
-        }
-
-        $this->workerManager = new WorkerManager($forkWrapper, $this->logger);
+        parent::__construct($config, $forkWrapper, $logger, $workerCallback, $eventDrivenWorker);
     }
 
     #[Override]
@@ -91,7 +80,6 @@ final class SharedSocketMaster extends AbstractMaster
     public function stop(): void
     {
         parent::stop();
-        $this->workerManager->stopAll();
     }
 
     /**
@@ -103,7 +91,7 @@ final class SharedSocketMaster extends AbstractMaster
         $activeWorkers = 0;
         $totalConnections = 0;
 
-        foreach ($this->workers as $worker) {
+        foreach ($this->getWorkers() as $worker) {
             if ($worker->isAlive()) {
                 $activeWorkers++;
                 $totalConnections += $worker->connections;
@@ -112,7 +100,7 @@ final class SharedSocketMaster extends AbstractMaster
 
         return [
             'architecture' => 'shared_socket',
-            'total_workers' => count($this->workers),
+            'total_workers' => count($this->getWorkers()),
             'active_workers' => $activeWorkers,
             'total_connections' => $totalConnections,
             'is_running' => $this->isRunning(),
@@ -159,12 +147,12 @@ final class SharedSocketMaster extends AbstractMaster
             exit(0);
         }
 
-        $this->workers[$workerId] = new ProcessInfo(
+        $this->workerManager->updateWorker($workerId, new ProcessInfo(
             workerId: $workerId,
             pid: $pid,
             state: ProcessState::Ready,
             forkWrapper: $this->forkWrapper,
-        );
+        ));
 
         $this->logger->info('Worker spawned', ['worker_id' => $workerId, 'pid' => $pid]);
     }
@@ -176,7 +164,7 @@ final class SharedSocketMaster extends AbstractMaster
         $server = new Server($this->serverConfig);
         $server->setWorkerId($workerId);
 
-        $socket = $this->createSharedSocket($workerId);
+        $socket = $this->createReusePortSocket($workerId);
 
         $server->setExternalSocketResource($socket);
         $this->logger->debug('External socket resource passed to Server', [
@@ -192,7 +180,7 @@ final class SharedSocketMaster extends AbstractMaster
         $this->eventDrivenWorker->run($workerId, $server);
     }
 
-    private function createSharedSocket(int $workerId): Socket
+    private function createReusePortSocket(int $workerId): Socket
     {
         $socket = $this->socketWrapper->create(AF_INET, SOCK_STREAM, SOL_TCP);
 
@@ -247,52 +235,18 @@ final class SharedSocketMaster extends AbstractMaster
     {
         assert(null !== $this->workerCallback);
 
-        $socket = $this->socketWrapper->create(AF_INET, SOCK_STREAM, SOL_TCP);
-
-        if (false === $socket) {
-            $this->logger->error('Failed to create socket', ['worker_id' => $workerId]);
-            exit(1);
-        }
-
-        if (false === $this->socketWrapper->setOption($socket, SOL_SOCKET, SO_REUSEADDR, 1)) {
-            $this->logger->error('Failed to set SO_REUSEADDR', ['worker_id' => $workerId]);
-            exit(1);
-        }
-
-        if (false === $this->socketWrapper->setOption($socket, SOL_SOCKET, SO_REUSEPORT, 1)) {
-            $this->logger->error('Failed to set SO_REUSEPORT', ['worker_id' => $workerId]);
-            exit(1);
-        }
-
-        $host = $this->serverConfig->host;
-        $port = $this->serverConfig->port;
-
-        if (false === $this->socketWrapper->bind($socket, $host, $port)) {
-            $error = $this->socketWrapper->strerror($this->socketWrapper->lastError($socket));
-            $this->logger->error('Failed to bind socket', [
-                'worker_id' => $workerId,
-                'host' => $host,
-                'port' => $port,
-                'error' => $error,
-            ]);
-            exit(1);
-        }
-
-        if (false === $this->socketWrapper->listen($socket, $this->serverConfig->socketBacklog)) {
-            $this->logger->error('Failed to listen', [
-                'worker_id' => $workerId,
-                'error' => $this->socketWrapper->strerror($this->socketWrapper->lastError($socket)),
-            ]);
+        try {
+            $socket = $this->createReusePortSocket($workerId);
+        } catch (WorkerPoolException $e) {
+            $this->logger->error($e->getMessage(), ['worker_id' => $workerId]);
             exit(1);
         }
 
         $this->logger->info('Worker listening', [
             'worker_id' => $workerId,
-            'host' => $host,
-            'port' => $port,
+            'host' => $this->serverConfig->host,
+            'port' => $this->serverConfig->port,
         ]);
-
-        $this->socketWrapper->setNonBlock($socket);
 
         /** @phpstan-ignore-next-line */
         while (true) {

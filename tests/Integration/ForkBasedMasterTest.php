@@ -87,9 +87,9 @@ final class ForkBasedMasterTest extends TestCase
             $this->fail('Failed to fork');
         }
 
-        $workersRef = $masterRef->getProperty('workers');
-        $processInfo = new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper());
-        $workersRef->setValue($master, [1 => $processInfo]);
+        $wmRef = $masterRef->getProperty('workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         $this->assertSame(1, $master->getWorkerCount());
 
@@ -179,10 +179,9 @@ final class ForkBasedMasterTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [
-            1 => new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()),
-        ]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         $this->assertTrue($master->isRunning());
         $master->stop();

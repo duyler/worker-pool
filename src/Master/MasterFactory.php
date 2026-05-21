@@ -17,7 +17,6 @@ use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Duyler\WorkerPool\Util\SystemInfo;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -34,12 +33,6 @@ final class MasterFactory
         ?SocketMsgWrapperInterface $socketMsgWrapper = null,
         ?ForkWrapperInterface $forkWrapper = null,
     ): MasterInterface {
-        if (null === $workerCallback && null === $eventDrivenWorker) {
-            throw new InvalidArgumentException(
-                'Either workerCallback or eventDrivenWorker must be provided',
-            );
-        }
-
         $socket = $socketWrapper ?? new SocketWrapper();
         $socketMsg = $socketMsgWrapper ?? new SocketMsgWrapper();
         $fork = $forkWrapper ?? new ForkWrapper();
@@ -80,12 +73,6 @@ final class MasterFactory
         ?SocketMsgWrapperInterface $socketMsgWrapper = null,
         ?ForkWrapperInterface $forkWrapper = null,
     ): MasterInterface {
-        if (null === $workerCallback && null === $eventDrivenWorker) {
-            throw new InvalidArgumentException(
-                'Either workerCallback or eventDrivenWorker must be provided',
-            );
-        }
-
         $socket = $socketWrapper ?? new SocketWrapper();
         $socketMsg = $socketMsgWrapper ?? new SocketMsgWrapper();
         $fork = $forkWrapper ?? new ForkWrapper();

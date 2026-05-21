@@ -8,6 +8,9 @@ use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Process\ForkWrapperInterface;
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
+use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
+use InvalidArgumentException;
 use Override;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -16,27 +19,30 @@ use function count;
 
 use const SIGINT;
 use const SIGTERM;
-use const WNOHANG;
 
 abstract class AbstractMaster implements MasterInterface
 {
     protected bool $shouldStop = false;
-
-    /**
-     * @var array<int, ProcessInfo>
-     */
-    protected array $workers = [];
-
     protected SignalHandler $signalHandler;
     protected LoggerInterface $logger;
+    protected readonly WorkerManager $workerManager;
 
     public function __construct(
         protected readonly WorkerPoolConfig $config,
         protected readonly ForkWrapperInterface $forkWrapper,
         ?LoggerInterface $logger = null,
+        protected readonly ?WorkerCallbackInterface $workerCallback = null,
+        protected readonly ?EventDrivenWorkerInterface $eventDrivenWorker = null,
     ) {
+        if (null === $this->workerCallback && null === $this->eventDrivenWorker) {
+            throw new InvalidArgumentException(
+                'Either workerCallback or eventDrivenWorker must be provided',
+            );
+        }
+
         $this->logger = $logger ?? new NullLogger();
         $this->signalHandler = new SignalHandler();
+        $this->workerManager = new WorkerManager($this->forkWrapper, $this->logger);
         $this->setupSignals();
     }
 
@@ -44,12 +50,7 @@ abstract class AbstractMaster implements MasterInterface
     public function stop(): void
     {
         $this->shouldStop = true;
-
-        foreach ($this->workers as $worker) {
-            if ($worker->pid > 0) {
-                $this->forkWrapper->kill($worker->pid, SIGTERM);
-            }
-        }
+        $this->workerManager->stopAll();
     }
 
     /**
@@ -57,12 +58,12 @@ abstract class AbstractMaster implements MasterInterface
      */
     public function getWorkers(): array
     {
-        return $this->workers;
+        return $this->workerManager->getWorkers();
     }
 
     public function getWorkerCount(): int
     {
-        return count($this->workers);
+        return count($this->workerManager->getWorkers());
     }
 
     #[Override]
@@ -77,33 +78,20 @@ abstract class AbstractMaster implements MasterInterface
 
     protected function checkWorkers(): void
     {
-        $status = 0;
-        foreach ($this->workers as $workerId => $worker) {
-            $result = $this->forkWrapper->waitpid($worker->pid, $status, WNOHANG);
+        $deadWorkerIds = $this->workerManager->check();
 
-            if ($result === $worker->pid) {
-                $this->logger->warning('Worker died', [
-                    'worker_id' => $workerId,
-                    'pid' => $worker->pid,
-                ]);
-
-                unset($this->workers[$workerId]);
-
-                if ($this->config->autoRestart && false === $this->shouldStop) {
-                    $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
-                    sleep($this->config->restartDelay);
-                    $this->spawnWorker($workerId);
-                }
+        foreach ($deadWorkerIds as $workerId) {
+            if ($this->config->autoRestart && false === $this->shouldStop) {
+                $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
+                sleep($this->config->restartDelay);
+                $this->spawnWorker($workerId);
             }
         }
     }
 
     protected function waitForWorkers(): void
     {
-        $status = 0;
-        foreach ($this->workers as $worker) {
-            $this->forkWrapper->waitpid($worker->pid, $status);
-        }
+        $this->workerManager->waitAll();
     }
 
     protected function setupSignals(): void

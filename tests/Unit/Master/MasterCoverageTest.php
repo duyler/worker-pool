@@ -68,11 +68,10 @@ final class MasterCoverageTest extends TestCase
             logger: $logger,
         );
 
-        $ref = new ReflectionProperty($master, 'workers');
-        $ref->setValue($master, [
-            1 => new ProcessInfo(1, getmypid(), ProcessState::Ready, $this->forkWrapper, 5, 10),
-            2 => new ProcessInfo(2, 999999, ProcessState::Stopped, $this->forkWrapper, 0, 0),
-        ]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, getmypid(), ProcessState::Ready, $this->forkWrapper, 5, 10));
+        $workerManager->updateWorker(2, new ProcessInfo(2, 999999, ProcessState::Stopped, $this->forkWrapper, 0, 0));
 
         $metrics = $master->getMetrics();
 
@@ -119,11 +118,10 @@ final class MasterCoverageTest extends TestCase
             workerCallback: $callback,
         );
 
-        $ref = new ReflectionProperty($master, 'workers');
-        $ref->setValue($master, [
-            1 => new ProcessInfo(1, getmypid(), ProcessState::Ready, $this->forkWrapper, 3),
-            2 => new ProcessInfo(2, getmypid(), ProcessState::Busy, $this->forkWrapper, 7),
-        ]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, getmypid(), ProcessState::Ready, $this->forkWrapper, 3));
+        $workerManager->updateWorker(2, new ProcessInfo(2, getmypid(), ProcessState::Busy, $this->forkWrapper, 7));
 
         $metrics = $master->getMetrics();
 
@@ -195,10 +193,9 @@ final class MasterCoverageTest extends TestCase
 
         $this->assertSame(0, $master->getWorkerCount());
 
-        $ref = new ReflectionProperty($master, 'workers');
-        $ref->setValue($master, [
-            1 => new ProcessInfo(1, getmypid(), ProcessState::Ready, $this->forkWrapper),
-        ]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, getmypid(), ProcessState::Ready, $this->forkWrapper));
 
         $this->assertSame(1, $master->getWorkerCount());
     }

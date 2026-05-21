@@ -18,7 +18,6 @@ use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Fiber;
-use InvalidArgumentException;
 use Override;
 use Psr\Log\LoggerInterface;
 use Socket;
@@ -29,7 +28,6 @@ use function count;
 use const AF_UNIX;
 use const SOCKET_EINTR;
 use const SOCK_STREAM;
-use const WNOHANG;
 
 /**
  * Centralized Master with custom load balancing
@@ -65,7 +63,6 @@ final class CentralizedMaster extends AbstractMaster
     private ?SocketManager $socketManager = null;
     private ?ConnectionQueue $connectionQueue = null;
     private readonly FdPasser $fdPasser;
-    private readonly WorkerManager $workerManager;
     private readonly ConnectionRouter $connectionRouter;
 
     public function __construct(
@@ -75,20 +72,13 @@ final class CentralizedMaster extends AbstractMaster
         private readonly SocketMsgWrapperInterface $socketMsgWrapper,
         ForkWrapperInterface $forkWrapper,
         private readonly ?ServerConfig $serverConfig = null,
-        private readonly ?WorkerCallbackInterface $workerCallback = null,
-        private readonly ?EventDrivenWorkerInterface $eventDrivenWorker = null,
+        ?WorkerCallbackInterface $workerCallback = null,
+        ?EventDrivenWorkerInterface $eventDrivenWorker = null,
         ?LoggerInterface $logger = null,
     ) {
-        parent::__construct($config, $forkWrapper, $logger);
-
-        if (null === $this->workerCallback && null === $this->eventDrivenWorker) {
-            throw new InvalidArgumentException(
-                'Either workerCallback or eventDrivenWorker must be provided',
-            );
-        }
+        parent::__construct($config, $forkWrapper, $logger, $workerCallback, $eventDrivenWorker);
 
         $this->fdPasser = new FdPasser($this->socketWrapper, $this->socketMsgWrapper, $this->logger);
-        $this->workerManager = new WorkerManager($forkWrapper, $this->logger);
         $this->connectionRouter = new ConnectionRouter($this->socketWrapper, $this->balancer, $this->fdPasser, $this->logger);
 
         if (null !== $this->serverConfig) {
@@ -121,7 +111,6 @@ final class CentralizedMaster extends AbstractMaster
     public function stop(): void
     {
         parent::stop();
-        $this->workerManager->stopAll();
     }
 
     /**
@@ -134,7 +123,7 @@ final class CentralizedMaster extends AbstractMaster
         $totalConnections = 0;
         $totalRequests = 0;
 
-        foreach ($this->workers as $worker) {
+        foreach ($this->getWorkers() as $worker) {
             if ($worker->isAlive()) {
                 $aliveWorkers++;
                 $totalConnections += $worker->connections;
@@ -204,7 +193,7 @@ final class CentralizedMaster extends AbstractMaster
             if ($iteration % 1000 === 0) {
                 $this->logger->debug('Main loop iteration', [
                     'iteration' => $iteration,
-                    'workers_alive' => count($this->workers),
+                    'workers_alive' => count($this->getWorkers()),
                 ]);
             }
         }
@@ -216,24 +205,16 @@ final class CentralizedMaster extends AbstractMaster
     #[Override]
     protected function checkWorkers(): void
     {
-        $status = 0;
-        foreach ($this->workers as $workerId => $worker) {
-            $result = $this->forkWrapper->waitpid($worker->pid, $status, WNOHANG);
+        $deadWorkerIds = $this->workerManager->check();
 
-            if ($result === $worker->pid) {
-                $this->logger->warning('Worker died', [
-                    'worker_id' => $workerId,
-                    'pid' => $worker->pid,
-                ]);
+        foreach ($deadWorkerIds as $workerId) {
+            $this->balancer->onWorkerRemoved($workerId);
+            unset($this->workerSockets[$workerId]);
 
-                $this->balancer->onWorkerRemoved($workerId);
-                unset($this->workers[$workerId], $this->workerSockets[$workerId]);
-
-                if ($this->config->autoRestart && false === $this->shouldStop) {
-                    $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
-                    sleep($this->config->restartDelay);
-                    $this->spawnWorker($workerId);
-                }
+            if ($this->config->autoRestart && false === $this->shouldStop) {
+                $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
+                sleep($this->config->restartDelay);
+                $this->spawnWorker($workerId);
             }
         }
     }
@@ -280,12 +261,12 @@ final class CentralizedMaster extends AbstractMaster
 
         $this->socketWrapper->close($workerSocket);
 
-        $this->workers[$workerId] = new ProcessInfo(
+        $this->workerManager->updateWorker($workerId, new ProcessInfo(
             workerId: $workerId,
             pid: $pid,
             state: ProcessState::Ready,
             forkWrapper: $this->forkWrapper,
-        );
+        ));
 
         $this->workerSockets[$workerId] = $masterSocket;
         $this->logger->info('Worker spawned', ['worker_id' => $workerId, 'pid' => $pid]);
@@ -344,7 +325,7 @@ final class CentralizedMaster extends AbstractMaster
 
             $this->connectionRouter->route(
                 clientSocket: $clientSocket,
-                workers: $this->workers,
+                workers: $this->getWorkers(),
                 workerSockets: $this->workerSockets,
             );
         }

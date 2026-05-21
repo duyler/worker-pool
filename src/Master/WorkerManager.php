@@ -96,9 +96,14 @@ final class WorkerManager
         return $count;
     }
 
-    public function check(bool $shouldRestart = true): void
+    /**
+     * @return array<int>
+     */
+    public function check(): array
     {
+        $deadWorkerIds = [];
         $status = 0;
+
         foreach ($this->workers as $workerId => $worker) {
             $result = $this->forkWrapper->waitpid($worker->pid, $status, WNOHANG);
 
@@ -109,8 +114,11 @@ final class WorkerManager
                 ]);
 
                 unset($this->workers[$workerId]);
+                $deadWorkerIds[] = $workerId;
             }
         }
+
+        return $deadWorkerIds;
     }
 
     public function stopAll(): void
