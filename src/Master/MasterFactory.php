@@ -116,9 +116,6 @@ final class MasterFactory
         return 'SharedSocketMaster - Distributed architecture with kernel load balancing';
     }
 
-    /**
-     * @return array<string, array<string, string>>
-     */
     public static function getComparison(): array
     {
         return [

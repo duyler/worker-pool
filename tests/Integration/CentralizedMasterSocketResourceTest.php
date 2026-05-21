@@ -18,7 +18,6 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 use Psr\Log\NullLogger;
 
 #[CoversClass(CentralizedMaster::class)]
@@ -73,25 +72,6 @@ class CentralizedMasterSocketResourceTest extends TestCase
         );
 
         $this->assertInstanceOf(CentralizedMaster::class, $master);
-    }
-
-    #[Test]
-    public function phpdoc_contains_evio_limitation_note(): void
-    {
-        $reflection = new ReflectionClass(CentralizedMaster::class);
-        $docComment = $reflection->getDocComment();
-
-        $this->assertNotFalse($docComment);
-        $this->assertStringContainsString(
-            'EvIo',
-            $docComment,
-            'PHPDoc должен содержать note о EvIo limitation',
-        );
-        $this->assertStringContainsString(
-            'EvTimer fallback is recommended',
-            $docComment,
-            'PHPDoc должен содержать рекомендацию использовать EvTimer fallback',
-        );
     }
 
     #[Test]

@@ -18,6 +18,9 @@ use function count;
 use function sprintf;
 use function strlen;
 
+use function assert;
+use function is_string;
+
 use const SOL_SOCKET;
 use const SO_RCVTIMEO;
 use const SO_SNDTIMEO;
@@ -38,9 +41,6 @@ final readonly class HttpWorkerAdapter
         $this->psr17Factory = new Psr17Factory();
     }
 
-    /**
-     * @param array<string, mixed> $metadata
-     */
     public function handleConnection(Socket $clientSocket, array $metadata = []): void
     {
         $this->socketWrapper->setOption($clientSocket, SOL_SOCKET, SO_RCVTIMEO, [
@@ -78,9 +78,6 @@ final readonly class HttpWorkerAdapter
         }
     }
 
-    /**
-     * @param array<string, mixed> $metadata
-     */
     private function parseRawRequest(string $rawRequest, array $metadata): ?ServerRequestInterface
     {
         try {
@@ -127,6 +124,8 @@ final readonly class HttpWorkerAdapter
              * @var mixed $value
              */
             foreach ($metadata as $key => $value) {
+                assert(is_string($key));
+                assert(null !== $value);
                 $request = $request->withAttribute($key, $value);
             }
 

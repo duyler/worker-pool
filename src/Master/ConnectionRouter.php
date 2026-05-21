@@ -24,10 +24,8 @@ final readonly class ConnectionRouter
     ) {}
 
     /**
-     * @param Socket $clientSocket
      * @param array<int, ProcessInfo> $workers
      * @param array<int, Socket> $workerSockets
-     * @param array<string, mixed> $metadata
      */
     public function route(
         Socket $clientSocket,

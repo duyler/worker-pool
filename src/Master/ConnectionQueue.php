@@ -11,9 +11,7 @@ use function count;
 
 final class ConnectionQueue
 {
-    /**
-     * @var array<Socket>
-     */
+    /** @var array<Socket> */
     private array $queue = [];
 
     public function __construct(

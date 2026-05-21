@@ -8,9 +8,7 @@ use Override;
 
 final class LeastConnectionsBalancer implements BalancerInterface
 {
-    /**
-     * @var array<int, int>
-     */
+    /** @var array<int, int> */
     private array $connections = [];
 
     #[Override]
@@ -64,9 +62,6 @@ final class LeastConnectionsBalancer implements BalancerInterface
         unset($this->connections[$workerId]);
     }
 
-    /**
-     * @return array<int, int>
-     */
     public function getConnections(): array
     {
         return $this->connections;

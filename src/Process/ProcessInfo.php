@@ -104,9 +104,6 @@ final readonly class ProcessInfo
         return $this->forkWrapper->kill($this->pid, 0);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function toArray(): array
     {
         return [

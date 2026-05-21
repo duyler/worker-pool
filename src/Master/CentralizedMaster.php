@@ -29,35 +29,9 @@ use const AF_UNIX;
 use const SOCKET_EINTR;
 use const SOCK_STREAM;
 
-/**
- * Centralized Master with custom load balancing
- *
- * Architecture:
- * - Single master process accepts all connections
- * - Master maintains centralized queue
- * - Master distributes connections to workers via IPC (FD passing)
- * - Custom load balancing algorithms (Least Connections, Round Robin)
- *
- * Requirements:
- * - Linux (SCM_RIGHTS support)
- * - socket_sendmsg/socket_recvmsg functions
- *
- * Use when:
- * - Need custom load balancing
- * - Need sticky sessions
- * - Need centralized connection queue
- * - Running on Linux
- *
- * @note For EvIo integration: Unix socket pair only detects IPC activity.
- * EvTimer fallback is recommended in Event Bus configuration.
- *
- * @see SharedSocketMaster For distributed architecture with kernel load balancing
- */
 final class CentralizedMaster extends AbstractMaster
 {
-    /**
-     * @var array<int, Socket>
-     */
+    /** @var array<int, Socket> */
     private array $workerSockets = [];
 
     private ?SocketManager $socketManager = null;
@@ -113,9 +87,6 @@ final class CentralizedMaster extends AbstractMaster
         parent::stop();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     #[Override]
     public function getMetrics(): array
     {
@@ -352,7 +323,7 @@ final class CentralizedMaster extends AbstractMaster
         ]);
 
         $fiber = new Fiber(function () use ($workerSocket, $server, $workerId): void {
-            while (true) { // @phpstan-ignore while.alwaysTrue
+            while (true) {
                 $result = $this->fdPasser->receiveFd($workerSocket);
 
                 if (null !== $result) {

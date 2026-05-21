@@ -28,26 +28,6 @@ use const SOL_TCP;
 use const SO_REUSEADDR;
 use const SO_REUSEPORT;
 
-/**
- * Shared Socket Master with kernel load balancing
- *
- * Architecture:
- * - Each worker has its own socket on same port (SO_REUSEPORT)
- * - Kernel automatically distributes connections
- * - No IPC overhead
- * - Simple and reliable
- *
- * Requirements:
- * - SO_REUSEPORT support (Linux, Docker, macOS via Docker)
- *
- * Use when:
- * - Want simple architecture
- * - Kernel load balancing is sufficient
- * - Maximum compatibility needed
- * - Running in Docker or need macOS support
- *
- * @see CentralizedMaster For centralized architecture with custom load balancing
- */
 final class SharedSocketMaster extends AbstractMaster
 {
     public function __construct(
@@ -82,9 +62,6 @@ final class SharedSocketMaster extends AbstractMaster
         parent::stop();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     #[Override]
     public function getMetrics(): array
     {
@@ -248,7 +225,6 @@ final class SharedSocketMaster extends AbstractMaster
             'port' => $this->serverConfig->port,
         ]);
 
-        /** @phpstan-ignore-next-line */
         while (true) {
             $clientSocket = $this->socketWrapper->accept($socket);
 

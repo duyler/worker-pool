@@ -20,6 +20,9 @@ use function is_array;
 use function is_resource;
 use function strlen;
 
+use function assert;
+use function is_string;
+
 use const JSON_THROW_ON_ERROR;
 use const MSG_DONTWAIT;
 use const PHP_OS_FAMILY;
@@ -43,9 +46,6 @@ final readonly class FdPasser
         return function_exists('socket_sendmsg') && function_exists('socket_recvmsg');
     }
 
-    /**
-     * @param array<string, mixed> $metadata
-     */
     public function sendFd(Socket $controlSocket, Socket $fdToSend, array $metadata = []): bool
     {
         if (!function_exists('socket_sendmsg')) {
@@ -116,8 +116,6 @@ final readonly class FdPasser
 
         $result = $this->socketMsgWrapper->recvmsg($controlSocket, $message, MSG_DONTWAIT);
 
-        /** @var array{iov: list<string>, control: list<mixed>, controllen: int} $message */
-
         if (false === $result || 0 === $result) {
             $errno = $this->socketWrapper->lastError($controlSocket);
             if ($errno !== 11 && $errno !== 0 && $callCount % 1000 === 0) {
@@ -133,6 +131,8 @@ final readonly class FdPasser
         $this->logger->debug('Message type', ['type' => gettype($message)]);
 
         $this->logger->debug('Message keys', ['keys' => array_keys($message)]);
+
+        assert(is_array($message['control']));
 
         if (!array_key_exists(0, $message['control'])) {
             $this->logger->error('No control data at index 0');
@@ -164,6 +164,7 @@ final readonly class FdPasser
         }
 
         $metadataJson = $message['iov'][0] ?? '{}';
+        assert(is_string($metadataJson));
         $metadataJson = rtrim($metadataJson, "\0");
 
         if ('' === $metadataJson) {

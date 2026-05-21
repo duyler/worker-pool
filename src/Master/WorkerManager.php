@@ -16,9 +16,7 @@ use const WNOHANG;
 
 final class WorkerManager
 {
-    /**
-     * @var array<int, ProcessInfo>
-     */
+    /** @var array<int, ProcessInfo> */
     private array $workers = [];
 
     public function __construct(

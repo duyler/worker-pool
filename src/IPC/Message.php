@@ -24,9 +24,6 @@ final readonly class Message
 {
     public float $timestamp;
 
-    /**
-     * @param array<string, mixed> $data
-     */
     public function __construct(
         public MessageType $type,
         public array $data = [],
@@ -73,7 +70,6 @@ final readonly class Message
         assert(!isset($decoded['data']) || is_array($decoded['data']));
         assert(!isset($decoded['timestamp']) || is_float($decoded['timestamp']) || is_int($decoded['timestamp']) || is_null($decoded['timestamp']));
 
-        /** @var array<string, mixed> $data */
         $data = $decoded['data'] ?? [];
 
         $timestamp = null;
@@ -104,9 +100,6 @@ final readonly class Message
         );
     }
 
-    /**
-     * @param array<string, mixed> $metrics
-     */
     public static function workerMetrics(array $metrics): self
     {
         return new self(
