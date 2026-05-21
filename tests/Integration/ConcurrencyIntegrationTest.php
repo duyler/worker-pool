@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -38,7 +39,8 @@ final class ConcurrencyIntegrationTest extends TestCase
         parent::tearDown();
     }
 
-    public function testHandlesConcurrentConnectionsWithoutRaceConditions(): void
+    #[Test]
+    public function handles_concurrent_connections_without_race_conditions(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -147,7 +149,8 @@ final class ConcurrencyIntegrationTest extends TestCase
         }
     }
 
-    public function testMaintainsRequestIsolationBetweenWorkers(): void
+    #[Test]
+    public function maintains_request_isolation_between_workers(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -233,7 +236,8 @@ final class ConcurrencyIntegrationTest extends TestCase
         $this->assertGreaterThan(0, count($uniqueWorkers));
     }
 
-    public function testHandlesRapidConnectDisconnect(): void
+    #[Test]
+    public function handles_rapid_connect_disconnect(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));

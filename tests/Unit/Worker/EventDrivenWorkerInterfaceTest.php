@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Worker;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\ErrorHandler\ErrorHandler;
@@ -36,7 +37,8 @@ class EventDrivenWorkerInterfaceTest extends TestCase
         parent::tearDown();
     }
 
-    public function testImplementsEventDrivenWorkerInterface(): void
+    #[Test]
+    public function implements_event_driven_worker_interface(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public bool $runCalled = false;
@@ -61,7 +63,8 @@ class EventDrivenWorkerInterfaceTest extends TestCase
         $this->assertSame($this->server, $worker->receivedServer);
     }
 
-    public function testWorkerCanCheckHasRequest(): void
+    #[Test]
+    public function worker_can_check_has_request(): void
     {
         $hasRequestCalled = false;
 
@@ -87,7 +90,8 @@ class EventDrivenWorkerInterfaceTest extends TestCase
         $this->assertFalse($hasRequestCalled);
     }
 
-    public function testWorkerReceivesCorrectWorkerId(): void
+    #[Test]
+    public function worker_receives_correct_worker_id(): void
     {
         $receivedIds = [];
 
@@ -116,7 +120,8 @@ class EventDrivenWorkerInterfaceTest extends TestCase
         $this->assertSame([1, 2, 3, 4, 5], $receivedIds);
     }
 
-    public function testWorkerCanInteractWithServer(): void
+    #[Test]
+    public function worker_can_interact_with_server(): void
     {
         $serverMode = null;
         $workerId = null;
@@ -144,7 +149,8 @@ class EventDrivenWorkerInterfaceTest extends TestCase
         $this->assertSame(1, $workerId);
     }
 
-    public function testWorkerCanHandleRequestResponseCycle(): void
+    #[Test]
+    public function worker_can_handle_request_response_cycle(): void
     {
         $requestHandled = false;
 
@@ -183,7 +189,8 @@ class EventDrivenWorkerInterfaceTest extends TestCase
         $this->assertFalse($requestHandled);
     }
 
-    public function testMultipleWorkersCanBeCreated(): void
+    #[Test]
+    public function multiple_workers_can_be_created(): void
     {
         $workerCount = 4;
         $workers = [];

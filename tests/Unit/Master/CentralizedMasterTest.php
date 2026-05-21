@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
@@ -58,7 +59,8 @@ class CentralizedMasterTest extends TestCase
         $this->forkWrapper = new ForkWrapper();
     }
 
-    public function testCreatesCentralizedMasterWithConfig(): void
+    #[Test]
+    public function creates_centralized_master_with_config(): void
     {
         $master = new CentralizedMaster($this->config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper, workerCallback: $this->workerCallback);
 
@@ -90,7 +92,8 @@ class CentralizedMasterTest extends TestCase
         pcntl_waitpid($pid, $status);
     }
 
-    public function testTracksWorkerProcesses(): void
+    #[Test]
+    public function tracks_worker_processes(): void
     {
         $master = new CentralizedMaster($this->config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper, workerCallback: $this->workerCallback);
 
@@ -100,7 +103,8 @@ class CentralizedMasterTest extends TestCase
         $this->assertSame(0, count($workers));
     }
 
-    public function testStopsAllWorkersOnStop(): void
+    #[Test]
+    public function stops_all_workers_on_stop(): void
     {
         $master = new CentralizedMaster($this->config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper, workerCallback: $this->workerCallback);
 
@@ -109,7 +113,8 @@ class CentralizedMasterTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testCollectsMetricsFromWorkers(): void
+    #[Test]
+    public function collects_metrics_from_workers(): void
     {
         $master = new CentralizedMaster($this->config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper, workerCallback: $this->workerCallback);
 
@@ -124,7 +129,8 @@ class CentralizedMasterTest extends TestCase
         $this->assertSame(0, $metrics['alive_workers']);
     }
 
-    public function testReturnsWorkerCount(): void
+    #[Test]
+    public function returns_worker_count(): void
     {
         $master = new CentralizedMaster($this->config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper, workerCallback: $this->workerCallback);
 
@@ -133,7 +139,8 @@ class CentralizedMasterTest extends TestCase
         $this->assertSame(0, $count);
     }
 
-    public function testHandlesAutoRestartConfig(): void
+    #[Test]
+    public function handles_auto_restart_config(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -152,7 +159,8 @@ class CentralizedMasterTest extends TestCase
         $this->assertSame(0, $master->getWorkerCount());
     }
 
-    public function testGetsEmptyWorkersListInitially(): void
+    #[Test]
+    public function gets_empty_workers_list_initially(): void
     {
         $master = new CentralizedMaster($this->config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper, workerCallback: $this->workerCallback);
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\Server;
@@ -52,7 +53,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->forkWrapper = new ForkWrapper();
     }
 
-    public function testCreatesMasterWithEventDrivenWorker(): void
+    #[Test]
+    public function creates_master_with_event_driven_worker(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public function run(int $workerId, ServerInterface $server): void {}
@@ -71,7 +73,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testCreatesMasterWithWorkerCallback(): void
+    #[Test]
+    public function creates_master_with_worker_callback(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -90,7 +93,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testThrowsExceptionWhenNoWorkerInterfaceProvided(): void
+    #[Test]
+    public function throws_exception_when_no_worker_interface_provided(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either workerCallback or eventDrivenWorker must be provided');
@@ -107,7 +111,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         );
     }
 
-    public function testAcceptsBothWorkerInterfaces(): void
+    #[Test]
+    public function accepts_both_worker_interfaces(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -131,7 +136,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testCreatesMasterWithoutServerConfig(): void
+    #[Test]
+    public function creates_master_without_server_config(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public function run(int $workerId, ServerInterface $server): void {}
@@ -150,7 +156,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testEventDrivenWorkerReceivesParameters(): void
+    #[Test]
+    public function event_driven_worker_receives_parameters(): void
     {
         $receivedWorkerId = null;
         $receivedServer = null;

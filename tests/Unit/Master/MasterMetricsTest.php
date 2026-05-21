@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
@@ -57,7 +58,8 @@ final class MasterMetricsTest extends TestCase
         $this->forkWrapper = new ForkWrapper();
     }
 
-    public function testCentralizedMasterReturnsMetrics(): void
+    #[Test]
+    public function centralized_master_returns_metrics(): void
     {
         $balancer = new LeastConnectionsBalancer();
         $master = new CentralizedMaster(
@@ -87,7 +89,8 @@ final class MasterMetricsTest extends TestCase
         $this->assertTrue($metrics['is_running']);
     }
 
-    public function testSharedSocketMasterReturnsMetrics(): void
+    #[Test]
+    public function shared_socket_master_returns_metrics(): void
     {
         $master = new SharedSocketMaster(
             config: $this->config,
@@ -113,7 +116,8 @@ final class MasterMetricsTest extends TestCase
         $this->assertTrue($metrics['is_running']);
     }
 
-    public function testMetricsIncludeArchitectureInfo(): void
+    #[Test]
+    public function metrics_include_architecture_info(): void
     {
         $balancer = new LeastConnectionsBalancer();
         $centralizedMaster = new CentralizedMaster(
@@ -141,7 +145,8 @@ final class MasterMetricsTest extends TestCase
         $this->assertSame('shared_socket', $sharedSocketMetrics['architecture']);
     }
 
-    public function testMetricsReflectRunningState(): void
+    #[Test]
+    public function metrics_reflect_running_state(): void
     {
         $balancer = new LeastConnectionsBalancer();
         $master = new CentralizedMaster(

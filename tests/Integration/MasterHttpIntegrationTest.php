@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -41,7 +42,8 @@ class MasterHttpIntegrationTest extends TestCase
         parent::tearDown();
     }
 
-    public function testMasterAcceptsAndDistributesHttpRequests(): void
+    #[Test]
+    public function master_accepts_and_distributes_http_requests(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -117,7 +119,8 @@ class MasterHttpIntegrationTest extends TestCase
         }
     }
 
-    public function testMasterHandlesMultipleConcurrentRequests(): void
+    #[Test]
+    public function master_handles_multiple_concurrent_requests(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));

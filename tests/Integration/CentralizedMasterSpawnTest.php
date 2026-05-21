@@ -45,7 +45,7 @@ final class CentralizedMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function spawnWorkerForksAndRegisters(): void
+    public function spawn_worker_forks_and_registers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -78,7 +78,7 @@ final class CentralizedMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function spawnWorkerWithoutServerConfig(): void
+    public function spawn_worker_without_server_config(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -109,7 +109,7 @@ final class CentralizedMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function spawnWorkerCreatesSocketPair(): void
+    public function spawn_worker_creates_socket_pair(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -144,7 +144,7 @@ final class CentralizedMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function checkWorkersDetectsKilledWorker(): void
+    public function check_workers_detects_killed_worker(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -179,7 +179,7 @@ final class CentralizedMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function checkWorkersAutoRestartsKilledWorker(): void
+    public function check_workers_auto_restarts_killed_worker(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -219,7 +219,7 @@ final class CentralizedMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function connectionRouterRouteWithNoAliveWorkers(): void
+    public function connection_router_route_with_no_alive_workers(): void
     {
         $balancer = new LeastConnectionsBalancer();
         $socketWrapper = new SocketWrapper();

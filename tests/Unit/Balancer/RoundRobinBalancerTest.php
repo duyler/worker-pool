@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Balancer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Override;
@@ -22,14 +23,16 @@ class RoundRobinBalancerTest extends TestCase
         $this->balancer = new RoundRobinBalancer();
     }
 
-    public function testReturnsNullWhenNoWorkersAvailable(): void
+    #[Test]
+    public function returns_null_when_no_workers_available(): void
     {
         $result = $this->balancer->selectWorker([]);
 
         $this->assertNull($result);
     }
 
-    public function testSelectsOnlyAvailableWorker(): void
+    #[Test]
+    public function selects_only_available_worker(): void
     {
         $connections = [1 => 0];
 
@@ -38,7 +41,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(1, $result);
     }
 
-    public function testRotatesThroughWorkersInOrder(): void
+    #[Test]
+    public function rotates_through_workers_in_order(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0];
 
@@ -51,7 +55,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(3, $result3);
     }
 
-    public function testWrapsAroundAfterLastWorker(): void
+    #[Test]
+    public function wraps_around_after_last_worker(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0];
 
@@ -63,7 +68,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(1, $result, 'Should wrap around to first worker');
     }
 
-    public function testDistributesEvenlyAcrossWorkers(): void
+    #[Test]
+    public function distributes_evenly_across_workers(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
 
@@ -80,7 +86,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(25, $distribution[4]);
     }
 
-    public function testIgnoresConnectionCount(): void
+    #[Test]
+    public function ignores_connection_count(): void
     {
         $connections = [1 => 100, 2 => 0, 3 => 50];
 
@@ -93,7 +100,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(3, $result3);
     }
 
-    public function testResetsToFirstWorker(): void
+    #[Test]
+    public function resets_to_first_worker(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0];
 
@@ -109,7 +117,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(1, $result, 'Should start from first worker after reset');
     }
 
-    public function testHandlesWorkerIdsNotSequential(): void
+    #[Test]
+    public function handles_worker_ids_not_sequential(): void
     {
         $connections = [5 => 0, 10 => 0, 15 => 0];
 
@@ -124,7 +133,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(5, $result4);
     }
 
-    public function testMaintainsIndexAcrossMultipleCalls(): void
+    #[Test]
+    public function maintains_index_across_multiple_calls(): void
     {
         $connections = [1 => 0, 2 => 0];
 
@@ -137,7 +147,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(2, $this->balancer->getCurrentIndex());
     }
 
-    public function testConnectionCallbacksDoNothing(): void
+    #[Test]
+    public function connection_callbacks_do_nothing(): void
     {
         $connections = [1 => 0, 2 => 0];
 
@@ -149,7 +160,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(1, $result);
     }
 
-    public function testHandlesSingleWorkerRepeatedly(): void
+    #[Test]
+    public function handles_single_worker_repeatedly(): void
     {
         $connections = [42 => 0];
 
@@ -162,7 +174,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(42, $result3);
     }
 
-    public function testHandlesDynamicWorkerListChanges(): void
+    #[Test]
+    public function handles_dynamic_worker_list_changes(): void
     {
         $connections1 = [1 => 0, 2 => 0, 3 => 0];
 
@@ -176,7 +189,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(1, $result, 'Should restart from beginning with new worker list');
     }
 
-    public function testHandlesWorkerRemovalBeforeCurrentIndex(): void
+    #[Test]
+    public function handles_worker_removal_before_current_index(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
 
@@ -192,7 +206,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(4, $result, 'Should select worker 4 after worker 2 removal');
     }
 
-    public function testHandlesWorkerRemovalAfterCurrentIndex(): void
+    #[Test]
+    public function handles_worker_removal_after_current_index(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0, 4 => 0];
 
@@ -207,7 +222,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(3, $result, 'Should select worker 3 after worker 4 removal');
     }
 
-    public function testHandlesWorkerRemovalAtCurrentIndex(): void
+    #[Test]
+    public function handles_worker_removal_at_current_index(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0];
 
@@ -222,7 +238,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(3, $result, 'Should select worker 3 after worker 2 removal at current index');
     }
 
-    public function testHandlesRemovalOfNonExistentWorker(): void
+    #[Test]
+    public function handles_removal_of_non_existent_worker(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0];
 
@@ -236,7 +253,8 @@ class RoundRobinBalancerTest extends TestCase
         $this->assertSame(3, $result, 'Should continue normally after non-existent worker removal');
     }
 
-    public function testContinuesRotationAfterMultipleRemovals(): void
+    #[Test]
+    public function continues_rotation_after_multiple_removals(): void
     {
         $connections = [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0];
 

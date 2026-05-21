@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Master\ConnectionRouter;
@@ -37,14 +38,16 @@ final class ConnectionRouterTest extends TestCase
         $this->router = new ConnectionRouter(new SocketWrapper(), $this->balancer, new FdPasser(new SocketWrapper(), new SocketMsgWrapper()));
     }
 
-    public function testCanGetBalancer(): void
+    #[Test]
+    public function can_get_balancer(): void
     {
         $balancer = $this->router->getBalancer();
 
         $this->assertSame($this->balancer, $balancer);
     }
 
-    public function testRouteReturnsFalseWhenNoWorkersAvailable(): void
+    #[Test]
+    public function route_returns_false_when_no_workers_available(): void
     {
         $clientSocket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
@@ -61,7 +64,8 @@ final class ConnectionRouterTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function testRouteReturnsFalseWhenWorkerSocketNotFound(): void
+    #[Test]
+    public function route_returns_false_when_worker_socket_not_found(): void
     {
         $clientSocket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 

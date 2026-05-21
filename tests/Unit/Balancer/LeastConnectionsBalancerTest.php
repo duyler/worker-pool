@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Balancer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Override;
@@ -22,14 +23,16 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->balancer = new LeastConnectionsBalancer();
     }
 
-    public function testReturnsNullWhenNoWorkersAvailable(): void
+    #[Test]
+    public function returns_null_when_no_workers_available(): void
     {
         $result = $this->balancer->selectWorker([]);
 
         $this->assertNull($result);
     }
 
-    public function testSelectsOnlyAvailableWorker(): void
+    #[Test]
+    public function selects_only_available_worker(): void
     {
         $connections = [1 => 5];
 
@@ -38,7 +41,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(1, $result);
     }
 
-    public function testSelectsWorkerWithLeastConnections(): void
+    #[Test]
+    public function selects_worker_with_least_connections(): void
     {
         $connections = [
             1 => 10,
@@ -51,7 +55,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(2, $result);
     }
 
-    public function testSelectsWorkerWithZeroConnections(): void
+    #[Test]
+    public function selects_worker_with_zero_connections(): void
     {
         $connections = [
             1 => 5,
@@ -64,7 +69,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(2, $result);
     }
 
-    public function testRandomlySelectsWhenMultipleWorkersHaveSameMinConnections(): void
+    #[Test]
+    public function randomly_selects_when_multiple_workers_have_same_min_connections(): void
     {
         $connections = [
             1 => 5,
@@ -82,7 +88,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertCount(2, $selected, 'Should select both workers with min connections');
     }
 
-    public function testSelectsAllWorkersWithZeroConnectionsRandomly(): void
+    #[Test]
+    public function selects_all_workers_with_zero_connections_randomly(): void
     {
         $connections = [
             1 => 0,
@@ -100,7 +107,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertCount(3, $selected, 'Should select all workers');
     }
 
-    public function testTracksConnectionEstablished(): void
+    #[Test]
+    public function tracks_connection_established(): void
     {
         $this->balancer->selectWorker([1 => 0, 2 => 0]);
 
@@ -114,7 +122,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(1, $connections[2]);
     }
 
-    public function testTracksConnectionClosed(): void
+    #[Test]
+    public function tracks_connection_closed(): void
     {
         $this->balancer->selectWorker([1 => 5, 2 => 3]);
 
@@ -127,7 +136,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(3, $connections[2]);
     }
 
-    public function testDoesNotGoBelowZeroConnections(): void
+    #[Test]
+    public function does_not_go_below_zero_connections(): void
     {
         $this->balancer->selectWorker([1 => 0]);
 
@@ -139,7 +149,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(0, $connections[1]);
     }
 
-    public function testHandlesConnectionClosedForUnknownWorker(): void
+    #[Test]
+    public function handles_connection_closed_for_unknown_worker(): void
     {
         $this->balancer->selectWorker([1 => 5]);
 
@@ -150,7 +161,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertArrayNotHasKey(999, $connections);
     }
 
-    public function testInitializesWorkerOnFirstConnectionEstablished(): void
+    #[Test]
+    public function initializes_worker_on_first_connection_established(): void
     {
         $this->balancer->onConnectionEstablished(42);
 
@@ -159,7 +171,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(1, $connections[42]);
     }
 
-    public function testResetsAllConnections(): void
+    #[Test]
+    public function resets_all_connections(): void
     {
         $this->balancer->selectWorker([1 => 5, 2 => 3]);
         $this->balancer->onConnectionEstablished(1);
@@ -171,7 +184,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertEmpty($connections);
     }
 
-    public function testSelectsCorrectlyAfterMultipleOperations(): void
+    #[Test]
+    public function selects_correctly_after_multiple_operations(): void
     {
         $this->balancer->selectWorker([1 => 0, 2 => 0, 3 => 0]);
 
@@ -192,7 +206,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(2, $selected, 'Should select worker 2 with least connections (1)');
     }
 
-    public function testHandlesLargeNumberOfWorkers(): void
+    #[Test]
+    public function handles_large_number_of_workers(): void
     {
         $connections = [];
         for ($i = 1; $i <= 100; $i++) {
@@ -204,7 +219,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(1, $result, 'Should select worker 1 with 10 connections');
     }
 
-    public function testSelectsNewWorkerAfterConnectionsChange(): void
+    #[Test]
+    public function selects_new_worker_after_connections_change(): void
     {
         $connections = [1 => 10, 2 => 5, 3 => 8];
 
@@ -224,7 +240,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(3, $result2, 'Should now select worker 3');
     }
 
-    public function testRemovesWorkerFromConnections(): void
+    #[Test]
+    public function removes_worker_from_connections(): void
     {
         $this->balancer->selectWorker([1 => 10, 2 => 5, 3 => 7]);
 
@@ -237,7 +254,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(7, $connections[3]);
     }
 
-    public function testHandlesRemovalOfNonExistentWorker(): void
+    #[Test]
+    public function handles_removal_of_non_existent_worker(): void
     {
         $this->balancer->selectWorker([1 => 5, 2 => 3]);
 
@@ -250,7 +268,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(3, $connections[2]);
     }
 
-    public function testSelectsCorrectlyAfterWorkerRemoval(): void
+    #[Test]
+    public function selects_correctly_after_worker_removal(): void
     {
         $this->balancer->selectWorker([1 => 10, 2 => 5, 3 => 7]);
 
@@ -262,7 +281,8 @@ class LeastConnectionsBalancerTest extends TestCase
         $this->assertSame(3, $result, 'Should select worker 3 with least connections after worker 2 removal');
     }
 
-    public function testHandlesRemovalOfAllWorkers(): void
+    #[Test]
+    public function handles_removal_of_all_workers(): void
     {
         $this->balancer->selectWorker([1 => 5, 2 => 3]);
 

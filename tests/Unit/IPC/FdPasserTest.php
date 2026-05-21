@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
 use Duyler\WorkerPool\IPC\FdPasser;
@@ -24,7 +25,8 @@ use const SOL_TCP;
 #[CoversClass(FdPasser::class)]
 class FdPasserTest extends TestCase
 {
-    public function testChecksScmRightsSupport(): void
+    #[Test]
+    public function checks_scm_rights_support(): void
     {
         $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
@@ -33,7 +35,8 @@ class FdPasserTest extends TestCase
         $this->assertIsBool($isSupported);
     }
 
-    public function testSendsAndReceivesFd(): void
+    #[Test]
+    public function sends_and_receives_fd(): void
     {
         $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
@@ -84,7 +87,8 @@ class FdPasserTest extends TestCase
         socket_close($socket2);
     }
 
-    public function testReturnsNullWhenNoFdToReceive(): void
+    #[Test]
+    public function returns_null_when_no_fd_to_receive(): void
     {
         $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
@@ -109,7 +113,8 @@ class FdPasserTest extends TestCase
         socket_close($socket2);
     }
 
-    public function testSendsFdWithEmptyMetadata(): void
+    #[Test]
+    public function sends_fd_with_empty_metadata(): void
     {
         $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
@@ -143,7 +148,8 @@ class FdPasserTest extends TestCase
         socket_close($socket2);
     }
 
-    public function testAcceptsLoggerViaConstructor(): void
+    #[Test]
+    public function accepts_logger_via_constructor(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper(), $logger);

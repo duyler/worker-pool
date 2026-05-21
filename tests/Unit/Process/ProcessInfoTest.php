@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Process;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
@@ -14,7 +15,8 @@ use Duyler\WorkerPool\Process\ForkWrapper;
 #[CoversClass(ProcessInfo::class)]
 class ProcessInfoTest extends TestCase
 {
-    public function testCreatesProcessInfoWithDefaults(): void
+    #[Test]
+    public function creates_process_info_with_defaults(): void
     {
         $info = new ProcessInfo(
             workerId: 1,
@@ -33,7 +35,8 @@ class ProcessInfoTest extends TestCase
         $this->assertSame(0, $info->memoryUsage);
     }
 
-    public function testCreatesProcessInfoWithAllParams(): void
+    #[Test]
+    public function creates_process_info_with_all_params(): void
     {
         $startedAt = microtime(true) - 100;
         $lastActivityAt = microtime(true) - 10;
@@ -60,7 +63,8 @@ class ProcessInfoTest extends TestCase
         $this->assertSame(2048576, $info->memoryUsage);
     }
 
-    public function testReturnsNewInstanceWithStateChange(): void
+    #[Test]
+    public function returns_new_instance_with_state_change(): void
     {
         $info1 = new ProcessInfo(
             workerId: 1,
@@ -78,7 +82,8 @@ class ProcessInfoTest extends TestCase
         $this->assertSame($info1->pid, $info2->pid);
     }
 
-    public function testReturnsNewInstanceWithConnectionsChange(): void
+    #[Test]
+    public function returns_new_instance_with_connections_change(): void
     {
         $info1 = new ProcessInfo(
             workerId: 1,
@@ -95,7 +100,8 @@ class ProcessInfoTest extends TestCase
         $this->assertGreaterThan($info1->lastActivityAt, $info2->lastActivityAt);
     }
 
-    public function testIncrementsRequestsCounter(): void
+    #[Test]
+    public function increments_requests_counter(): void
     {
         $info1 = new ProcessInfo(
             workerId: 1,
@@ -113,7 +119,8 @@ class ProcessInfoTest extends TestCase
         $this->assertSame(102, $info3->totalRequests);
     }
 
-    public function testUpdatesLastActivityOnRequestIncrement(): void
+    #[Test]
+    public function updates_last_activity_on_request_increment(): void
     {
         $info1 = new ProcessInfo(
             workerId: 1,
@@ -129,7 +136,8 @@ class ProcessInfoTest extends TestCase
         $this->assertGreaterThan($info1->lastActivityAt, $info2->lastActivityAt);
     }
 
-    public function testUpdatesMemoryUsage(): void
+    #[Test]
+    public function updates_memory_usage(): void
     {
         $info1 = new ProcessInfo(
             workerId: 1,
@@ -146,7 +154,8 @@ class ProcessInfoTest extends TestCase
         $this->assertGreaterThan($info1->lastActivityAt, $info2->lastActivityAt);
     }
 
-    public function testCalculatesUptime(): void
+    #[Test]
+    public function calculates_uptime(): void
     {
         $startedAt = microtime(true) - 60;
 
@@ -164,7 +173,8 @@ class ProcessInfoTest extends TestCase
         $this->assertLessThanOrEqual(61, $uptime);
     }
 
-    public function testCalculatesIdleTime(): void
+    #[Test]
+    public function calculates_idle_time(): void
     {
         $lastActivityAt = microtime(true) - 30;
 
@@ -182,7 +192,8 @@ class ProcessInfoTest extends TestCase
         $this->assertLessThanOrEqual(31, $idleTime);
     }
 
-    public function testChecksIfProcessIsAlive(): void
+    #[Test]
+    public function checks_if_process_is_alive(): void
     {
         $currentPid = getmypid();
 
@@ -196,7 +207,8 @@ class ProcessInfoTest extends TestCase
         $this->assertTrue($info->isAlive());
     }
 
-    public function testReturnsFalseForDeadProcess(): void
+    #[Test]
+    public function returns_false_for_dead_process(): void
     {
         $info = new ProcessInfo(
             workerId: 1,
@@ -208,7 +220,8 @@ class ProcessInfoTest extends TestCase
         $this->assertFalse($info->isAlive());
     }
 
-    public function testReturnsFalseForZeroPid(): void
+    #[Test]
+    public function returns_false_for_zero_pid(): void
     {
         $info = new ProcessInfo(
             workerId: 1,
@@ -220,7 +233,8 @@ class ProcessInfoTest extends TestCase
         $this->assertFalse($info->isAlive());
     }
 
-    public function testReturnsFalseForNegativePid(): void
+    #[Test]
+    public function returns_false_for_negative_pid(): void
     {
         $info = new ProcessInfo(
             workerId: 1,
@@ -232,7 +246,8 @@ class ProcessInfoTest extends TestCase
         $this->assertFalse($info->isAlive());
     }
 
-    public function testConvertsToArray(): void
+    #[Test]
+    public function converts_to_array(): void
     {
         $startedAt = microtime(true) - 100;
         $lastActivityAt = microtime(true) - 10;
@@ -265,7 +280,8 @@ class ProcessInfoTest extends TestCase
         $this->assertIsBool($array['is_alive']);
     }
 
-    public function testImmutabilityPreservesOriginal(): void
+    #[Test]
+    public function immutability_preserves_original(): void
     {
         $info = new ProcessInfo(
             workerId: 1,

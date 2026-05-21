@@ -16,6 +16,7 @@ use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Psr\Log\NullLogger;
@@ -42,7 +43,8 @@ class CentralizedMasterSocketResourceTest extends TestCase
         parent::tearDown();
     }
 
-    public function testServerReceivesUnixSocketResourceInWorker(): void
+    #[Test]
+    public function server_receives_unix_socket_resource_in_worker(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -73,7 +75,8 @@ class CentralizedMasterSocketResourceTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testPhpdocContainsEvioLimitationNote(): void
+    #[Test]
+    public function phpdoc_contains_evio_limitation_note(): void
     {
         $reflection = new ReflectionClass(CentralizedMaster::class);
         $docComment = $reflection->getDocComment();
@@ -91,7 +94,8 @@ class CentralizedMasterSocketResourceTest extends TestCase
         );
     }
 
-    public function testMasterInstantiatesWithBalancer(): void
+    #[Test]
+    public function master_instantiates_with_balancer(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',

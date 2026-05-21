@@ -35,7 +35,7 @@ final class SharedSocketMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function spawnWorkerForksAndRegisters(): void
+    public function spawn_worker_forks_and_registers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -65,7 +65,7 @@ final class SharedSocketMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function checkWorkersDetectsKilledWorker(): void
+    public function check_workers_detects_killed_worker(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -97,7 +97,7 @@ final class SharedSocketMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function getMetricsAfterSpawn(): void
+    public function get_metrics_after_spawn(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void

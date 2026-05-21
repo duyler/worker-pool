@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
@@ -40,7 +41,8 @@ final class WorkerManagerTest extends TestCase
         $this->manager = new WorkerManager(new ForkWrapper());
     }
 
-    public function testStartsWithEmptyWorkers(): void
+    #[Test]
+    public function starts_with_empty_workers(): void
     {
         $workers = $this->manager->getWorkers();
 
@@ -48,14 +50,16 @@ final class WorkerManagerTest extends TestCase
         $this->assertCount(0, $workers);
     }
 
-    public function testCanGetWorkerById(): void
+    #[Test]
+    public function can_get_worker_by_id(): void
     {
         $worker = $this->manager->getWorker(1);
 
         $this->assertNull($worker);
     }
 
-    public function testCanUpdateWorker(): void
+    #[Test]
+    public function can_update_worker(): void
     {
         $processInfo = new ProcessInfo(
             workerId: 1,
@@ -73,7 +77,8 @@ final class WorkerManagerTest extends TestCase
         $this->assertSame(12345, $worker->pid);
     }
 
-    public function testCanRemoveWorker(): void
+    #[Test]
+    public function can_remove_worker(): void
     {
         $processInfo = new ProcessInfo(
             workerId: 1,
@@ -91,7 +96,8 @@ final class WorkerManagerTest extends TestCase
         $this->assertNull($this->manager->getWorker(1));
     }
 
-    public function testCountsAliveWorkers(): void
+    #[Test]
+    public function counts_alive_workers(): void
     {
         $this->assertSame(0, $this->manager->countAlive());
     }

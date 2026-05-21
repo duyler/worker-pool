@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\ServerInterface;
@@ -56,7 +57,8 @@ final class MasterFactoryTest extends TestCase
         };
     }
 
-    public function testCreatesMasterInstance(): void
+    #[Test]
+    public function creates_master_instance(): void
     {
         $master = MasterFactory::create(
             config: $this->config,
@@ -67,7 +69,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertInstanceOf(MasterInterface::class, $master);
     }
 
-    public function testCreatesSharedSocketMasterWhenFdPassingNotSupported(): void
+    #[Test]
+    public function creates_shared_socket_master_when_fd_passing_not_supported(): void
     {
         $master = MasterFactory::create(
             config: $this->config,
@@ -79,7 +82,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertInstanceOf(SharedSocketMaster::class, $master);
     }
 
-    public function testCreatesCentralizedMasterWhenFdPassingSupportedAndBalancerProvided(): void
+    #[Test]
+    public function creates_centralized_master_when_fd_passing_supported_and_balancer_provided(): void
     {
         if (PHP_OS_FAMILY !== 'Linux') {
             $this->markTestSkipped('FD Passing only supported on Linux');
@@ -101,7 +105,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testCreatesRecommendedMaster(): void
+    #[Test]
+    public function creates_recommended_master(): void
     {
         $master = MasterFactory::createRecommended(
             config: $this->config,
@@ -112,7 +117,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertInstanceOf(MasterInterface::class, $master);
     }
 
-    public function testReturnsRecommendedMasterName(): void
+    #[Test]
+    public function returns_recommended_master_name(): void
     {
         $recommendation = MasterFactory::recommendedMaster();
 
@@ -121,7 +127,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertStringContainsString('Master', $recommendation);
     }
 
-    public function testReturnsComparisonArray(): void
+    #[Test]
+    public function returns_comparison_array(): void
     {
         $comparison = MasterFactory::getComparison();
 
@@ -140,7 +147,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertArrayHasKey('load_balancing', $comparison['CentralizedMaster']);
     }
 
-    public function testComparisonProvidesUsefulInformation(): void
+    #[Test]
+    public function comparison_provides_useful_information(): void
     {
         $comparison = MasterFactory::getComparison();
 
@@ -154,7 +162,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertStringContainsString('Custom', $centralized['load_balancing']);
     }
 
-    public function testCreatesMasterWithEventDrivenWorker(): void
+    #[Test]
+    public function creates_master_with_event_driven_worker(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public function run(int $workerId, ServerInterface $server): void {}
@@ -169,7 +178,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertInstanceOf(MasterInterface::class, $master);
     }
 
-    public function testCreatesRecommendedMasterWithEventDrivenWorker(): void
+    #[Test]
+    public function creates_recommended_master_with_event_driven_worker(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public function run(int $workerId, ServerInterface $server): void {}
@@ -184,7 +194,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertInstanceOf(MasterInterface::class, $master);
     }
 
-    public function testThrowsExceptionWhenNoWorkerInterfaceProvidedInCreate(): void
+    #[Test]
+    public function throws_exception_when_no_worker_interface_provided_in_create(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either workerCallback or eventDrivenWorker must be provided');
@@ -195,7 +206,8 @@ final class MasterFactoryTest extends TestCase
         );
     }
 
-    public function testThrowsExceptionWhenNoWorkerInterfaceProvidedInCreateRecommended(): void
+    #[Test]
+    public function throws_exception_when_no_worker_interface_provided_in_create_recommended(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either workerCallback or eventDrivenWorker must be provided');
@@ -206,7 +218,8 @@ final class MasterFactoryTest extends TestCase
         );
     }
 
-    public function testAcceptsBothWorkerCallbackAndEventDrivenWorker(): void
+    #[Test]
+    public function accepts_both_worker_callback_and_event_driven_worker(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public function run(int $workerId, ServerInterface $server): void {}
@@ -222,7 +235,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertInstanceOf(MasterInterface::class, $master);
     }
 
-    public function testCreatesSharedSocketMasterWithEventDrivenWorkerWhenNoBalancer(): void
+    #[Test]
+    public function creates_shared_socket_master_with_event_driven_worker_when_no_balancer(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public function run(int $workerId, ServerInterface $server): void {}
@@ -238,7 +252,8 @@ final class MasterFactoryTest extends TestCase
         $this->assertInstanceOf(SharedSocketMaster::class, $master);
     }
 
-    public function testCreatesCentralizedMasterWithEventDrivenWorkerWhenFdPassingSupported(): void
+    #[Test]
+    public function creates_centralized_master_with_event_driven_worker_when_fd_passing_supported(): void
     {
         if (PHP_OS_FAMILY !== 'Linux') {
             $this->markTestSkipped('FD Passing only supported on Linux');

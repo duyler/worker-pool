@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
@@ -43,7 +44,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->forkWrapper = new ForkWrapper();
     }
 
-    public function testThrowsExceptionWhenNeitherWorkerCallbackNorEventDrivenWorkerProvided(): void
+    #[Test]
+    public function throws_exception_when_neither_worker_callback_nor_event_driven_worker_provided(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either workerCallback or eventDrivenWorker must be provided');
@@ -51,7 +53,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         new SharedSocketMaster($this->config, $this->serverConfig, $this->socketWrapper, $this->forkWrapper);
     }
 
-    public function testCreatesMasterWithWorkerCallback(): void
+    #[Test]
+    public function creates_master_with_worker_callback(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -69,7 +72,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertSame(0, $master->getWorkerCount());
     }
 
-    public function testGetMetricsReturnsCorrectStructure(): void
+    #[Test]
+    public function get_metrics_returns_correct_structure(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -98,7 +102,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertTrue($metrics['is_running']);
     }
 
-    public function testStopChangesRunningState(): void
+    #[Test]
+    public function stop_changes_running_state(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -119,7 +124,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertFalse($master->isRunning());
     }
 
-    public function testIsRunningReturnsTrueInitially(): void
+    #[Test]
+    public function is_running_returns_true_initially(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -136,7 +142,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertTrue($master->isRunning());
     }
 
-    public function testGetWorkersReturnsEmptyArrayInitially(): void
+    #[Test]
+    public function get_workers_returns_empty_array_initially(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -155,7 +162,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertEmpty($workers);
     }
 
-    public function testCreatesMasterWithLogger(): void
+    #[Test]
+    public function creates_master_with_logger(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
 
@@ -175,7 +183,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertInstanceOf(SharedSocketMaster::class, $master);
     }
 
-    public function testHandlesMultipleWorkers(): void
+    #[Test]
+    public function handles_multiple_workers(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -203,7 +212,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertInstanceOf(SharedSocketMaster::class, $master);
     }
 
-    public function testHandlesAutoRestartEnabled(): void
+    #[Test]
+    public function handles_auto_restart_enabled(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -232,7 +242,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertInstanceOf(SharedSocketMaster::class, $master);
     }
 
-    public function testHandlesPollIntervalConfig(): void
+    #[Test]
+    public function handles_poll_interval_config(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -261,7 +272,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertInstanceOf(SharedSocketMaster::class, $master);
     }
 
-    public function testHandlesMaxQueueSizeConfig(): void
+    #[Test]
+    public function handles_max_queue_size_config(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -290,7 +302,8 @@ class SharedSocketMasterExtendedTest extends TestCase
         $this->assertInstanceOf(SharedSocketMaster::class, $master);
     }
 
-    public function testHandlesMaxIpcMessageSizeConfig(): void
+    #[Test]
+    public function handles_max_ipc_message_size_config(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',

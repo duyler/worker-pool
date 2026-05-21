@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
@@ -14,7 +15,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(WorkerPoolConfig::class)]
 class WorkerPoolConfigTest extends TestCase
 {
-    public function testDefaultMaxIpcMessageSize(): void
+    #[Test]
+    public function default_max_ipc_message_size(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(serverConfig: $serverConfig);
@@ -22,7 +24,8 @@ class WorkerPoolConfigTest extends TestCase
         $this->assertSame(1048576, $config->maxIpcMessageSize);
     }
 
-    public function testCustomMaxIpcMessageSize(): void
+    #[Test]
+    public function custom_max_ipc_message_size(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(
@@ -33,7 +36,8 @@ class WorkerPoolConfigTest extends TestCase
         $this->assertSame(2097152, $config->maxIpcMessageSize);
     }
 
-    public function testRejectsMaxIpcMessageSizeBelowMinimum(): void
+    #[Test]
+    public function rejects_max_ipc_message_size_below_minimum(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Max IPC message size must be at least 1024 bytes');
@@ -45,7 +49,8 @@ class WorkerPoolConfigTest extends TestCase
         );
     }
 
-    public function testAcceptsMinimumMaxIpcMessageSize(): void
+    #[Test]
+    public function accepts_minimum_max_ipc_message_size(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(
@@ -56,7 +61,8 @@ class WorkerPoolConfigTest extends TestCase
         $this->assertSame(1024, $config->maxIpcMessageSize);
     }
 
-    public function testAcceptsLargeMaxIpcMessageSize(): void
+    #[Test]
+    public function accepts_large_max_ipc_message_size(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(

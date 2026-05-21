@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Util\SystemInfo;
 use Override;
@@ -20,7 +21,8 @@ class SystemInfoTest extends TestCase
         SystemInfo::resetCache();
     }
 
-    public function testReturnsPositiveNumber(): void
+    #[Test]
+    public function returns_positive_number(): void
     {
         $systemInfo = new SystemInfo();
         $cores = $systemInfo->getCpuCores();
@@ -29,7 +31,8 @@ class SystemInfoTest extends TestCase
         $this->assertIsInt($cores);
     }
 
-    public function testUsesCache(): void
+    #[Test]
+    public function uses_cache(): void
     {
         $systemInfo = new SystemInfo();
 
@@ -39,7 +42,8 @@ class SystemInfoTest extends TestCase
         $this->assertSame($cores1, $cores2);
     }
 
-    public function testUsesFallbackWhenDetectionFails(): void
+    #[Test]
+    public function uses_fallback_when_detection_fails(): void
     {
         $systemInfo = new SystemInfo();
 
@@ -48,7 +52,8 @@ class SystemInfoTest extends TestCase
         $this->assertGreaterThanOrEqual(1, $cores);
     }
 
-    public function testReturnsOsInfo(): void
+    #[Test]
+    public function returns_os_info(): void
     {
         $systemInfo = new SystemInfo();
         $info = $systemInfo->getOsInfo();
@@ -63,7 +68,8 @@ class SystemInfoTest extends TestCase
         $this->assertGreaterThan(0, $info['cpu_cores']);
     }
 
-    public function testResetsCache(): void
+    #[Test]
+    public function resets_cache(): void
     {
         $systemInfo = new SystemInfo();
 

@@ -50,7 +50,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function constructorThrowsWithoutCallback(): void
+    public function constructor_throws_without_callback(): void
     {
         $this->expectException(InvalidArgumentException::class);
         new CentralizedMaster(
@@ -63,7 +63,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function constructorWithServerConfig(): void
+    public function constructor_with_server_config(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -86,7 +86,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function stopKillsAllWorkers(): void
+    public function stop_kills_all_workers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -130,7 +130,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function runLoopExitsImmediatelyWhenShouldStopIsTrue(): void
+    public function run_loop_exits_immediately_when_should_stop_is_true(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -158,7 +158,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function checkWorkersDetectsDeadWorkerNoRestart(): void
+    public function check_workers_detects_dead_worker_no_restart(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -194,7 +194,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function getMetricsWithAliveWorkers(): void
+    public function get_metrics_with_alive_workers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -235,7 +235,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function getBalancerReturnsCorrectInstance(): void
+    public function get_balancer_returns_correct_instance(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -257,7 +257,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function acceptConnectionsViaReflection(): void
+    public function accept_connections_via_reflection(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -286,7 +286,7 @@ final class CentralizedMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function distributeConnectionsViaReflection(): void
+    public function distribute_connections_via_reflection(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}

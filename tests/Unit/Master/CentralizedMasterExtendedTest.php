@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
@@ -48,7 +49,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->forkWrapper = new ForkWrapper();
     }
 
-    public function testThrowsExceptionWhenNeitherWorkerCallbackNorEventDrivenWorkerProvided(): void
+    #[Test]
+    public function throws_exception_when_neither_worker_callback_nor_event_driven_worker_provided(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either workerCallback or eventDrivenWorker must be provided');
@@ -56,7 +58,8 @@ class CentralizedMasterExtendedTest extends TestCase
         new CentralizedMaster($this->config, $this->balancer, $this->socketWrapper, $this->socketMsgWrapper, $this->forkWrapper);
     }
 
-    public function testCreatesMasterWithWorkerCallback(): void
+    #[Test]
+    public function creates_master_with_worker_callback(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -75,7 +78,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertSame(0, $master->getWorkerCount());
     }
 
-    public function testGetBalancerReturnsCorrectInstance(): void
+    #[Test]
+    public function get_balancer_returns_correct_instance(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -95,7 +99,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertSame($this->balancer, $balancer);
     }
 
-    public function testGetMetricsReturnsCorrectStructure(): void
+    #[Test]
+    public function get_metrics_returns_correct_structure(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -126,7 +131,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertTrue($metrics['is_running']);
     }
 
-    public function testStopChangesRunningState(): void
+    #[Test]
+    public function stop_changes_running_state(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -148,7 +154,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertFalse($master->isRunning());
     }
 
-    public function testIsRunningReturnsTrueInitially(): void
+    #[Test]
+    public function is_running_returns_true_initially(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -166,7 +173,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertTrue($master->isRunning());
     }
 
-    public function testGetWorkersReturnsEmptyArrayInitially(): void
+    #[Test]
+    public function get_workers_returns_empty_array_initially(): void
     {
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -186,7 +194,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertEmpty($workers);
     }
 
-    public function testCreatesMasterWithLogger(): void
+    #[Test]
+    public function creates_master_with_logger(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
 
@@ -207,7 +216,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testHandlesMaxConnectionsConfig(): void
+    #[Test]
+    public function handles_max_connections_config(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -238,7 +248,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testHandlesPollIntervalConfig(): void
+    #[Test]
+    public function handles_poll_interval_config(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -269,7 +280,8 @@ class CentralizedMasterExtendedTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testHandlesRestartDelayConfig(): void
+    #[Test]
+    public function handles_restart_delay_config(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',

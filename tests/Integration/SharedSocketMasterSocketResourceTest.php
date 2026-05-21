@@ -14,6 +14,7 @@ use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
@@ -37,7 +38,8 @@ class SharedSocketMasterSocketResourceTest extends TestCase
         parent::tearDown();
     }
 
-    public function testServerReceivesSocketResourceFromMaster(): void
+    #[Test]
+    public function server_receives_socket_resource_from_master(): void
     {
         $socketResource = null;
 

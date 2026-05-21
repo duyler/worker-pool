@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\ErrorHandler\ErrorHandler;
@@ -37,7 +38,8 @@ final class LoadBalancingIntegrationTest extends TestCase
         parent::tearDown();
     }
 
-    public function testRoundRobinDistributesEvenly(): void
+    #[Test]
+    public function round_robin_distributes_evenly(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -123,7 +125,8 @@ final class LoadBalancingIntegrationTest extends TestCase
         $this->assertGreaterThanOrEqual(3, count($responses));
     }
 
-    public function testLeastConnectionsPrefersIdleWorkers(): void
+    #[Test]
+    public function least_connections_prefers_idle_workers(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -142,7 +145,8 @@ final class LoadBalancingIntegrationTest extends TestCase
         $this->assertSame(2, $selected, 'Should select worker with least connections');
     }
 
-    public function testHandlesMultipleConcurrentConnections(): void
+    #[Test]
+    public function handles_multiple_concurrent_connections(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));

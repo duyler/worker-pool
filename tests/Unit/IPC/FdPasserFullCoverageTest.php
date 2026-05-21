@@ -32,7 +32,7 @@ final class FdPasserFullCoverageTest extends TestCase
     }
 
     #[Test]
-    public function isSupportedReturnsBool(): void
+    public function is_supported_returns_bool(): void
     {
         $result = $this->fdPasser->isSupported();
         $this->assertIsBool($result);

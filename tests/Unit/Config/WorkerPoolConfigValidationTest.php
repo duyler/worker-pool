@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\BalancerType;
@@ -15,7 +16,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(WorkerPoolConfig::class)]
 class WorkerPoolConfigValidationTest extends TestCase
 {
-    public function testAcceptsZeroWorkerCountAsAutoDetect(): void
+    #[Test]
+    public function accepts_zero_worker_count_as_auto_detect(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(
@@ -26,7 +28,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertGreaterThanOrEqual(1, $config->workerCount);
     }
 
-    public function testRejectsNegativeWorkerCount(): void
+    #[Test]
+    public function rejects_negative_worker_count(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -39,7 +42,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testRejectsTooLargeWorkerCount(): void
+    #[Test]
+    public function rejects_too_large_worker_count(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -52,7 +56,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testAcceptsMaximumWorkerCount(): void
+    #[Test]
+    public function accepts_maximum_worker_count(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(
@@ -63,7 +68,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertSame(1024, $config->workerCount);
     }
 
-    public function testAcceptsMinimumWorkerCount(): void
+    #[Test]
+    public function accepts_minimum_worker_count(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(
@@ -74,7 +80,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertSame(1, $config->workerCount);
     }
 
-    public function testRejectsZeroBacklog(): void
+    #[Test]
+    public function rejects_zero_backlog(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -87,7 +94,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testRejectsNegativeBacklog(): void
+    #[Test]
+    public function rejects_negative_backlog(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -100,7 +108,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testRejectsZeroMaxQueueSize(): void
+    #[Test]
+    public function rejects_zero_max_queue_size(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -113,7 +122,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testRejectsNegativeMaxQueueSize(): void
+    #[Test]
+    public function rejects_negative_max_queue_size(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -126,7 +136,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testRejectsNegativeRestartDelay(): void
+    #[Test]
+    public function rejects_negative_restart_delay(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -139,7 +150,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testAcceptsZeroRestartDelay(): void
+    #[Test]
+    public function accepts_zero_restart_delay(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(
@@ -150,7 +162,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertSame(0, $config->restartDelay);
     }
 
-    public function testRejectsTooSmallMaxIpcMessageSize(): void
+    #[Test]
+    public function rejects_too_small_max_ipc_message_size(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -163,7 +176,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testRejectsZeroFallbackCpuCores(): void
+    #[Test]
+    public function rejects_zero_fallback_cpu_cores(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -176,7 +190,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testRejectsTooSmallPollInterval(): void
+    #[Test]
+    public function rejects_too_small_poll_interval(): void
     {
         $serverConfig = new ServerConfig();
 
@@ -189,7 +204,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
     }
 
-    public function testAcceptsMinimumPollInterval(): void
+    #[Test]
+    public function accepts_minimum_poll_interval(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(
@@ -200,7 +216,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertSame(100, $config->pollInterval);
     }
 
-    public function testAcceptsAllDefaultValues(): void
+    #[Test]
+    public function accepts_all_default_values(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(serverConfig: $serverConfig);
@@ -219,7 +236,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertSame(1000, $config->pollInterval);
     }
 
-    public function testAutoMethodCreatesConfigWithAutoWorkerCount(): void
+    #[Test]
+    public function auto_method_creates_config_with_auto_worker_count(): void
     {
         $serverConfig = new ServerConfig();
         $config = WorkerPoolConfig::auto($serverConfig);
@@ -227,7 +245,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertGreaterThanOrEqual(1, $config->workerCount);
     }
 
-    public function testAutoMethodAcceptsBalancer(): void
+    #[Test]
+    public function auto_method_accepts_balancer(): void
     {
         $serverConfig = new ServerConfig();
         $config = WorkerPoolConfig::auto($serverConfig, BalancerType::RoundRobin);
@@ -235,7 +254,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertSame(BalancerType::RoundRobin, $config->balancer);
     }
 
-    public function testAcceptsCustomValues(): void
+    #[Test]
+    public function accepts_custom_values(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(
@@ -266,7 +286,8 @@ class WorkerPoolConfigValidationTest extends TestCase
         $this->assertSame(500, $config->pollInterval);
     }
 
-    public function testAutoDetectsCpuCores(): void
+    #[Test]
+    public function auto_detects_cpu_cores(): void
     {
         $serverConfig = new ServerConfig();
         $config = new WorkerPoolConfig(

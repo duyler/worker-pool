@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Master\ConnectionQueue;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +19,8 @@ use const SOL_TCP;
 #[CoversClass(ConnectionQueue::class)]
 class ConnectionQueueTest extends TestCase
 {
-    public function testCreatesEmptyQueue(): void
+    #[Test]
+    public function creates_empty_queue(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
@@ -27,7 +29,8 @@ class ConnectionQueueTest extends TestCase
         $this->assertSame(0, $queue->size());
     }
 
-    public function testEnqueuesSocket(): void
+    #[Test]
+    public function enqueues_socket(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
@@ -43,7 +46,8 @@ class ConnectionQueueTest extends TestCase
         $queue->clear();
     }
 
-    public function testDequeuesSocket(): void
+    #[Test]
+    public function dequeues_socket(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
@@ -65,7 +69,8 @@ class ConnectionQueueTest extends TestCase
         $queue->clear();
     }
 
-    public function testReturnsNullWhenEmpty(): void
+    #[Test]
+    public function returns_null_when_empty(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
@@ -74,7 +79,8 @@ class ConnectionQueueTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testRespectsMaxSize(): void
+    #[Test]
+    public function respects_max_size(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 2);
 
@@ -96,7 +102,8 @@ class ConnectionQueueTest extends TestCase
         $queue->clear();
     }
 
-    public function testMaintainsFifoOrder(): void
+    #[Test]
+    public function maintains_fifo_order(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
@@ -121,7 +128,8 @@ class ConnectionQueueTest extends TestCase
         socket_close($socket3);
     }
 
-    public function testClearsAllSockets(): void
+    #[Test]
+    public function clears_all_sockets(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 10);
 
@@ -142,7 +150,8 @@ class ConnectionQueueTest extends TestCase
         $this->assertTrue($queue->isEmpty());
     }
 
-    public function testChecksIfFull(): void
+    #[Test]
+    public function checks_if_full(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 1);
 
@@ -158,7 +167,8 @@ class ConnectionQueueTest extends TestCase
         $queue->clear();
     }
 
-    public function testHandlesMultipleEnqueueDequeueCycles(): void
+    #[Test]
+    public function handles_multiple_enqueue_dequeue_cycles(): void
     {
         $queue = new ConnectionQueue(socketWrapper: new SocketWrapper(), maxSize: 3);
 

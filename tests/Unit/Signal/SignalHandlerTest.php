@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Signal;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Signal\SignalHandler;
 use Override;
@@ -44,7 +45,8 @@ class SignalHandlerTest extends TestCase
         $this->handler->reset();
     }
 
-    public function testRegistersSignalHandler(): void
+    #[Test]
+    public function registers_signal_handler(): void
     {
         $called = false;
 
@@ -58,7 +60,8 @@ class SignalHandlerTest extends TestCase
         $this->assertSame(1, $signals[SIGUSR1]);
     }
 
-    public function testRegistersMultipleHandlersForSameSignal(): void
+    #[Test]
+    public function registers_multiple_handlers_for_same_signal(): void
     {
         $this->handler->register(SIGUSR1, function (): void {});
         $this->handler->register(SIGUSR1, function (): void {});
@@ -69,7 +72,8 @@ class SignalHandlerTest extends TestCase
         $this->assertSame(3, $signals[SIGUSR1]);
     }
 
-    public function testRegistersDifferentSignals(): void
+    #[Test]
+    public function registers_different_signals(): void
     {
         $this->handler->register(SIGUSR1, function (): void {});
         $this->handler->register(SIGUSR2, function (): void {});
@@ -83,7 +87,8 @@ class SignalHandlerTest extends TestCase
         $this->assertArrayHasKey(SIGTERM, $signals);
     }
 
-    public function testUnregistersSignalHandler(): void
+    #[Test]
+    public function unregisters_signal_handler(): void
     {
         $this->handler->register(SIGUSR1, function (): void {});
 
@@ -94,7 +99,8 @@ class SignalHandlerTest extends TestCase
         $this->assertArrayNotHasKey(SIGUSR1, $signals);
     }
 
-    public function testHandlesSignalDispatch(): void
+    #[Test]
+    public function handles_signal_dispatch(): void
     {
         $called = false;
 
@@ -108,7 +114,8 @@ class SignalHandlerTest extends TestCase
         $this->assertTrue($called);
     }
 
-    public function testCallsMultipleHandlersForSignal(): void
+    #[Test]
+    public function calls_multiple_handlers_for_signal(): void
     {
         $counter = 0;
 
@@ -125,7 +132,8 @@ class SignalHandlerTest extends TestCase
         $this->assertSame(2, $counter);
     }
 
-    public function testResetsAllHandlers(): void
+    #[Test]
+    public function resets_all_handlers(): void
     {
         $this->handler->register(SIGUSR1, function (): void {});
         $this->handler->register(SIGUSR2, function (): void {});
@@ -137,7 +145,8 @@ class SignalHandlerTest extends TestCase
         $this->assertEmpty($signals);
     }
 
-    public function testCreatesDefaultHandler(): void
+    #[Test]
+    public function creates_default_handler(): void
     {
         $handler = SignalHandler::createDefault();
 
@@ -157,7 +166,8 @@ class SignalHandlerTest extends TestCase
         $handler->reset();
     }
 
-    public function testHandlerReceivesSignalNumber(): void
+    #[Test]
+    public function handler_receives_signal_number(): void
     {
         $receivedSignal = null;
 
@@ -171,7 +181,8 @@ class SignalHandlerTest extends TestCase
         $this->assertSame(SIGUSR1, $receivedSignal);
     }
 
-    public function testDoesNotCallHandlerAfterUnregister(): void
+    #[Test]
+    public function does_not_call_handler_after_unregister(): void
     {
         $called = false;
 
@@ -187,7 +198,8 @@ class SignalHandlerTest extends TestCase
         $this->assertFalse($called);
     }
 
-    public function testHandlesMultipleSignalsIndependently(): void
+    #[Test]
+    public function handles_multiple_signals_independently(): void
     {
         $usr1Called = false;
         $usr2Called = false;

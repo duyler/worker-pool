@@ -42,7 +42,7 @@ final class AbstractMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function stopSendsSigtermToWorkers(): void
+    public function stop_sends_sigterm_to_workers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -76,7 +76,7 @@ final class AbstractMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function waitForWorkersBlocksUntilExit(): void
+    public function wait_for_workers_blocks_until_exit(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -109,7 +109,7 @@ final class AbstractMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function setupSignalsRegistersSigtermAndSigint(): void
+    public function setup_signals_registers_sigterm_and_sigint(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}

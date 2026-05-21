@@ -48,7 +48,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function constructorThrowsWithoutCallback(): void
+    public function constructor_throws_without_callback(): void
     {
         $this->expectException(InvalidArgumentException::class);
         new SharedSocketMaster(
@@ -60,7 +60,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function stopKillsWorkers(): void
+    public function stop_kills_workers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -102,7 +102,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function runLoopExitsImmediatelyWhenShouldStopIsTrue(): void
+    public function run_loop_exits_immediately_when_should_stop_is_true(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -128,7 +128,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function checkWorkersDetectsDeadWorker(): void
+    public function check_workers_detects_dead_worker(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -162,7 +162,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function getMetricsWithWorkers(): void
+    public function get_metrics_with_workers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}

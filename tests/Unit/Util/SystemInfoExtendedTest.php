@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Util;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Util\SystemInfo;
 use Override;
@@ -33,7 +34,8 @@ class SystemInfoExtendedTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGetCpuCoresCachesResult(): void
+    #[Test]
+    public function get_cpu_cores_caches_result(): void
     {
         $systemInfo = new SystemInfo();
 
@@ -44,7 +46,8 @@ class SystemInfoExtendedTest extends TestCase
         $this->assertGreaterThan(0, $cores1);
     }
 
-    public function testGetCpuCoresLogsDebugOnSuccess(): void
+    #[Test]
+    public function get_cpu_cores_logs_debug_on_success(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
@@ -58,7 +61,8 @@ class SystemInfoExtendedTest extends TestCase
         $systemInfo->getCpuCores();
     }
 
-    public function testGetOsInfoReturnsCorrectStructure(): void
+    #[Test]
+    public function get_os_info_returns_correct_structure(): void
     {
         $systemInfo = new SystemInfo();
 
@@ -78,7 +82,8 @@ class SystemInfoExtendedTest extends TestCase
         $this->assertIsInt($info['cpu_cores']);
     }
 
-    public function testIsContainerEnvironmentReturnsBool(): void
+    #[Test]
+    public function is_container_environment_returns_bool(): void
     {
         $systemInfo = new SystemInfo();
 
@@ -87,7 +92,8 @@ class SystemInfoExtendedTest extends TestCase
         $this->assertIsBool($isContainer);
     }
 
-    public function testSupportsFdPassingReturnsBool(): void
+    #[Test]
+    public function supports_fd_passing_returns_bool(): void
     {
         $systemInfo = new SystemInfo();
 
@@ -100,7 +106,8 @@ class SystemInfoExtendedTest extends TestCase
         }
     }
 
-    public function testSupportsReusePortReturnsBool(): void
+    #[Test]
+    public function supports_reuse_port_returns_bool(): void
     {
         $systemInfo = new SystemInfo();
 
@@ -113,7 +120,8 @@ class SystemInfoExtendedTest extends TestCase
         }
     }
 
-    public function testResetCacheClearsCachedValue(): void
+    #[Test]
+    public function reset_cache_clears_cached_value(): void
     {
         $systemInfo = new SystemInfo();
 
@@ -125,7 +133,8 @@ class SystemInfoExtendedTest extends TestCase
         $this->assertGreaterThan(0, $cores1);
     }
 
-    public function testGetCpuCoresWithDifferentFallbackValues(): void
+    #[Test]
+    public function get_cpu_cores_with_different_fallback_values(): void
     {
         $systemInfo = new SystemInfo();
 

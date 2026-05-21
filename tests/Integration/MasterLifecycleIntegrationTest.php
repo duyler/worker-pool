@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -36,7 +37,8 @@ final class MasterLifecycleIntegrationTest extends TestCase
         parent::tearDown();
     }
 
-    public function testStartsWorkersAndAcceptsConnections(): void
+    #[Test]
+    public function starts_workers_and_accepts_connections(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -124,7 +126,8 @@ final class MasterLifecycleIntegrationTest extends TestCase
         }
     }
 
-    public function testGracefullyStopsAllWorkers(): void
+    #[Test]
+    public function gracefully_stops_all_workers(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -187,7 +190,8 @@ final class MasterLifecycleIntegrationTest extends TestCase
         $this->assertTrue(pcntl_wifexited($status), 'Process should exit normally');
     }
 
-    public function testReturnsCorrectMetrics(): void
+    #[Test]
+    public function returns_correct_metrics(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));

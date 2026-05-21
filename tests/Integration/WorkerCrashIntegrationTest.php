@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -36,7 +37,8 @@ final class WorkerCrashIntegrationTest extends TestCase
         parent::tearDown();
     }
 
-    public function testHandlesWorkerCrashWithoutAutoRestart(): void
+    #[Test]
+    public function handles_worker_crash_without_auto_restart(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -72,7 +74,8 @@ final class WorkerCrashIntegrationTest extends TestCase
         $this->assertSame(0, $initialWorkerCount);
     }
 
-    public function testAutoRestartIsConfigurable(): void
+    #[Test]
+    public function auto_restart_is_configurable(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -101,7 +104,8 @@ final class WorkerCrashIntegrationTest extends TestCase
         $this->assertSame(1, $workerPoolConfigWithRestart->restartDelay);
     }
 
-    public function testMasterContinuesAfterWorkerCrash(): void
+    #[Test]
+    public function master_continues_after_worker_crash(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));

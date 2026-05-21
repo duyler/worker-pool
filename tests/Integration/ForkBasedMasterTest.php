@@ -46,7 +46,7 @@ final class ForkBasedMasterTest extends TestCase
     }
 
     #[Test]
-    public function centralizedMasterSpawnsWorkers(): void
+    public function centralized_master_spawns_workers(): void
     {
         if (!function_exists('pcntl_fork')) {
             $this->markTestSkipped('pcntl extension required');
@@ -101,7 +101,7 @@ final class ForkBasedMasterTest extends TestCase
     }
 
     #[Test]
-    public function sharedSocketMasterSpawnsWorkers(): void
+    public function shared_socket_master_spawns_workers(): void
     {
         if (!function_exists('pcntl_fork')) {
             $this->markTestSkipped('pcntl extension required');
@@ -149,7 +149,7 @@ final class ForkBasedMasterTest extends TestCase
     }
 
     #[Test]
-    public function centralizedMasterStopKillsWorkers(): void
+    public function centralized_master_stop_kills_workers(): void
     {
         if (!function_exists('pcntl_fork')) {
             $this->markTestSkipped('pcntl extension required');
