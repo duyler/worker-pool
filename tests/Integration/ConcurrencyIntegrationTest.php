@@ -105,18 +105,18 @@ final class ConcurrencyIntegrationTest extends TestCase
         for ($i = 0; $i < $concurrentRequests; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            $previousEr = error_reporting(0);
+            $previousErrorReporting = error_reporting(0);
             if (socket_connect($client, '127.0.0.1', $port)) {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
                 socket_set_nonblock($client);
                 socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
                 $response = '';
                 $attempts = 0;
                 while ($attempts < 100) {
-                    $previousEr = error_reporting(0);
+                    $previousErrorReporting = error_reporting(0);
                     $chunk = socket_read($client, 1024);
-                    error_reporting($previousEr);
+                    error_reporting($previousErrorReporting);
                     if ($chunk) {
                         $response .= $chunk;
                     }
@@ -133,7 +133,7 @@ final class ConcurrencyIntegrationTest extends TestCase
 
                 socket_close($client);
             } else {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
             }
 
             usleep(5000);
@@ -213,16 +213,16 @@ final class ConcurrencyIntegrationTest extends TestCase
         for ($i = 0; $i < 4; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            $previousEr = error_reporting(0);
+            $previousErrorReporting = error_reporting(0);
             if (socket_connect($client, '127.0.0.1', $port)) {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
                 socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
                 $response = '';
                 while (true) {
-                    $previousEr = error_reporting(0);
+                    $previousErrorReporting = error_reporting(0);
                     $chunk = socket_read($client, 1024);
-                    error_reporting($previousEr);
+                    error_reporting($previousErrorReporting);
                     if (false === $chunk || '' === $chunk) {
                         break;
                     }
@@ -235,7 +235,7 @@ final class ConcurrencyIntegrationTest extends TestCase
 
                 socket_close($client);
             } else {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
             }
 
             usleep(50000);
@@ -303,13 +303,13 @@ final class ConcurrencyIntegrationTest extends TestCase
         for ($i = 0; $i < 50; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            $previousEr = error_reporting(0);
+            $previousErrorReporting = error_reporting(0);
             if (socket_connect($client, '127.0.0.1', $port)) {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
                 socket_write($client, "GET / HTTP/1.1\r\n\r\n");
-                $previousEr = error_reporting(0);
+                $previousErrorReporting = error_reporting(0);
                 $response = socket_read($client, 1024);
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
 
                 if ($response && str_contains($response, 'HTTP')) {
                     ++$successCount;
@@ -317,7 +317,7 @@ final class ConcurrencyIntegrationTest extends TestCase
 
                 socket_close($client);
             } else {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
             }
         }
 

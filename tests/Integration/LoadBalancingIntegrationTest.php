@@ -101,16 +101,16 @@ final class LoadBalancingIntegrationTest extends TestCase
         for ($i = 0; $i < $requestCount; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            $previousEr = error_reporting(0);
+            $previousErrorReporting = error_reporting(0);
             if (socket_connect($client, '127.0.0.1', $port)) {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
                 socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
                 $response = '';
                 while (true) {
-                    $previousEr = error_reporting(0);
+                    $previousErrorReporting = error_reporting(0);
                     $chunk = socket_read($client, 1024);
-                    error_reporting($previousEr);
+                    error_reporting($previousErrorReporting);
                     if (false === $chunk || '' === $chunk) {
                         break;
                     }
@@ -119,7 +119,7 @@ final class LoadBalancingIntegrationTest extends TestCase
                 $responses[] = $response;
                 socket_close($client);
             } else {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
             }
 
             usleep(10000);
@@ -210,21 +210,21 @@ final class LoadBalancingIntegrationTest extends TestCase
         for ($i = 0; $i < $concurrentRequests; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            $previousEr = error_reporting(0);
+            $previousErrorReporting = error_reporting(0);
             if (socket_connect($client, '127.0.0.1', $port)) {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
                 socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
-                $previousEr = error_reporting(0);
+                $previousErrorReporting = error_reporting(0);
                 $response = socket_read($client, 1024);
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
                 if ($response && str_contains($response, 'HTTP/1.1 200 OK')) {
                     ++$successfulConnections;
                 }
 
                 socket_close($client);
             } else {
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
             }
         }
 

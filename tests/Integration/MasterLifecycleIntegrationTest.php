@@ -97,9 +97,9 @@ final class MasterLifecycleIntegrationTest extends TestCase
         $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $this->assertNotFalse($client);
 
-        $previousEr = error_reporting(0);
+        $previousErrorReporting = error_reporting(0);
         $connected = socket_connect($client, '127.0.0.1', $port);
-        error_reporting($previousEr);
+        error_reporting($previousErrorReporting);
 
         if ($connected) {
             $request = "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n";
@@ -107,9 +107,9 @@ final class MasterLifecycleIntegrationTest extends TestCase
 
             $response = '';
             while (true) {
-                $previousEr = error_reporting(0);
+                $previousErrorReporting = error_reporting(0);
                 $chunk = socket_read($client, 1024);
-                error_reporting($previousEr);
+                error_reporting($previousErrorReporting);
                 if (false === $chunk || '' === $chunk) {
                     break;
                 }
