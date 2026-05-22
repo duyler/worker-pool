@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use Duyler\WorkerPool\Master\SharedSocketMaster;
+
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
@@ -15,6 +19,9 @@ use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
+
+use Duyler\WorkerPool\Socket\SocketWrapper;
 
 use function count;
 
@@ -24,16 +31,19 @@ use const SOCK_STREAM;
 use const SOL_TCP;
 
 #[Group('pcntl')]
+#[CoversClass(SharedSocketMaster::class)]
+#[CoversClass(CentralizedMaster::class)]
 class MasterHttpIntegrationTest extends TestCase
 {
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 
-    public function testMasterAcceptsAndDistributesHttpRequests(): void
+    #[Test]
+    public function master_accepts_and_distributes_http_requests(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -54,7 +64,7 @@ class MasterHttpIntegrationTest extends TestCase
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
             {
-                $adapter = new HttpWorkerAdapter();
+                $adapter = new HttpWorkerAdapter(new SocketWrapper());
                 $adapter->handleConnection($clientSocket, $metadata);
             }
         };
@@ -109,7 +119,8 @@ class MasterHttpIntegrationTest extends TestCase
         }
     }
 
-    public function testMasterHandlesMultipleConcurrentRequests(): void
+    #[Test]
+    public function master_handles_multiple_concurrent_requests(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -130,7 +141,7 @@ class MasterHttpIntegrationTest extends TestCase
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
             {
-                $adapter = new HttpWorkerAdapter();
+                $adapter = new HttpWorkerAdapter(new SocketWrapper());
                 $adapter->handleConnection($clientSocket, $metadata);
             }
         };

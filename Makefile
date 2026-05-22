@@ -1,6 +1,11 @@
+.PHONY: build
+build:
+	docker-compose build
+	docker-compose run --rm php composer install
+
 .PHONY: tests
 tests:
-	docker-compose run --rm php vendor/bin/phpunit
+	docker-compose run --rm php vendor/bin/phpunit --no-progress
 
 .PHONY: infection
 infection:

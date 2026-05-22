@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\WorkerPool\IPC\FdPasser;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Socket;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
 use const AF_INET;
 use const AF_UNIX;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
+#[CoversClass(FdPasser::class)]
+#[UsesClass(SocketMsgWrapper::class)]
+#[UsesClass(SocketWrapper::class)]
 final class FdPasserCoverageTest extends TestCase
 {
     private FdPasser $fdPasser;
@@ -22,7 +31,7 @@ final class FdPasserCoverageTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
-        $this->fdPasser = new FdPasser();
+        $this->fdPasser = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
     }
 
     #[Test]

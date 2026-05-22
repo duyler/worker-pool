@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Signal;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\Test;
+
 use Duyler\WorkerPool\Signal\SignalHandler;
 use Duyler\WorkerPool\Signal\SignalManager;
 use Override;
@@ -17,6 +21,8 @@ use const SIGTERM;
 use const SIGUSR1;
 
 #[Group('pcntl')]
+#[CoversClass(SignalManager::class)]
+#[UsesClass(SignalHandler::class)]
 class SignalManagerTest extends TestCase
 {
     private SignalHandler $handler;
@@ -42,7 +48,8 @@ class SignalManagerTest extends TestCase
         $this->handler->reset();
     }
 
-    public function testSetsUpMasterSignals(): void
+    #[Test]
+    public function sets_up_master_signals(): void
     {
         if (!$this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
@@ -65,7 +72,8 @@ class SignalManagerTest extends TestCase
         $this->assertTrue($this->handler->hasHandlers(SIGUSR1));
     }
 
-    public function testSetsUpWorkerSignals(): void
+    #[Test]
+    public function sets_up_worker_signals(): void
     {
         if (!$this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
@@ -83,7 +91,8 @@ class SignalManagerTest extends TestCase
         $this->assertTrue($this->handler->hasHandlers(SIGINT));
     }
 
-    public function testTracksShutdownRequest(): void
+    #[Test]
+    public function tracks_shutdown_request(): void
     {
         $this->assertFalse($this->manager->isShutdownRequested());
 
@@ -95,7 +104,8 @@ class SignalManagerTest extends TestCase
         $this->assertFalse($this->manager->isShutdownRequested());
     }
 
-    public function testTracksReloadRequest(): void
+    #[Test]
+    public function tracks_reload_request(): void
     {
         $this->assertFalse($this->manager->isReloadRequested());
 
@@ -107,7 +117,8 @@ class SignalManagerTest extends TestCase
         $this->assertFalse($this->manager->isReloadRequested());
     }
 
-    public function testResetsSignalHandlers(): void
+    #[Test]
+    public function resets_signal_handlers(): void
     {
         if (!$this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
@@ -127,7 +138,8 @@ class SignalManagerTest extends TestCase
         $this->assertFalse($this->manager->isReloadRequested());
     }
 
-    public function testResetsOnlyFlags(): void
+    #[Test]
+    public function resets_only_flags(): void
     {
         if (!$this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
@@ -145,14 +157,16 @@ class SignalManagerTest extends TestCase
         $this->assertFalse($this->manager->isReloadRequested());
     }
 
-    public function testDispatchCallsHandlerDispatch(): void
+    #[Test]
+    public function dispatch_calls_handler_dispatch(): void
     {
         $this->manager->dispatch();
 
         $this->assertTrue(true);
     }
 
-    public function testHandlesMultipleSetups(): void
+    #[Test]
+    public function handles_multiple_setups(): void
     {
         if (!$this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');

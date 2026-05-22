@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
@@ -20,23 +23,50 @@ use Duyler\WorkerPool\Process\ProcessState;
 use ReflectionClass;
 use ReflectionProperty;
 use Socket;
+use Psr\Log\NullLogger;
+
+use Duyler\WorkerPool\Process\ForkWrapper;
+
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
+use Duyler\WorkerPool\IPC\FdPasser;
+
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 use function function_exists;
 
 use const SIGTERM;
 
 #[Group('pcntl')]
+#[CoversClass(SharedSocketMaster::class)]
+#[CoversClass(CentralizedMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class ForkBasedMasterTest extends TestCase
 {
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 
     #[Test]
-    public function centralizedMasterSpawnsWorkers(): void
+    public function centralized_master_spawns_workers(): void
     {
         if (!function_exists('pcntl_fork')) {
             $this->markTestSkipped('pcntl extension required');
@@ -56,6 +86,9 @@ final class ForkBasedMasterTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $serverConfig,
             workerCallback: $callback,
         );
@@ -74,9 +107,9 @@ final class ForkBasedMasterTest extends TestCase
             $this->fail('Failed to fork');
         }
 
-        $workersRef = $masterRef->getProperty('workers');
-        $processInfo = new ProcessInfo(1, $pid, ProcessState::Ready);
-        $workersRef->setValue($master, [1 => $processInfo]);
+        $wmRef = $masterRef->getProperty('workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         $this->assertSame(1, $master->getWorkerCount());
 
@@ -88,7 +121,7 @@ final class ForkBasedMasterTest extends TestCase
     }
 
     #[Test]
-    public function sharedSocketMasterSpawnsWorkers(): void
+    public function shared_socket_master_spawns_workers(): void
     {
         if (!function_exists('pcntl_fork')) {
             $this->markTestSkipped('pcntl extension required');
@@ -109,6 +142,8 @@ final class ForkBasedMasterTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $serverConfig,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -134,7 +169,7 @@ final class ForkBasedMasterTest extends TestCase
     }
 
     #[Test]
-    public function centralizedMasterStopKillsWorkers(): void
+    public function centralized_master_stop_kills_workers(): void
     {
         if (!function_exists('pcntl_fork')) {
             $this->markTestSkipped('pcntl extension required');
@@ -151,6 +186,9 @@ final class ForkBasedMasterTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             serverConfig: $serverConfig,
             workerCallback: $callback,
         );
@@ -161,10 +199,9 @@ final class ForkBasedMasterTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [
-            1 => new ProcessInfo(1, $pid, ProcessState::Ready),
-        ]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         $this->assertTrue($master->isRunning());
         $master->stop();

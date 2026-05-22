@@ -5,28 +5,61 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
+use Psr\Log\NullLogger;
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 #[CoversClass(CentralizedMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 class CentralizedMasterSocketResourceTest extends TestCase
 {
+    private SocketWrapper $socketWrapper;
+    private SocketMsgWrapper $socketMsgWrapper;
+    private ForkWrapper $forkWrapper;
+
+    #[Override]
+    protected function setUp(): void
+    {
+        $this->socketWrapper = new SocketWrapper();
+        $this->socketMsgWrapper = new SocketMsgWrapper();
+        $this->forkWrapper = new ForkWrapper();
+    }
+
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 
-    public function testServerReceivesUnixSocketResourceInWorker(): void
+    #[Test]
+    public function server_receives_unix_socket_resource_in_worker(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -47,6 +80,9 @@ class CentralizedMasterSocketResourceTest extends TestCase
         $master = new CentralizedMaster(
             config: $workerPoolConfig,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $serverConfig,
             eventDrivenWorker: $testWorker,
         );
@@ -54,25 +90,8 @@ class CentralizedMasterSocketResourceTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testPhpdocContainsEvioLimitationNote(): void
-    {
-        $reflection = new ReflectionClass(CentralizedMaster::class);
-        $docComment = $reflection->getDocComment();
-
-        $this->assertNotFalse($docComment);
-        $this->assertStringContainsString(
-            'EvIo',
-            $docComment,
-            'PHPDoc должен содержать note о EvIo limitation',
-        );
-        $this->assertStringContainsString(
-            'EvTimer fallback is recommended',
-            $docComment,
-            'PHPDoc должен содержать рекомендацию использовать EvTimer fallback',
-        );
-    }
-
-    public function testMasterInstantiatesWithBalancer(): void
+    #[Test]
+    public function master_instantiates_with_balancer(): void
     {
         $serverConfig = new ServerConfig(
             host: '127.0.0.1',
@@ -93,6 +112,9 @@ class CentralizedMasterSocketResourceTest extends TestCase
         $master = new CentralizedMaster(
             config: $workerPoolConfig,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $serverConfig,
             eventDrivenWorker: $testWorker,
         );

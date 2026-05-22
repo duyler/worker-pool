@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Master;
 
+use Duyler\WorkerPool\Socket\SocketWrapperInterface;
+use RuntimeException;
 use Socket;
+use SplQueue;
 
-use function count;
+use function assert;
 
-final class ConnectionQueue
+final readonly class ConnectionQueue
 {
-    /**
-     * @var array<Socket>
-     */
-    private array $queue = [];
+    private SplQueue $queue;
 
     public function __construct(
-        private readonly int $maxSize,
-    ) {}
+        private int $maxSize,
+        private SocketWrapperInterface $socketWrapper,
+    ) {
+        $this->queue = new SplQueue();
+    }
 
     public function __destruct()
     {
@@ -30,41 +33,45 @@ final class ConnectionQueue
             return false;
         }
 
-        $this->queue[] = $socket;
+        $this->queue->enqueue($socket);
 
         return true;
     }
 
     public function dequeue(): ?Socket
     {
-        if ($this->isEmpty()) {
+        try {
+            $socket = $this->queue->dequeue();
+        } catch (RuntimeException) {
             return null;
         }
 
-        return array_shift($this->queue);
+        assert($socket instanceof Socket);
+
+        return $socket;
     }
 
     public function size(): int
     {
-        return count($this->queue);
+        return $this->queue->count();
     }
 
     public function isEmpty(): bool
     {
-        return [] === $this->queue;
+        return $this->queue->isEmpty();
     }
 
     public function isFull(): bool
     {
-        return count($this->queue) >= $this->maxSize;
+        return $this->queue->count() >= $this->maxSize;
     }
 
     public function clear(): void
     {
-        foreach ($this->queue as $socket) {
-            socket_close($socket);
+        while (false === $this->queue->isEmpty()) {
+            $socket = $this->queue->dequeue();
+            assert($socket instanceof Socket);
+            $this->socketWrapper->close($socket);
         }
-
-        $this->queue = [];
     }
 }

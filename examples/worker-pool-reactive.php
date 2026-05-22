@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\Server;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
-use Duyler\WorkerPool\Master\SharedSocketMaster;
+use Duyler\WorkerPool\Master\MasterFactory;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Nyholm\Psr7\Response;
 
@@ -232,7 +232,7 @@ $workerPoolConfig = WorkerPoolConfig::auto($serverConfig);
 $application = new ReactiveWorkerApplication();
 
 // Create master process
-$master = new SharedSocketMaster(
+$master = MasterFactory::createRecommended(
     config: $workerPoolConfig,
     serverConfig: $serverConfig,
     eventDrivenWorker: $application,

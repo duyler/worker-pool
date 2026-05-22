@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Master\SocketManager;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 
+#[CoversClass(SocketManager::class)]
+#[UsesClass(SocketWrapper::class)]
 final class SocketManagerCoverageTest extends TestCase
 {
     private ServerConfig $config;
@@ -24,7 +30,7 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function listenCreatesSocket(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
 
         $this->assertTrue($manager->isListening());
@@ -36,7 +42,7 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function closeStopsListening(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
 
         $this->assertTrue($manager->isListening());
@@ -50,7 +56,7 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function detachFromWorkerDisconnects(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
 
         $manager->detachFromWorker();
@@ -62,7 +68,7 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function disableAutoClosePreventsDestructorClose(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
         $manager->disableAutoClose();
 
@@ -77,7 +83,7 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function acceptReturnsNullWhenNoConnections(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
 
         $result = $manager->accept();
@@ -90,7 +96,7 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function closeIsIdempotent(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
         $manager->close();
         $manager->close();
@@ -101,8 +107,8 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function constructorWithCustomLogger(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $manager = new SocketManager($this->config, $logger);
+        $logger = $this->createStub(LoggerInterface::class);
+        $manager = new SocketManager($this->config, new SocketWrapper(), $logger);
 
         $this->assertFalse($manager->isListening());
     }
@@ -110,7 +116,7 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function destructorClosesSocket(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
         $this->assertTrue($manager->isListening());
 

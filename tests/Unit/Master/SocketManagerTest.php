@@ -4,16 +4,27 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\Test;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Exception\WorkerPoolException;
 use Duyler\WorkerPool\Master\SocketManager;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
+use Duyler\WorkerPool\Exception\WorkerPoolExceptionBase;
+
 use const AF_INET;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
+#[CoversClass(SocketManager::class)]
+#[UsesClass(WorkerPoolExceptionBase::class)]
+#[UsesClass(SocketWrapper::class)]
 class SocketManagerTest extends TestCase
 {
     private ServerConfig $config;
@@ -31,17 +42,19 @@ class SocketManagerTest extends TestCase
         );
     }
 
-    public function testCreatesSocketManager(): void
+    #[Test]
+    public function creates_socket_manager(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $this->assertFalse($manager->isListening());
         $this->assertNull($manager->getSocket());
     }
 
-    public function testStartsListening(): void
+    #[Test]
+    public function starts_listening(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $manager->listen();
 
@@ -51,9 +64,10 @@ class SocketManagerTest extends TestCase
         $manager->close();
     }
 
-    public function testDoesNotThrowOnMultipleListenCalls(): void
+    #[Test]
+    public function does_not_throw_on_multiple_listen_calls(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $manager->listen();
         $manager->listen();
@@ -63,9 +77,10 @@ class SocketManagerTest extends TestCase
         $manager->close();
     }
 
-    public function testClosesSocket(): void
+    #[Test]
+    public function closes_socket(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $manager->listen();
         $this->assertTrue($manager->isListening());
@@ -76,9 +91,10 @@ class SocketManagerTest extends TestCase
         $this->assertNull($manager->getSocket());
     }
 
-    public function testReturnsNullWhenNoConnections(): void
+    #[Test]
+    public function returns_null_when_no_connections(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $manager->listen();
 
@@ -89,18 +105,20 @@ class SocketManagerTest extends TestCase
         $manager->close();
     }
 
-    public function testReturnsNullWhenNotListening(): void
+    #[Test]
+    public function returns_null_when_not_listening(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
 
         $client = $manager->accept();
 
         $this->assertNull($client);
     }
 
-    public function testAcceptsConnection(): void
+    #[Test]
+    public function accepts_connection(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
 
         $serverSocket = $manager->getSocket();
@@ -129,14 +147,15 @@ class SocketManagerTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testThrowsOnInvalidBind(): void
+    #[Test]
+    public function throws_on_invalid_bind(): void
     {
         $config = new ServerConfig(
             host: '999.999.999.999',
             port: 8080,
         );
 
-        $manager = new SocketManager($config);
+        $manager = new SocketManager($config, new SocketWrapper());
 
         $this->expectException(WorkerPoolException::class);
         $this->expectExceptionMessage('Failed to bind');
@@ -144,9 +163,10 @@ class SocketManagerTest extends TestCase
         $manager->listen();
     }
 
-    public function testCleansUpOnDestruct(): void
+    #[Test]
+    public function cleans_up_on_destruct(): void
     {
-        $manager = new SocketManager($this->config);
+        $manager = new SocketManager($this->config, new SocketWrapper());
         $manager->listen();
 
         $socket = $manager->getSocket();

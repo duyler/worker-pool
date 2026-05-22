@@ -4,20 +4,30 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\WorkerPool\Master\WorkerManager;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use Duyler\WorkerPool\Process\ForkWrapper;
+
+use Duyler\WorkerPool\Process\ProcessInfo;
+
 use function count;
 
 #[Group('pcntl')]
+#[CoversClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
 final class ForkWorkerManagerTest extends TestCase
 {
     #[Test]
     public function spawnCreatesChildProcess(): void
     {
-        $manager = new WorkerManager();
+        $manager = new WorkerManager(new ForkWrapper());
 
         $info = $manager->spawn(1, function (int $workerId): void {
             usleep(100000);
@@ -35,7 +45,7 @@ final class ForkWorkerManagerTest extends TestCase
     #[Test]
     public function stopAllSendsSigterm(): void
     {
-        $manager = new WorkerManager();
+        $manager = new WorkerManager(new ForkWrapper());
 
         $manager->spawn(1, function (): void {
             sleep(30);
@@ -53,7 +63,7 @@ final class ForkWorkerManagerTest extends TestCase
     #[Test]
     public function checkRemovesDeadWorkers(): void
     {
-        $manager = new WorkerManager();
+        $manager = new WorkerManager(new ForkWrapper());
 
         $manager->spawn(1, function (): void {
             usleep(50000);
@@ -71,7 +81,7 @@ final class ForkWorkerManagerTest extends TestCase
     #[Test]
     public function spawnMultipleWorkers(): void
     {
-        $manager = new WorkerManager();
+        $manager = new WorkerManager(new ForkWrapper());
 
         $manager->spawn(1, function (): void {
             usleep(200000);

@@ -12,9 +12,7 @@ final class RoundRobinBalancer implements BalancerInterface
 {
     private int $currentIndex = 0;
 
-    /**
-     * @var array<int>
-     */
+    /** @var array<int> */
     private array $workerIds = [];
 
     #[Override]

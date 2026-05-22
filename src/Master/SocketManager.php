@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Master;
 
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\Socket\SocketErrorSuppressor;
 use Duyler\WorkerPool\Exception\WorkerPoolException;
+use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Socket;
@@ -21,14 +21,13 @@ use const SO_REUSEADDR;
 
 final class SocketManager
 {
-    use SocketErrorSuppressor;
-
     private ?Socket $masterSocket = null;
     private bool $isListening = false;
     private bool $shouldCloseOnDestruct = true;
 
     public function __construct(
         private readonly ServerConfig $config,
+        private readonly SocketWrapperInterface $socketWrapper,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {}
 
@@ -49,17 +48,17 @@ final class SocketManager
         }
 
         $this->logger->info('Creating socket');
-        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        $socket = $this->socketWrapper->create(AF_INET, SOCK_STREAM, SOL_TCP);
 
         if (false === $socket) {
-            throw new WorkerPoolException('Failed to create master socket: ' . socket_strerror(socket_last_error()));
+            throw new WorkerPoolException('Failed to create master socket: ' . $this->socketWrapper->strerror($this->socketWrapper->lastError()));
         }
 
         $this->masterSocket = $socket;
 
         $this->logger->debug('Setting SO_REUSEADDR');
-        if (false === socket_set_option($this->masterSocket, SOL_SOCKET, SO_REUSEADDR, 1)) {
-            throw new WorkerPoolException('Failed to set SO_REUSEADDR: ' . socket_strerror(socket_last_error($this->masterSocket)));
+        if (false === $this->socketWrapper->setOption($this->masterSocket, SOL_SOCKET, SO_REUSEADDR, 1)) {
+            throw new WorkerPoolException('Failed to set SO_REUSEADDR: ' . $this->socketWrapper->strerror($this->socketWrapper->lastError($this->masterSocket)));
         }
 
         $this->logger->info('Binding socket', [
@@ -67,10 +66,7 @@ final class SocketManager
             'port' => $this->config->port,
         ]);
 
-        $socket = $this->masterSocket;
-        $result = $this->suppressSocketWarnings(
-            fn(): bool => socket_bind($socket, $this->config->host, $this->config->port),
-        );
+        $result = $this->socketWrapper->bind($this->masterSocket, $this->config->host, $this->config->port);
 
         if (false === $result) {
             throw new WorkerPoolException(
@@ -78,23 +74,23 @@ final class SocketManager
                     'Failed to bind to %s:%d: %s',
                     $this->config->host,
                     $this->config->port,
-                    socket_strerror(socket_last_error($this->masterSocket)),
+                    $this->socketWrapper->strerror($this->socketWrapper->lastError($this->masterSocket)),
                 ),
             );
         }
 
         $this->logger->debug('Starting to listen', ['backlog' => $this->config->socketBacklog]);
-        if (false === socket_listen($this->masterSocket, $this->config->socketBacklog)) {
+        if (false === $this->socketWrapper->listen($this->masterSocket, $this->config->socketBacklog)) {
             throw new WorkerPoolException(
                 sprintf(
                     'Failed to listen on socket: %s',
-                    socket_strerror(socket_last_error($this->masterSocket)),
+                    $this->socketWrapper->strerror($this->socketWrapper->lastError($this->masterSocket)),
                 ),
             );
         }
 
         $this->logger->debug('Setting non-blocking mode');
-        socket_set_nonblock($this->masterSocket);
+        $this->socketWrapper->setNonBlock($this->masterSocket);
 
         $this->isListening = true;
         $this->logger->info('Successfully listening', [
@@ -105,14 +101,7 @@ final class SocketManager
 
     public function accept(): ?Socket
     {
-        /** @var int $acceptCalls */
-        static $acceptCalls = 0;
-        $acceptCalls++;
-
         if (false === $this->isListening) {
-            if ($acceptCalls % 1000 === 0) {
-                $this->logger->warning('accept() called but not listening', ['calls' => $acceptCalls]);
-            }
             return null;
         }
 
@@ -121,21 +110,21 @@ final class SocketManager
             return null;
         }
 
-        $clientSocket = socket_accept($this->masterSocket);
+        $clientSocket = $this->socketWrapper->accept($this->masterSocket);
 
         if (false === $clientSocket) {
-            $errno = socket_last_error($this->masterSocket);
+            $errno = $this->socketWrapper->lastError($this->masterSocket);
             if ($errno !== 11 && $errno !== 0) {
                 $this->logger->debug('accept() error', [
                     'errno' => $errno,
-                    'error' => socket_strerror($errno),
+                    'error' => $this->socketWrapper->strerror($errno),
                 ]);
             }
             return null;
         }
 
         $this->logger->debug('Accepted new connection, setting non-blocking');
-        socket_set_nonblock($clientSocket);
+        $this->socketWrapper->setNonBlock($clientSocket);
         $this->logger->debug('Connection ready to be processed');
 
         return $clientSocket;
@@ -166,7 +155,7 @@ final class SocketManager
     {
         $this->logger->debug('Closing socket');
         if (null !== $this->masterSocket) {
-            socket_close($this->masterSocket);
+            $this->socketWrapper->close($this->masterSocket);
             $this->masterSocket = null;
         }
 

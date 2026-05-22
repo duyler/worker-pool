@@ -5,49 +5,59 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Master;
 
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
+use Duyler\WorkerPool\Process\ForkWrapperInterface;
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
+use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
+use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
+use InvalidArgumentException;
 use Override;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 use function count;
+use function in_array;
+use function pcntl_waitpid;
 
-use const SIGINT;
-use const SIGTERM;
+use const SIGCHLD;
 use const WNOHANG;
 
 abstract class AbstractMaster implements MasterInterface
 {
-    protected bool $shouldStop = false;
-
-    /**
-     * @var array<int, ProcessInfo>
-     */
-    protected array $workers = [];
-
     protected SignalHandler $signalHandler;
+    protected SignalManager $signalManager;
     protected LoggerInterface $logger;
+    protected readonly WorkerManager $workerManager;
+
+    /** @var array<int, float> */
+    private array $pendingRestarts = [];
 
     public function __construct(
         protected readonly WorkerPoolConfig $config,
+        protected readonly ForkWrapperInterface $forkWrapper,
         ?LoggerInterface $logger = null,
+        protected readonly ?WorkerCallbackInterface $workerCallback = null,
+        protected readonly ?EventDrivenWorkerInterface $eventDrivenWorker = null,
     ) {
+        if (null === $this->workerCallback && null === $this->eventDrivenWorker) {
+            throw new InvalidArgumentException(
+                'Either workerCallback or eventDrivenWorker must be provided',
+            );
+        }
+
         $this->logger = $logger ?? new NullLogger();
         $this->signalHandler = new SignalHandler();
+        $this->signalManager = new SignalManager($this->signalHandler);
+        $this->workerManager = new WorkerManager($this->forkWrapper, $this->logger);
         $this->setupSignals();
     }
 
     #[Override]
     public function stop(): void
     {
-        $this->shouldStop = true;
-
-        foreach ($this->workers as $worker) {
-            if ($worker->pid > 0) {
-                posix_kill($worker->pid, SIGTERM);
-            }
-        }
+        $this->signalManager->requestShutdown();
+        $this->workerManager->stopAll();
     }
 
     /**
@@ -55,18 +65,18 @@ abstract class AbstractMaster implements MasterInterface
      */
     public function getWorkers(): array
     {
-        return $this->workers;
+        return $this->workerManager->getWorkers();
     }
 
     public function getWorkerCount(): int
     {
-        return count($this->workers);
+        return count($this->workerManager->getWorkers());
     }
 
     #[Override]
     public function isRunning(): bool
     {
-        return false === $this->shouldStop;
+        return false === $this->signalManager->isShutdownRequested();
     }
 
     abstract protected function run(): void;
@@ -75,20 +85,25 @@ abstract class AbstractMaster implements MasterInterface
 
     protected function checkWorkers(): void
     {
-        foreach ($this->workers as $workerId => $worker) {
-            $result = pcntl_waitpid($worker->pid, $status, WNOHANG);
+        $deadWorkerIds = $this->detectDeadWorkers();
 
-            if ($result === $worker->pid) {
-                $this->logger->warning('Worker died', [
-                    'worker_id' => $workerId,
-                    'pid' => $worker->pid,
-                ]);
+        foreach ($deadWorkerIds as $workerId) {
+            if ($this->config->autoRestart && false === $this->signalManager->isShutdownRequested()) {
+                $this->scheduleRestart($workerId);
+            }
+        }
+    }
 
-                unset($this->workers[$workerId]);
+    protected function processPendingRestarts(): void
+    {
+        $now = microtime(true);
 
-                if ($this->config->autoRestart && false === $this->shouldStop) {
+        foreach ($this->pendingRestarts as $workerId => $restartAt) {
+            if ($now >= $restartAt) {
+                unset($this->pendingRestarts[$workerId]);
+
+                if (false === $this->signalManager->isShutdownRequested()) {
                     $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
-                    sleep($this->config->restartDelay);
                     $this->spawnWorker($workerId);
                 }
             }
@@ -97,21 +112,61 @@ abstract class AbstractMaster implements MasterInterface
 
     protected function waitForWorkers(): void
     {
-        foreach ($this->workers as $worker) {
-            pcntl_waitpid($worker->pid, $status);
-        }
+        $this->workerManager->waitAll();
     }
 
     protected function setupSignals(): void
     {
-        $this->signalHandler->register(SIGTERM, function (): void {
-            $this->logger->info('Received SIGTERM');
-            $this->stop();
-        });
+        $this->signalManager->setupMasterSignals(
+            onShutdown: function (int $signal): void {
+                $this->logger->info('Received shutdown signal', ['signal' => $signal]);
+                $this->stop();
+            },
+            onReload: function (int $signal): void {
+                $this->logger->info('Received reload signal', ['signal' => $signal]);
+            },
+        );
+    }
 
-        $this->signalHandler->register(SIGINT, function (): void {
-            $this->logger->info('Received SIGINT');
-            $this->stop();
+    protected function installSigchldHandler(): void
+    {
+        $this->signalHandler->register(SIGCHLD, function (): void {
+            $status = 0;
+            while (pcntl_waitpid(-1, $status, WNOHANG) > 0) {
+            }
         });
+    }
+
+    protected function uninstallSigchldHandler(): void
+    {
+        $this->signalHandler->unregister(SIGCHLD);
+    }
+
+    /**
+     * @return array<int>
+     */
+    protected function detectDeadWorkers(): array
+    {
+        $deadWorkerIds = $this->workerManager->check();
+
+        foreach ($this->workerManager->getWorkers() as $workerId => $worker) {
+            if (false === $worker->isAlive() && false === in_array($workerId, $deadWorkerIds, true)) {
+                $this->workerManager->removeWorker($workerId);
+                $deadWorkerIds[] = $workerId;
+            }
+        }
+
+        return $deadWorkerIds;
+    }
+
+    protected function scheduleRestart(int $workerId): void
+    {
+        if (0 === $this->config->restartDelay) {
+            $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
+            $this->spawnWorker($workerId);
+        } else {
+            $this->logger->info('Scheduling worker restart', ['worker_id' => $workerId]);
+            $this->pendingRestarts[$workerId] = microtime(true) + (float) $this->config->restartDelay;
+        }
     }
 }

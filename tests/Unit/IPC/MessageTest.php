@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+
 use Duyler\WorkerPool\IPC\Message;
 use Duyler\WorkerPool\IPC\MessageType;
 use InvalidArgumentException;
@@ -11,9 +14,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ValueError;
 
+#[CoversClass(Message::class)]
 class MessageTest extends TestCase
 {
-    public function testCreatesMessageWithTypeAndData(): void
+    #[Test]
+    public function creates_message_with_type_and_data(): void
     {
         $message = new Message(
             type: MessageType::WorkerReady,
@@ -26,7 +31,8 @@ class MessageTest extends TestCase
         $this->assertGreaterThan(0, $message->timestamp);
     }
 
-    public function testCreatesMessageWithCustomTimestamp(): void
+    #[Test]
+    public function creates_message_with_custom_timestamp(): void
     {
         $timestamp = microtime(true);
 
@@ -38,7 +44,8 @@ class MessageTest extends TestCase
         $this->assertSame($timestamp, $message->timestamp);
     }
 
-    public function testSerializesToJson(): void
+    #[Test]
+    public function serializes_to_json(): void
     {
         $message = new Message(
             type: MessageType::ConnectionClosed,
@@ -56,7 +63,8 @@ class MessageTest extends TestCase
         $this->assertSame(1234567890.123, $decoded['timestamp']);
     }
 
-    public function testUnserializesFromJson(): void
+    #[Test]
+    public function unserializes_from_json(): void
     {
         $json = json_encode([
             'type' => 'worker_ready',
@@ -71,7 +79,8 @@ class MessageTest extends TestCase
         $this->assertSame(1234567890.123, $message->timestamp);
     }
 
-    public function testUnserializeHandlesMissingData(): void
+    #[Test]
+    public function unserialize_handles_missing_data(): void
     {
         $json = json_encode([
             'type' => 'shutdown',
@@ -84,14 +93,16 @@ class MessageTest extends TestCase
         $this->assertSame([], $message->data);
     }
 
-    public function testUnserializeThrowsOnInvalidJson(): void
+    #[Test]
+    public function unserialize_throws_on_invalid_json(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         Message::unserialize('invalid json');
     }
 
-    public function testUnserializeThrowsOnMissingType(): void
+    #[Test]
+    public function unserialize_throws_on_missing_type(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Message type is required');
@@ -99,14 +110,16 @@ class MessageTest extends TestCase
         Message::unserialize(json_encode(['data' => []]));
     }
 
-    public function testUnserializeThrowsOnInvalidType(): void
+    #[Test]
+    public function unserialize_throws_on_invalid_type(): void
     {
         $this->expectException(ValueError::class);
 
         Message::unserialize(json_encode(['type' => 'invalid_type']));
     }
 
-    public function testCreatesConnectionClosedMessage(): void
+    #[Test]
+    public function creates_connection_closed_message(): void
     {
         $message = Message::connectionClosed(123);
 
@@ -114,7 +127,8 @@ class MessageTest extends TestCase
         $this->assertSame(['connection_id' => 123], $message->data);
     }
 
-    public function testCreatesWorkerReadyMessage(): void
+    #[Test]
+    public function creates_worker_ready_message(): void
     {
         $message = Message::workerReady(7);
 
@@ -122,7 +136,8 @@ class MessageTest extends TestCase
         $this->assertSame(['worker_id' => 7], $message->data);
     }
 
-    public function testCreatesWorkerMetricsMessage(): void
+    #[Test]
+    public function creates_worker_metrics_message(): void
     {
         $metrics = [
             'requests' => 100,
@@ -135,7 +150,8 @@ class MessageTest extends TestCase
         $this->assertSame($metrics, $message->data);
     }
 
-    public function testCreatesShutdownMessage(): void
+    #[Test]
+    public function creates_shutdown_message(): void
     {
         $message = Message::shutdown();
 
@@ -143,7 +159,8 @@ class MessageTest extends TestCase
         $this->assertSame([], $message->data);
     }
 
-    public function testCreatesReloadMessage(): void
+    #[Test]
+    public function creates_reload_message(): void
     {
         $message = Message::reload();
 
@@ -151,7 +168,8 @@ class MessageTest extends TestCase
         $this->assertSame([], $message->data);
     }
 
-    public function testSerializationRoundtripPreservesData(): void
+    #[Test]
+    public function serialization_roundtrip_preserves_data(): void
     {
         $original = Message::workerMetrics([
             'requests' => 500,
@@ -167,7 +185,8 @@ class MessageTest extends TestCase
         $this->assertSame($original->timestamp, $restored->timestamp);
     }
 
-    public function testLogsWarningOnInvalidJson(): void
+    #[Test]
+    public function logs_warning_on_invalid_json(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger
@@ -184,7 +203,8 @@ class MessageTest extends TestCase
         Message::unserialize('invalid json', $logger);
     }
 
-    public function testLogsWarningOnNonArrayJson(): void
+    #[Test]
+    public function logs_warning_on_non_array_json(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger
@@ -199,7 +219,8 @@ class MessageTest extends TestCase
         Message::unserialize('"just a string"', $logger);
     }
 
-    public function testLogsWarningOnMissingType(): void
+    #[Test]
+    public function logs_warning_on_missing_type(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger
@@ -211,7 +232,8 @@ class MessageTest extends TestCase
         Message::unserialize(json_encode(['data' => []]), $logger);
     }
 
-    public function testDoesNotLogOnValidUnserialize(): void
+    #[Test]
+    public function does_not_log_on_valid_unserialize(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger

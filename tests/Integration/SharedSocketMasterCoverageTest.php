@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
 use Duyler\WorkerPool\Process\ProcessInfo;
@@ -19,10 +22,25 @@ use PHPUnit\Framework\TestCase;
 use InvalidArgumentException;
 use ReflectionMethod;
 use ReflectionProperty;
+use Psr\Log\NullLogger;
+
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 use const SIGTERM;
 
 #[Group('pcntl')]
+#[CoversClass(SharedSocketMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class SharedSocketMasterCoverageTest extends TestCase
 {
     private ServerConfig $sc;
@@ -36,22 +54,24 @@ final class SharedSocketMasterCoverageTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 
     #[Test]
-    public function constructorThrowsWithoutCallback(): void
+    public function constructor_throws_without_callback(): void
     {
         $this->expectException(InvalidArgumentException::class);
         new SharedSocketMaster(
             config: new WorkerPoolConfig(serverConfig: $this->sc, workerCount: 1),
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
         );
     }
 
     #[Test]
-    public function stopKillsWorkers(): void
+    public function stop_kills_workers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -62,6 +82,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -77,11 +99,10 @@ final class SharedSocketMasterCoverageTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [
-            1 => new ProcessInfo(1, $pid1, ProcessState::Ready),
-            2 => new ProcessInfo(2, $pid2, ProcessState::Ready),
-        ]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid1, ProcessState::Ready, new ForkWrapper()));
+        $workerManager->updateWorker(2, new ProcessInfo(2, $pid2, ProcessState::Ready, new ForkWrapper()));
 
         $this->assertTrue($master->isRunning());
         $master->stop();
@@ -92,7 +113,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function runLoopExitsImmediatelyWhenShouldStopIsTrue(): void
+    public function run_loop_exits_immediately_when_shutdown_requested(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -103,11 +124,14 @@ final class SharedSocketMasterCoverageTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
-        $shouldStopRef = new ReflectionProperty($master, 'shouldStop');
-        $shouldStopRef->setValue($master, true);
+        $signalManagerRef = new ReflectionProperty($master, 'signalManager');
+        $signalManager = $signalManagerRef->getValue($master);
+        $signalManager->requestShutdown();
 
         $runRef = new ReflectionMethod($master, 'run');
         $runRef->invoke($master);
@@ -116,7 +140,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function checkWorkersDetectsDeadWorker(): void
+    public function check_workers_detects_dead_worker(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -127,6 +151,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -135,8 +161,9 @@ final class SharedSocketMasterCoverageTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         usleep(50000);
 
@@ -147,7 +174,7 @@ final class SharedSocketMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function getMetricsWithWorkers(): void
+    public function get_metrics_with_workers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -158,6 +185,8 @@ final class SharedSocketMasterCoverageTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -167,8 +196,9 @@ final class SharedSocketMasterCoverageTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         $metrics = $master->getMetrics();
         $this->assertSame('shared_socket', $metrics['architecture']);

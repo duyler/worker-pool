@@ -1,0 +1,27 @@
+name: Feature Request
+description: Suggest a feature for Duyler HTTP Server
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Feature Description
+      description: A clear description of the feature
+    validations:
+      required: true
+      
+  - type: textarea
+    id: usecase
+    attributes:
+      label: Use Case
+      description: Why do you need this feature?
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How you would like it to work
+    validations:
+      required: false

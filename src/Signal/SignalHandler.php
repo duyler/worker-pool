@@ -18,9 +18,7 @@ use const SIG_DFL;
 
 final class SignalHandler
 {
-    /**
-     * @var array<int, array<Closure>>
-     */
+    /** @var array<int, array<Closure>> */
     private array $handlers = [];
 
     public function register(int $signal, Closure $handler): void
@@ -58,9 +56,6 @@ final class SignalHandler
         $this->handlers = [];
     }
 
-    /**
-     * @return array<int, int>
-     */
     public function getRegisteredSignals(): array
     {
         $signals = [];

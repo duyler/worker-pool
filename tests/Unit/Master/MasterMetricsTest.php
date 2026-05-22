@@ -4,20 +4,43 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\Test;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
+#[CoversClass(SharedSocketMaster::class)]
+#[CoversClass(CentralizedMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class MasterMetricsTest extends TestCase
 {
     private WorkerPoolConfig $config;
     private ServerConfig $serverConfig;
     private WorkerCallbackInterface $callback;
+    private SocketWrapper $socketWrapper;
+    private SocketMsgWrapper $socketMsgWrapper;
+    private ForkWrapper $forkWrapper;
 
     #[Override]
     protected function setUp(): void
@@ -41,14 +64,22 @@ final class MasterMetricsTest extends TestCase
                 socket_close($clientSocket);
             }
         };
+
+        $this->socketWrapper = new SocketWrapper();
+        $this->socketMsgWrapper = new SocketMsgWrapper();
+        $this->forkWrapper = new ForkWrapper();
     }
 
-    public function testCentralizedMasterReturnsMetrics(): void
+    #[Test]
+    public function centralized_master_returns_metrics(): void
     {
         $balancer = new LeastConnectionsBalancer();
         $master = new CentralizedMaster(
             config: $this->config,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 
@@ -70,11 +101,14 @@ final class MasterMetricsTest extends TestCase
         $this->assertTrue($metrics['is_running']);
     }
 
-    public function testSharedSocketMasterReturnsMetrics(): void
+    #[Test]
+    public function shared_socket_master_returns_metrics(): void
     {
         $master = new SharedSocketMaster(
             config: $this->config,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 
@@ -94,18 +128,24 @@ final class MasterMetricsTest extends TestCase
         $this->assertTrue($metrics['is_running']);
     }
 
-    public function testMetricsIncludeArchitectureInfo(): void
+    #[Test]
+    public function metrics_include_architecture_info(): void
     {
         $balancer = new LeastConnectionsBalancer();
         $centralizedMaster = new CentralizedMaster(
             config: $this->config,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 
         $sharedSocketMaster = new SharedSocketMaster(
             config: $this->config,
             serverConfig: $this->serverConfig,
+            socketWrapper: $this->socketWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 
@@ -117,12 +157,16 @@ final class MasterMetricsTest extends TestCase
         $this->assertSame('shared_socket', $sharedSocketMetrics['architecture']);
     }
 
-    public function testMetricsReflectRunningState(): void
+    #[Test]
+    public function metrics_reflect_running_state(): void
     {
         $balancer = new LeastConnectionsBalancer();
         $master = new CentralizedMaster(
             config: $this->config,
             balancer: $balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             workerCallback: $this->callback,
         );
 

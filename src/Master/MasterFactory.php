@@ -8,10 +8,15 @@ use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\BalancerInterface;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Process\ForkWrapperInterface;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapperInterface;
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Duyler\WorkerPool\Util\SystemInfo;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -24,19 +29,22 @@ final class MasterFactory
         ?EventDrivenWorkerInterface $eventDrivenWorker = null,
         ?BalancerInterface $balancer = null,
         ?LoggerInterface $logger = null,
+        ?SocketWrapperInterface $socketWrapper = null,
+        ?SocketMsgWrapperInterface $socketMsgWrapper = null,
+        ?ForkWrapperInterface $forkWrapper = null,
     ): MasterInterface {
-        if (null === $workerCallback && null === $eventDrivenWorker) {
-            throw new InvalidArgumentException(
-                'Either workerCallback or eventDrivenWorker must be provided',
-            );
-        }
-
+        $socket = $socketWrapper ?? new SocketWrapper();
+        $socketMsg = $socketMsgWrapper ?? new SocketMsgWrapper();
+        $fork = $forkWrapper ?? new ForkWrapper();
         $systemInfo = new SystemInfo();
 
         if ($systemInfo->supportsFdPassing() && null !== $balancer) {
             return new CentralizedMaster(
                 config: $config,
                 balancer: $balancer,
+                socketWrapper: $socket,
+                socketMsgWrapper: $socketMsg,
+                forkWrapper: $fork,
                 serverConfig: $serverConfig,
                 workerCallback: $workerCallback,
                 eventDrivenWorker: $eventDrivenWorker,
@@ -47,6 +55,8 @@ final class MasterFactory
         return new SharedSocketMaster(
             config: $config,
             serverConfig: $serverConfig,
+            socketWrapper: $socket,
+            forkWrapper: $fork,
             workerCallback: $workerCallback,
             eventDrivenWorker: $eventDrivenWorker,
             logger: $logger ?? new NullLogger(),
@@ -59,13 +69,13 @@ final class MasterFactory
         ?WorkerCallbackInterface $workerCallback = null,
         ?EventDrivenWorkerInterface $eventDrivenWorker = null,
         ?LoggerInterface $logger = null,
+        ?SocketWrapperInterface $socketWrapper = null,
+        ?SocketMsgWrapperInterface $socketMsgWrapper = null,
+        ?ForkWrapperInterface $forkWrapper = null,
     ): MasterInterface {
-        if (null === $workerCallback && null === $eventDrivenWorker) {
-            throw new InvalidArgumentException(
-                'Either workerCallback or eventDrivenWorker must be provided',
-            );
-        }
-
+        $socket = $socketWrapper ?? new SocketWrapper();
+        $socketMsg = $socketMsgWrapper ?? new SocketMsgWrapper();
+        $fork = $forkWrapper ?? new ForkWrapper();
         $systemInfo = new SystemInfo();
 
         if ($systemInfo->supportsFdPassing()) {
@@ -74,6 +84,9 @@ final class MasterFactory
             return new CentralizedMaster(
                 config: $config,
                 balancer: $balancer,
+                socketWrapper: $socket,
+                socketMsgWrapper: $socketMsg,
+                forkWrapper: $fork,
                 serverConfig: $serverConfig,
                 workerCallback: $workerCallback,
                 eventDrivenWorker: $eventDrivenWorker,
@@ -84,6 +97,8 @@ final class MasterFactory
         return new SharedSocketMaster(
             config: $config,
             serverConfig: $serverConfig,
+            socketWrapper: $socket,
+            forkWrapper: $fork,
             workerCallback: $workerCallback,
             eventDrivenWorker: $eventDrivenWorker,
             logger: $logger ?? new NullLogger(),
@@ -101,9 +116,6 @@ final class MasterFactory
         return 'SharedSocketMaster - Distributed architecture with kernel load balancing';
     }
 
-    /**
-     * @return array<string, array<string, string>>
-     */
     public static function getComparison(): array
     {
         return [

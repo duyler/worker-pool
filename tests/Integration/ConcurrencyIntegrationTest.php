@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use Duyler\WorkerPool\Master\SharedSocketMaster;
+
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
@@ -14,6 +18,7 @@ use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 use function count;
 
@@ -23,16 +28,19 @@ use const SOCK_STREAM;
 use const SOL_TCP;
 
 #[Group('pcntl')]
+#[CoversClass(SharedSocketMaster::class)]
+#[CoversClass(CentralizedMaster::class)]
 final class ConcurrencyIntegrationTest extends TestCase
 {
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 
-    public function testHandlesConcurrentConnectionsWithoutRaceConditions(): void
+    #[Test]
+    public function handles_concurrent_connections_without_race_conditions(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -141,7 +149,8 @@ final class ConcurrencyIntegrationTest extends TestCase
         }
     }
 
-    public function testMaintainsRequestIsolationBetweenWorkers(): void
+    #[Test]
+    public function maintains_request_isolation_between_workers(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -227,7 +236,8 @@ final class ConcurrencyIntegrationTest extends TestCase
         $this->assertGreaterThan(0, count($uniqueWorkers));
     }
 
-    public function testHandlesRapidConnectDisconnect(): void
+    #[Test]
+    public function handles_rapid_connect_disconnect(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));

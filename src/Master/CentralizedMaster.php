@@ -10,84 +10,59 @@ use Duyler\WorkerPool\Balancer\BalancerInterface;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Exception\WorkerPoolException;
 use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Process\ForkWrapperInterface;
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
+use Duyler\WorkerPool\Socket\SocketMsgWrapperInterface;
+use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Fiber;
-use InvalidArgumentException;
 use Override;
 use Psr\Log\LoggerInterface;
 use Socket;
 
 use function assert;
 use function count;
+use function fclose;
+use function pcntl_signal;
+use function pcntl_signal_dispatch;
 
 use const AF_UNIX;
+use const SIGINT;
+use const SIGTERM;
 use const SOCKET_EINTR;
 use const SOCK_STREAM;
-use const WNOHANG;
 
-/**
- * Centralized Master with custom load balancing
- *
- * Architecture:
- * - Single master process accepts all connections
- * - Master maintains centralized queue
- * - Master distributes connections to workers via IPC (FD passing)
- * - Custom load balancing algorithms (Least Connections, Round Robin)
- *
- * Requirements:
- * - Linux (SCM_RIGHTS support)
- * - socket_sendmsg/socket_recvmsg functions
- *
- * Use when:
- * - Need custom load balancing
- * - Need sticky sessions
- * - Need centralized connection queue
- * - Running on Linux
- *
- * @note For EvIo integration: Unix socket pair only detects IPC activity.
- * EvTimer fallback is recommended in Event Bus configuration.
- *
- * @see SharedSocketMaster For distributed architecture with kernel load balancing
- */
 final class CentralizedMaster extends AbstractMaster
 {
-    /**
-     * @var array<int, Socket>
-     */
+    /** @var array<int, Socket> */
     private array $workerSockets = [];
 
     private ?SocketManager $socketManager = null;
     private ?ConnectionQueue $connectionQueue = null;
     private readonly FdPasser $fdPasser;
-    private readonly WorkerManager $workerManager;
     private readonly ConnectionRouter $connectionRouter;
 
     public function __construct(
         WorkerPoolConfig $config,
         private readonly BalancerInterface $balancer,
+        private readonly SocketWrapperInterface $socketWrapper,
+        private readonly SocketMsgWrapperInterface $socketMsgWrapper,
+        ForkWrapperInterface $forkWrapper,
         private readonly ?ServerConfig $serverConfig = null,
-        private readonly ?WorkerCallbackInterface $workerCallback = null,
-        private readonly ?EventDrivenWorkerInterface $eventDrivenWorker = null,
+        ?WorkerCallbackInterface $workerCallback = null,
+        ?EventDrivenWorkerInterface $eventDrivenWorker = null,
         ?LoggerInterface $logger = null,
     ) {
-        parent::__construct($config, $logger);
+        parent::__construct($config, $forkWrapper, $logger, $workerCallback, $eventDrivenWorker);
 
-        if (null === $this->workerCallback && null === $this->eventDrivenWorker) {
-            throw new InvalidArgumentException(
-                'Either workerCallback or eventDrivenWorker must be provided',
-            );
-        }
-
-        $this->fdPasser = new FdPasser($this->logger);
-        $this->workerManager = new WorkerManager($this->logger);
-        $this->connectionRouter = new ConnectionRouter($this->balancer, $this->logger);
+        $this->fdPasser = new FdPasser($this->socketWrapper, $this->socketMsgWrapper, $this->logger);
+        $this->connectionRouter = new ConnectionRouter($this->socketWrapper, $this->balancer, $this->fdPasser, $this->logger);
 
         if (null !== $this->serverConfig) {
-            $this->socketManager = new SocketManager($this->serverConfig, $this->logger);
-            $this->connectionQueue = new ConnectionQueue(maxSize: 1000);
+            $this->socketManager = new SocketManager($this->serverConfig, $this->socketWrapper, $this->logger);
+            $this->connectionQueue = new ConnectionQueue(maxSize: $this->config->maxQueueSize, socketWrapper: $this->socketWrapper);
         }
     }
 
@@ -115,12 +90,8 @@ final class CentralizedMaster extends AbstractMaster
     public function stop(): void
     {
         parent::stop();
-        $this->workerManager->stopAll();
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     #[Override]
     public function getMetrics(): array
     {
@@ -128,7 +99,7 @@ final class CentralizedMaster extends AbstractMaster
         $totalConnections = 0;
         $totalRequests = 0;
 
-        foreach ($this->workers as $worker) {
+        foreach ($this->getWorkers() as $worker) {
             if ($worker->isAlive()) {
                 $aliveWorkers++;
                 $totalConnections += $worker->connections;
@@ -154,10 +125,12 @@ final class CentralizedMaster extends AbstractMaster
     #[Override]
     protected function run(): void
     {
+        $this->installSigchldHandler();
+
         $iteration = 0;
 
-        while (false === $this->shouldStop) {
-            $this->signalHandler->dispatch();
+        while (false === $this->signalManager->isShutdownRequested()) {
+            $this->signalManager->dispatch();
 
             if (null !== $this->socketManager && null !== $this->connectionQueue) {
                 $socket = $this->socketManager->getSocket();
@@ -169,13 +142,13 @@ final class CentralizedMaster extends AbstractMaster
                     $timeout = 0;
                     $microseconds = $this->config->pollInterval;
 
-                    $changed = socket_select($readSockets, $write, $except, $timeout, $microseconds);
+                    $changed = $this->socketWrapper->select($readSockets, $write, $except, $timeout, $microseconds);
 
                     if (false === $changed) {
-                        $errorCode = socket_last_error();
+                        $errorCode = $this->socketWrapper->lastError();
                         if ($errorCode !== SOCKET_EINTR) {
                             $this->logger->error('socket_select failed', [
-                                'error' => socket_strerror($errorCode),
+                                'error' => $this->socketWrapper->strerror($errorCode),
                                 'error_code' => $errorCode,
                             ]);
                         }
@@ -193,40 +166,33 @@ final class CentralizedMaster extends AbstractMaster
             }
 
             $this->checkWorkers();
+            $this->processPendingRestarts();
 
             $iteration++;
             if ($iteration % 1000 === 0) {
                 $this->logger->debug('Main loop iteration', [
                     'iteration' => $iteration,
-                    'workers_alive' => count($this->workers),
+                    'workers_alive' => count($this->getWorkers()),
                 ]);
             }
         }
 
         $this->logger->info('Exiting main loop, waiting for workers');
         $this->waitForWorkers();
+        $this->uninstallSigchldHandler();
     }
 
     #[Override]
     protected function checkWorkers(): void
     {
-        foreach ($this->workers as $workerId => $worker) {
-            $result = pcntl_waitpid($worker->pid, $status, WNOHANG);
+        $deadWorkerIds = $this->detectDeadWorkers();
 
-            if ($result === $worker->pid) {
-                $this->logger->warning('Worker died', [
-                    'worker_id' => $workerId,
-                    'pid' => $worker->pid,
-                ]);
+        foreach ($deadWorkerIds as $workerId) {
+            $this->balancer->onWorkerRemoved($workerId);
+            unset($this->workerSockets[$workerId]);
 
-                $this->balancer->onWorkerRemoved($workerId);
-                unset($this->workers[$workerId], $this->workerSockets[$workerId]);
-
-                if ($this->config->autoRestart && false === $this->shouldStop) {
-                    $this->logger->info('Respawning worker', ['worker_id' => $workerId]);
-                    sleep($this->config->restartDelay);
-                    $this->spawnWorker($workerId);
-                }
+            if ($this->config->autoRestart && false === $this->signalManager->isShutdownRequested()) {
+                $this->scheduleRestart($workerId);
             }
         }
     }
@@ -235,7 +201,7 @@ final class CentralizedMaster extends AbstractMaster
     protected function spawnWorker(int $workerId): void
     {
         $sockets = [];
-        $result = socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $sockets);
+        $result = $this->socketWrapper->createPair(AF_UNIX, SOCK_STREAM, 0, $sockets);
 
         if (false === $result || 2 !== count($sockets)) {
             throw new WorkerPoolException("Failed to create socket pair for worker $workerId");
@@ -243,14 +209,14 @@ final class CentralizedMaster extends AbstractMaster
 
         [$masterSocket, $workerSocket] = $sockets;
 
-        $pid = pcntl_fork();
+        $pid = $this->forkWrapper->fork();
 
         if (-1 === $pid) {
             throw new WorkerPoolException("Failed to fork worker $workerId");
         }
 
         if (0 === $pid) {
-            socket_close($masterSocket);
+            $this->socketWrapper->close($masterSocket);
 
             if (null !== $this->socketManager) {
                 $this->socketManager->detachFromWorker();
@@ -271,13 +237,14 @@ final class CentralizedMaster extends AbstractMaster
             exit(0);
         }
 
-        socket_close($workerSocket);
+        $this->socketWrapper->close($workerSocket);
 
-        $this->workers[$workerId] = new ProcessInfo(
+        $this->workerManager->updateWorker($workerId, new ProcessInfo(
             workerId: $workerId,
             pid: $pid,
             state: ProcessState::Ready,
-        );
+            forkWrapper: $this->forkWrapper,
+        ));
 
         $this->workerSockets[$workerId] = $masterSocket;
         $this->logger->info('Worker spawned', ['worker_id' => $workerId, 'pid' => $pid]);
@@ -285,18 +252,7 @@ final class CentralizedMaster extends AbstractMaster
 
     private function acceptConnections(): void
     {
-        /** @var int $callCount */
-        static $callCount = 0;
-        $callCount++;
-
-        if ($callCount % 1000 === 0) {
-            $this->logger->debug('Accept connections called', ['count' => $callCount]);
-        }
-
         if (null === $this->socketManager || null === $this->connectionQueue) {
-            if (1 === $callCount) {
-                $this->logger->error('Socket manager or connection queue is null');
-            }
             return;
         }
 
@@ -312,7 +268,7 @@ final class CentralizedMaster extends AbstractMaster
 
             if ($this->connectionQueue->isFull()) {
                 $this->logger->warning('Queue full, rejecting connection');
-                socket_close($clientSocket);
+                $this->socketWrapper->close($clientSocket);
                 break;
             }
 
@@ -336,22 +292,12 @@ final class CentralizedMaster extends AbstractMaster
 
             $this->connectionRouter->route(
                 clientSocket: $clientSocket,
-                workers: $this->workers,
+                workers: $this->getWorkers(),
                 workerSockets: $this->workerSockets,
             );
         }
     }
 
-    /**
-     * Event-Driven Worker mode with FD Passing
-     *
-     * Runs a full application with its own event loop.
-     * Master passes FDs via IPC, application polls hasRequest().
-     *
-     * NOTE: Unix socket pair only detects IPC activity (FD passing),
-     * not HTTP data on passed client sockets. For this mode,
-     * EvTimer fallback is recommended in Event Bus.
-     */
     private function runEventDrivenWorker(int $workerId, Socket $workerSocket): void
     {
         assert(null !== $this->eventDrivenWorker);
@@ -373,7 +319,7 @@ final class CentralizedMaster extends AbstractMaster
         ]);
 
         $fiber = new Fiber(function () use ($workerSocket, $server, $workerId): void {
-            while (true) { // @phpstan-ignore while.alwaysTrue
+            while (true) {
                 $result = $this->fdPasser->receiveFd($workerSocket);
 
                 if (null !== $result) {
@@ -386,7 +332,7 @@ final class CentralizedMaster extends AbstractMaster
                     $metadata = $result['metadata'];
 
                     if ($clientSocket instanceof Socket) {
-                        socket_set_nonblock($clientSocket);
+                        $this->socketWrapper->setNonBlock($clientSocket);
                     } else {
                         stream_set_blocking($clientSocket, false);
                     }
@@ -405,16 +351,23 @@ final class CentralizedMaster extends AbstractMaster
         $this->eventDrivenWorker->run($workerId, $server);
     }
 
-    /**
-     * Callback Worker mode (legacy, for backward compatibility)
-     *
-     * Synchronous handling via callback for each received FD.
-     */
     private function runCallbackWorker(int $workerId, Socket $workerSocket): void
     {
+        $workerShouldStop = false;
+
+        pcntl_signal(SIGTERM, function () use (&$workerShouldStop): void {
+            $workerShouldStop = true;
+        });
+
+        pcntl_signal(SIGINT, function () use (&$workerShouldStop): void {
+            $workerShouldStop = true;
+        });
+
         $this->logger->info('Worker entering receive loop', ['worker_id' => $workerId]);
 
-        while (true) {
+        while (false === $workerShouldStop && false === $this->signalManager->isShutdownRequested()) {
+            pcntl_signal_dispatch();
+
             $result = $this->fdPasser->receiveFd($workerSocket);
 
             if (null === $result) {
@@ -432,7 +385,7 @@ final class CentralizedMaster extends AbstractMaster
             } else {
                 $this->logger->warning('Worker has no callback, closing socket', ['worker_id' => $workerId]);
                 if ($clientSocket instanceof Socket) {
-                    socket_close($clientSocket);
+                    $this->socketWrapper->close($clientSocket);
                 } else {
                     fclose($clientSocket);
                 }

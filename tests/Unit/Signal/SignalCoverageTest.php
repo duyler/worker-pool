@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Signal;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Signal\SignalHandler;
 use Duyler\WorkerPool\Signal\SignalManager;
 use PHPUnit\Framework\Attributes\Test;
@@ -12,6 +14,8 @@ use PHPUnit\Framework\TestCase;
 use const SIGTERM;
 use const SIGUSR1;
 
+#[CoversClass(SignalHandler::class)]
+#[CoversClass(SignalManager::class)]
 final class SignalCoverageTest extends TestCase
 {
     #[Test]

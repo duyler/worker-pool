@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
 use Duyler\WorkerPool\Master\WorkerManager;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\Process\ForkWrapper;
 
+#[CoversClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
 final class WorkerManagerCoverageTest extends TestCase
 {
     private WorkerManager $manager;
@@ -18,7 +25,7 @@ final class WorkerManagerCoverageTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
-        $this->manager = new WorkerManager();
+        $this->manager = new WorkerManager(new ForkWrapper());
     }
 
     #[Test]
@@ -40,6 +47,7 @@ final class WorkerManagerCoverageTest extends TestCase
             workerId: 1,
             pid: 12345,
             state: ProcessState::Ready,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->manager->updateWorker(1, $info);
@@ -56,6 +64,7 @@ final class WorkerManagerCoverageTest extends TestCase
             workerId: 5,
             pid: 54321,
             state: ProcessState::Busy,
+            forkWrapper: new ForkWrapper(),
         );
 
         $this->manager->updateWorker(5, $info);
@@ -76,8 +85,8 @@ final class WorkerManagerCoverageTest extends TestCase
     #[Test]
     public function countAliveCountsAliveWorkers(): void
     {
-        $alive = new ProcessInfo(1, getmypid(), ProcessState::Ready);
-        $dead = new ProcessInfo(2, 999999, ProcessState::Stopped);
+        $alive = new ProcessInfo(1, getmypid(), ProcessState::Ready, new ForkWrapper());
+        $dead = new ProcessInfo(2, 999999, ProcessState::Stopped, new ForkWrapper());
 
         $this->manager->updateWorker(1, $alive);
         $this->manager->updateWorker(2, $dead);
@@ -88,8 +97,8 @@ final class WorkerManagerCoverageTest extends TestCase
     #[Test]
     public function getWorkersReturnsAllWorkers(): void
     {
-        $w1 = new ProcessInfo(1, 100, ProcessState::Ready);
-        $w2 = new ProcessInfo(2, 200, ProcessState::Ready);
+        $w1 = new ProcessInfo(1, 100, ProcessState::Ready, new ForkWrapper());
+        $w2 = new ProcessInfo(2, 200, ProcessState::Ready, new ForkWrapper());
 
         $this->manager->updateWorker(1, $w1);
         $this->manager->updateWorker(2, $w2);
@@ -103,8 +112,8 @@ final class WorkerManagerCoverageTest extends TestCase
     #[Test]
     public function updateWorkerOverwritesExisting(): void
     {
-        $original = new ProcessInfo(1, 100, ProcessState::Ready);
-        $updated = new ProcessInfo(1, 200, ProcessState::Busy);
+        $original = new ProcessInfo(1, 100, ProcessState::Ready, new ForkWrapper());
+        $updated = new ProcessInfo(1, 200, ProcessState::Busy, new ForkWrapper());
 
         $this->manager->updateWorker(1, $original);
         $this->manager->updateWorker(1, $updated);

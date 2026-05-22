@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Exception;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use Duyler\WorkerPool\Exception\WorkerPoolExceptionBase;
+
 use Duyler\WorkerPool\Exception\IPCException;
 use Duyler\WorkerPool\Exception\WorkerPoolException;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
+#[CoversClass(WorkerPoolException::class)]
+#[CoversClass(IPCException::class)]
+#[CoversClass(WorkerPoolExceptionBase::class)]
 final class ExceptionCoverageTest extends TestCase
 {
     #[Test]

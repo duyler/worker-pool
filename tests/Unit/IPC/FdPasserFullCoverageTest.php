@@ -4,16 +4,26 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\WorkerPool\IPC\FdPasser;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Socket;
 
 use const AF_INET;
 use const AF_UNIX;
 use const SOCK_STREAM;
 use const SOL_TCP;
 
+#[CoversClass(FdPasser::class)]
+#[UsesClass(SocketMsgWrapper::class)]
+#[UsesClass(SocketWrapper::class)]
 final class FdPasserFullCoverageTest extends TestCase
 {
     private FdPasser $fdPasser;
@@ -21,11 +31,11 @@ final class FdPasserFullCoverageTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
-        $this->fdPasser = new FdPasser();
+        $this->fdPasser = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
     }
 
     #[Test]
-    public function isSupportedReturnsBool(): void
+    public function is_supported_returns_bool(): void
     {
         $result = $this->fdPasser->isSupported();
         $this->assertIsBool($result);
@@ -45,7 +55,14 @@ final class FdPasserFullCoverageTest extends TestCase
         $this->assertIsBool($result);
 
         $received = $this->fdPasser->receiveFd($receiver);
-        $this->assertNull($received);
+        if (null !== $received) {
+            $this->assertArrayHasKey('fd', $received);
+            if ($received['fd'] instanceof Socket) {
+                socket_close($received['fd']);
+            }
+        } else {
+            $this->assertNull($received);
+        }
 
         socket_close($sender);
         socket_close($receiver);

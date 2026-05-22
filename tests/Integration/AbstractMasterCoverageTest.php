@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Duyler\WorkerPool\Master\AbstractMaster;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
@@ -19,10 +23,30 @@ use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
 
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
+
 use const SIGTERM;
 use const SIGINT;
 
 #[Group('pcntl')]
+#[CoversClass(AbstractMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(CentralizedMaster::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class AbstractMasterCoverageTest extends TestCase
 {
     private ServerConfig $sc;
@@ -34,7 +58,7 @@ final class AbstractMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function stopSendsSigtermToWorkers(): void
+    public function stop_sends_sigterm_to_workers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -45,6 +69,9 @@ final class AbstractMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -54,8 +81,9 @@ final class AbstractMasterCoverageTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         $master->stop();
         $this->assertFalse($master->isRunning());
@@ -64,7 +92,7 @@ final class AbstractMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function waitForWorkersBlocksUntilExit(): void
+    public function wait_for_workers_blocks_until_exit(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -75,6 +103,9 @@ final class AbstractMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -83,8 +114,9 @@ final class AbstractMasterCoverageTest extends TestCase
             exit(0);
         }
 
-        $workersRef = new ReflectionProperty($master, 'workers');
-        $workersRef->setValue($master, [1 => new ProcessInfo(1, $pid, ProcessState::Ready)]);
+        $wmRef = new ReflectionProperty($master, 'workerManager');
+        $workerManager = $wmRef->getValue($master);
+        $workerManager->updateWorker(1, new ProcessInfo(1, $pid, ProcessState::Ready, new ForkWrapper()));
 
         $waitRef = new ReflectionMethod($master, 'waitForWorkers');
         $waitRef->invoke($master);
@@ -93,7 +125,7 @@ final class AbstractMasterCoverageTest extends TestCase
     }
 
     #[Test]
-    public function setupSignalsRegistersSigtermAndSigint(): void
+    public function setup_signals_registers_sigterm_and_sigint(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -104,6 +136,9 @@ final class AbstractMasterCoverageTest extends TestCase
         $master = new CentralizedMaster(
             config: $config,
             balancer: $balancer,
+            socketWrapper: new SocketWrapper(),
+            socketMsgWrapper: new SocketMsgWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 

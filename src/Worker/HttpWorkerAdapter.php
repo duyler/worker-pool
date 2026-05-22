@@ -6,6 +6,7 @@ namespace Duyler\WorkerPool\Worker;
 
 use Duyler\HttpServer\Parser\HttpParser;
 use Duyler\WorkerPool\Exception\WorkerPoolException;
+use Duyler\WorkerPool\Socket\SocketWrapperInterface;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
@@ -16,6 +17,9 @@ use Throwable;
 use function count;
 use function sprintf;
 use function strlen;
+
+use function assert;
+use function is_string;
 
 use const SOL_SOCKET;
 use const SO_RCVTIMEO;
@@ -30,23 +34,21 @@ final readonly class HttpWorkerAdapter
     private HttpParser $httpParser;
     private Psr17Factory $psr17Factory;
 
-    public function __construct()
-    {
+    public function __construct(
+        private SocketWrapperInterface $socketWrapper,
+    ) {
         $this->httpParser = new HttpParser();
         $this->psr17Factory = new Psr17Factory();
     }
 
-    /**
-     * @param array<string, mixed> $metadata
-     */
     public function handleConnection(Socket $clientSocket, array $metadata = []): void
     {
-        socket_set_option($clientSocket, SOL_SOCKET, SO_RCVTIMEO, [
+        $this->socketWrapper->setOption($clientSocket, SOL_SOCKET, SO_RCVTIMEO, [
             'sec' => self::SOCKET_TIMEOUT,
             'usec' => 0,
         ]);
 
-        socket_set_option($clientSocket, SOL_SOCKET, SO_SNDTIMEO, [
+        $this->socketWrapper->setOption($clientSocket, SOL_SOCKET, SO_SNDTIMEO, [
             'sec' => self::SOCKET_TIMEOUT,
             'usec' => 0,
         ]);
@@ -72,13 +74,10 @@ final readonly class HttpWorkerAdapter
         } catch (Throwable $e) {
             $this->sendErrorResponse($clientSocket, 500, $e->getMessage());
         } finally {
-            socket_close($clientSocket);
+            $this->socketWrapper->close($clientSocket);
         }
     }
 
-    /**
-     * @param array<string, mixed> $metadata
-     */
     private function parseRawRequest(string $rawRequest, array $metadata): ?ServerRequestInterface
     {
         try {
@@ -125,6 +124,8 @@ final readonly class HttpWorkerAdapter
              * @var mixed $value
              */
             foreach ($metadata as $key => $value) {
+                assert(is_string($key));
+                assert(null !== $value);
                 $request = $request->withAttribute($key, $value);
             }
 
@@ -150,7 +151,7 @@ final readonly class HttpWorkerAdapter
         $contentLength = 0;
 
         while (true) {
-            $chunk = socket_read($socket, self::READ_BUFFER_SIZE);
+            $chunk = $this->socketWrapper->read($socket, self::READ_BUFFER_SIZE);
 
             if (false === $chunk || '' === $chunk) {
                 break;
@@ -190,7 +191,7 @@ final readonly class HttpWorkerAdapter
     {
         $rawResponse = $this->serializeResponse($response);
 
-        socket_write($socket, $rawResponse);
+        $this->socketWrapper->write($socket, $rawResponse);
     }
 
     private function sendErrorResponse(Socket $socket, int $statusCode, string $message): void

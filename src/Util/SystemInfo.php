@@ -207,13 +207,35 @@ final class SystemInfo
 
     private function execCommandString(string $command): int
     {
-        /** @psalm-suppress ForbiddenCode shell_exec needed for system information */
-        $output = shell_exec($command);
-        if (null === $output || '' === $output || false === $output) {
+        $output = $this->execCommandOutput($command);
+        if (null === $output || '' === $output) {
             return 0;
         }
 
         $cores = intval(trim($output));
         return $cores > 0 ? $cores : 0;
+    }
+
+    private function execCommandOutput(string $command): ?string
+    {
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+
+        $process = proc_open($command, $descriptors, $pipes);
+
+        if (false === $process) {
+            return null;
+        }
+
+        fclose($pipes[0]);
+        $output = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($process);
+
+        return false !== $output ? $output : null;
     }
 }

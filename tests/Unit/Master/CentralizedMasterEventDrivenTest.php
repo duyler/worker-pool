@@ -4,24 +4,49 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\Test;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\Server;
 use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\CentralizedMaster;
+use Duyler\WorkerPool\Process\ForkWrapper;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\TestCase;
-use Socket;
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
+#[CoversClass(CentralizedMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 class CentralizedMasterEventDrivenTest extends TestCase
 {
     private ServerConfig $serverConfig;
     private WorkerPoolConfig $workerPoolConfig;
     private RoundRobinBalancer $balancer;
+    private SocketWrapper $socketWrapper;
+    private SocketMsgWrapper $socketMsgWrapper;
+    private ForkWrapper $forkWrapper;
 
     #[Override]
     protected function setUp(): void
@@ -39,9 +64,13 @@ class CentralizedMasterEventDrivenTest extends TestCase
         );
 
         $this->balancer = new RoundRobinBalancer($this->workerPoolConfig->workerCount);
+        $this->socketWrapper = new SocketWrapper();
+        $this->socketMsgWrapper = new SocketMsgWrapper();
+        $this->forkWrapper = new ForkWrapper();
     }
 
-    public function testCreatesMasterWithEventDrivenWorker(): void
+    #[Test]
+    public function creates_master_with_event_driven_worker(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public function run(int $workerId, ServerInterface $server): void {}
@@ -50,6 +79,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             eventDrivenWorker: $worker,
         );
@@ -57,7 +89,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testCreatesMasterWithWorkerCallback(): void
+    #[Test]
+    public function creates_master_with_worker_callback(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -66,6 +99,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             workerCallback: $callback,
         );
@@ -73,7 +109,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testThrowsExceptionWhenNoWorkerInterfaceProvided(): void
+    #[Test]
+    public function throws_exception_when_no_worker_interface_provided(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Either workerCallback or eventDrivenWorker must be provided');
@@ -81,13 +118,17 @@ class CentralizedMasterEventDrivenTest extends TestCase
         new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             workerCallback: null,
             eventDrivenWorker: null,
         );
     }
 
-    public function testAcceptsBothWorkerInterfaces(): void
+    #[Test]
+    public function accepts_both_worker_interfaces(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}
@@ -97,10 +138,12 @@ class CentralizedMasterEventDrivenTest extends TestCase
             public function run(int $workerId, ServerInterface $server): void {}
         };
 
-        // Should not throw - both interfaces provided
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             workerCallback: $callback,
             eventDrivenWorker: $worker,
@@ -109,16 +152,19 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testCreatesMasterWithoutServerConfig(): void
+    #[Test]
+    public function creates_master_without_server_config(): void
     {
         $worker = new class implements EventDrivenWorkerInterface {
             public function run(int $workerId, ServerInterface $server): void {}
         };
 
-        // CentralizedMaster can work without serverConfig (external socket mode)
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: null,
             eventDrivenWorker: $worker,
         );
@@ -126,7 +172,8 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $this->assertInstanceOf(CentralizedMaster::class, $master);
     }
 
-    public function testEventDrivenWorkerReceivesParameters(): void
+    #[Test]
+    public function event_driven_worker_receives_parameters(): void
     {
         $receivedWorkerId = null;
         $receivedServer = null;
@@ -147,6 +194,9 @@ class CentralizedMasterEventDrivenTest extends TestCase
         $master = new CentralizedMaster(
             config: $this->workerPoolConfig,
             balancer: $this->balancer,
+            socketWrapper: $this->socketWrapper,
+            socketMsgWrapper: $this->socketMsgWrapper,
+            forkWrapper: $this->forkWrapper,
             serverConfig: $this->serverConfig,
             eventDrivenWorker: $worker,
         );

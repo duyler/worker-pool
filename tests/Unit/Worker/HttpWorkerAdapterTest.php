@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Worker;
 
-use Duyler\HttpServer\ErrorHandler;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Worker\HttpWorkerAdapter;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Psr\Log\NullLogger;
+
+use Duyler\WorkerPool\Socket\SocketWrapper;
 
 use function strlen;
 
@@ -18,6 +24,7 @@ use const SOCK_STREAM;
 use const STDERR;
 
 #[Group('pcntl')]
+#[CoversClass(HttpWorkerAdapter::class)]
 class HttpWorkerAdapterTest extends TestCase
 {
     private HttpWorkerAdapter $adapter;
@@ -26,22 +33,24 @@ class HttpWorkerAdapterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->adapter = new HttpWorkerAdapter();
+        $this->adapter = new HttpWorkerAdapter(new SocketWrapper());
     }
 
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 
-    public function testCreatesAdapter(): void
+    #[Test]
+    public function creates_adapter(): void
     {
         $this->assertInstanceOf(HttpWorkerAdapter::class, $this->adapter);
     }
 
-    public function testHandlesSimpleHttpRequest(): void
+    #[Test]
+    public function handles_simple_http_request(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -83,7 +92,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertStringContainsString('Hello from Worker Pool!', $response);
     }
 
-    public function testReadsRequestWithBody(): void
+    #[Test]
+    public function reads_request_with_body(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -125,7 +135,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertStringContainsString('200', $response);
     }
 
-    public function testClosesSocketAfterHandling(): void
+    #[Test]
+    public function closes_socket_after_handling(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -152,7 +163,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testHandlesEmptyRequest(): void
+    #[Test]
+    public function handles_empty_request(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -185,7 +197,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertStringContainsString('Bad Request', $response);
     }
 
-    public function testHandlesInvalidHttpRequest(): void
+    #[Test]
+    public function handles_invalid_http_request(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -218,7 +231,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertStringContainsString('Invalid HTTP Request', $response);
     }
 
-    public function testHandlesRequestWithMetadata(): void
+    #[Test]
+    public function handles_request_with_metadata(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -257,7 +271,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertStringContainsString('200', $response);
     }
 
-    public function testHandlesRequestWithMultipleHeaders(): void
+    #[Test]
+    public function handles_request_with_multiple_headers(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -298,7 +313,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertStringContainsString('200', $response);
     }
 
-    public function testHandlesChunkedRequestBody(): void
+    #[Test]
+    public function handles_chunked_request_body(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -340,7 +356,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertStringContainsString('200', $response);
     }
 
-    public function testHandlesPartialHeaders(): void
+    #[Test]
+    public function handles_partial_headers(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;
@@ -372,7 +389,8 @@ class HttpWorkerAdapterTest extends TestCase
         $this->assertStringContainsString('400', $response);
     }
 
-    public function testHandlesMalformedRequestLine(): void
+    #[Test]
+    public function handles_malformed_request_line(): void
     {
         socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $pair);
         [$serverSocket, $clientSocket] = $pair;

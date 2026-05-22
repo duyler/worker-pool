@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
@@ -15,6 +18,7 @@ use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 use function count;
 
@@ -24,16 +28,18 @@ use const SOCK_STREAM;
 use const SOL_TCP;
 
 #[Group('pcntl')]
+#[CoversClass(CentralizedMaster::class)]
 final class LoadBalancingIntegrationTest extends TestCase
 {
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 
-    public function testRoundRobinDistributesEvenly(): void
+    #[Test]
+    public function round_robin_distributes_evenly(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -119,7 +125,8 @@ final class LoadBalancingIntegrationTest extends TestCase
         $this->assertGreaterThanOrEqual(3, count($responses));
     }
 
-    public function testLeastConnectionsPrefersIdleWorkers(): void
+    #[Test]
+    public function least_connections_prefers_idle_workers(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -138,7 +145,8 @@ final class LoadBalancingIntegrationTest extends TestCase
         $this->assertSame(2, $selected, 'Should select worker with least connections');
     }
 
-    public function testHandlesMultipleConcurrentConnections(): void
+    #[Test]
+    public function handles_multiple_concurrent_connections(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));

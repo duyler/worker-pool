@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\SharedSocketMaster;
@@ -15,9 +18,24 @@ use PHPUnit\Framework\TestCase;
 
 use ReflectionMethod;
 
+use Duyler\WorkerPool\Socket\SocketWrapper;
+use Duyler\WorkerPool\Process\ForkWrapper;
+
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Process\ProcessInfo;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
+
 use const SIGKILL;
 
 #[Group('pcntl')]
+#[CoversClass(SharedSocketMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class SharedSocketMasterSpawnTest extends TestCase
 {
     private ServerConfig $sc;
@@ -29,7 +47,7 @@ final class SharedSocketMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function spawnWorkerForksAndRegisters(): void
+    public function spawn_worker_forks_and_registers(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -42,6 +60,8 @@ final class SharedSocketMasterSpawnTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -57,7 +77,7 @@ final class SharedSocketMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function checkWorkersDetectsKilledWorker(): void
+    public function check_workers_detects_killed_worker(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -70,6 +90,8 @@ final class SharedSocketMasterSpawnTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 
@@ -87,7 +109,7 @@ final class SharedSocketMasterSpawnTest extends TestCase
     }
 
     #[Test]
-    public function getMetricsAfterSpawn(): void
+    public function get_metrics_after_spawn(): void
     {
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
@@ -100,6 +122,8 @@ final class SharedSocketMasterSpawnTest extends TestCase
         $master = new SharedSocketMaster(
             config: $config,
             serverConfig: $this->sc,
+            socketWrapper: new SocketWrapper(),
+            forkWrapper: new ForkWrapper(),
             workerCallback: $callback,
         );
 

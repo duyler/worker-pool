@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Util;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use Duyler\WorkerPool\Util\SystemInfo;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 use const PHP_OS_FAMILY;
 use const PHP_VERSION;
 
+#[CoversClass(SystemInfo::class)]
+#[AllowMockObjectsWithoutExpectations]
 final class SystemInfoCoverageTest extends TestCase
 {
     private LoggerInterface&MockObject $logger;

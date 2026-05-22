@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Worker;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
+
 use Duyler\WorkerPool\Worker\HttpWorkerAdapter;
 use Override;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+
+use Duyler\WorkerPool\Socket\SocketWrapper;
 
 use function strlen;
 
 use const AF_UNIX;
 use const SOCK_STREAM;
 
+#[CoversClass(HttpWorkerAdapter::class)]
+#[UsesClass(SocketWrapper::class)]
 final class HttpWorkerAdapterCoverageTest extends TestCase
 {
     private HttpWorkerAdapter $adapter;
@@ -21,13 +28,13 @@ final class HttpWorkerAdapterCoverageTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
-        $this->adapter = new HttpWorkerAdapter();
+        $this->adapter = new HttpWorkerAdapter(new SocketWrapper());
     }
 
     #[Test]
     public function createsAdapterWithHttpParser(): void
     {
-        $adapter = new HttpWorkerAdapter();
+        $adapter = new HttpWorkerAdapter(new SocketWrapper());
         $this->assertInstanceOf(HttpWorkerAdapter::class, $adapter);
     }
 

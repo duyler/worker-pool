@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Integration;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
+use Duyler\WorkerPool\Master\SharedSocketMaster;
+
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\ErrorHandler;
+use Duyler\HttpServer\ErrorHandler\ErrorHandler;
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
 use Duyler\WorkerPool\Balancer\RoundRobinBalancer;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
@@ -14,6 +18,7 @@ use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 use const AF_INET;
 use const SIGTERM;
@@ -21,16 +26,19 @@ use const SOCK_STREAM;
 use const SOL_TCP;
 
 #[Group('pcntl')]
+#[CoversClass(SharedSocketMaster::class)]
+#[CoversClass(CentralizedMaster::class)]
 final class WorkerCrashIntegrationTest extends TestCase
 {
     #[Override]
     protected function tearDown(): void
     {
-        ErrorHandler::reset();
+        (new ErrorHandler(new NullLogger()))->reset();
         parent::tearDown();
     }
 
-    public function testHandlesWorkerCrashWithoutAutoRestart(): void
+    #[Test]
+    public function handles_worker_crash_without_auto_restart(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -66,7 +74,8 @@ final class WorkerCrashIntegrationTest extends TestCase
         $this->assertSame(0, $initialWorkerCount);
     }
 
-    public function testAutoRestartIsConfigurable(): void
+    #[Test]
+    public function auto_restart_is_configurable(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
@@ -95,7 +104,8 @@ final class WorkerCrashIntegrationTest extends TestCase
         $this->assertSame(1, $workerPoolConfigWithRestart->restartDelay);
     }
 
-    public function testMasterContinuesAfterWorkerCrash(): void
+    #[Test]
+    public function master_continues_after_worker_crash(): void
     {
         if (!PlatformHelper::supportsSCMRights()) {
             $this->markTestSkipped(PlatformHelper::getSkipReason('scm_rights'));
