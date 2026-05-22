@@ -13,15 +13,14 @@ use Psr\Log\NullLogger;
 use Socket;
 
 use function array_key_exists;
+use function assert;
 use function defined;
 use function function_exists;
 use function gettype;
 use function is_array;
 use function is_resource;
-use function strlen;
-
-use function assert;
 use function is_string;
+use function strlen;
 
 use const JSON_THROW_ON_ERROR;
 use const MSG_DONTWAIT;
@@ -56,8 +55,6 @@ final readonly class FdPasser
             throw new IPCException('SCM_RIGHTS is not defined');
         }
 
-        $this->logger->debug('Sending FD with metadata', ['metadata' => $metadata]);
-
         $metadataJson = json_encode($metadata, JSON_THROW_ON_ERROR);
         if ('[]' === $metadataJson) {
             $metadataJson = '{}';
@@ -80,8 +77,6 @@ final readonly class FdPasser
             $this->logger->error('sendmsg failed', [
                 'error' => $this->socketWrapper->strerror($this->socketWrapper->lastError($controlSocket)),
             ]);
-        } else {
-            $this->logger->debug('FD sent', ['bytes' => $result]);
         }
 
         return false !== $result;
@@ -122,11 +117,6 @@ final readonly class FdPasser
             }
             return null;
         }
-
-        $this->logger->debug('recvmsg returned bytes', ['bytes' => $result]);
-        $this->logger->debug('Message type', ['type' => gettype($message)]);
-
-        $this->logger->debug('Message keys', ['keys' => array_keys($message)]);
 
         assert(is_array($message['control']));
 
@@ -177,8 +167,6 @@ final readonly class FdPasser
             ]);
             $metadata = [];
         }
-
-        $this->logger->debug('FD received successfully', ['metadata' => $metadata]);
 
         return [
             'fd' => $receivedFd,
