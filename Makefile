@@ -5,7 +5,7 @@ build:
 
 .PHONY: tests
 tests:
-	docker-compose run --rm php vendor/bin/phpunit --no-progress
+	docker-compose run --rm php vendor/bin/phpunit
 
 .PHONY: infection
 infection:

@@ -417,7 +417,7 @@ final class CentralizedMasterStartTest extends TestCase
         $distributeConnections = new ReflectionMethod($master, 'distributeConnections');
         $distributeConnections->invoke($master);
 
-        $this->assertTrue(true);
+        $this->assertCount(0, $master->getWorkers());
     }
 
     #[Test]

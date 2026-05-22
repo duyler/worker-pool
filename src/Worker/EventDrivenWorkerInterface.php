@@ -114,12 +114,8 @@ interface EventDrivenWorkerInterface
      *
      * @param int $workerId Worker ID (1, 2, 3, ..., N)
      * @param ServerInterface $server Server instance for Worker Pool interaction
-     *                       - hasRequest() - check for requests
-     *                       - getRequest() - get next request
-     *                       - respond() - send response
-     *                       - hasPendingResponse() - check for pending responses
      *
-     * @return void (never returns - infinite loop inside)
+     * @return void
      */
     public function run(int $workerId, ServerInterface $server): void;
 }

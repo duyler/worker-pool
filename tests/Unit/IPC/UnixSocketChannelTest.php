@@ -37,7 +37,7 @@ class UnixSocketChannelTest extends TestCase
         parent::tearDown();
 
         if (file_exists($this->socketPath)) {
-            @unlink($this->socketPath);
+            unlink($this->socketPath);
         }
     }
 

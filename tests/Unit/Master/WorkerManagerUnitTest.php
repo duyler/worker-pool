@@ -228,6 +228,6 @@ final class WorkerManagerUnitTest extends TestCase
 
         $this->assertFileExists($tempFile);
         $this->assertSame('callback_executed', file_get_contents($tempFile));
-        @unlink($tempFile);
+        unlink($tempFile);
     }
 }

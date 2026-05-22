@@ -92,7 +92,7 @@ final class CentralizedMasterEventTest extends TestCase
             $this->capturedServer->reset();
             $this->capturedServer = null;
         }
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
         parent::tearDown();
     }
 
@@ -140,7 +140,7 @@ final class CentralizedMasterEventTest extends TestCase
 
         $runEventDrivenWorker->invoke($master, 1, $sockets[0]);
 
-        $this->assertTrue(true);
+        $this->assertNotNull($this->capturedServer);
     }
 
     #[Test]

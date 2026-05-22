@@ -131,20 +131,22 @@ class SocketManagerTest extends TestCase
 
         socket_set_nonblock($clientSocket);
 
-        @socket_connect($clientSocket, $host, $port);
+        $previousErrorReporting = error_reporting(0);
+        socket_connect($clientSocket, $host, $port);
+        error_reporting($previousErrorReporting);
 
         usleep(10000);
 
         $accepted = $manager->accept();
 
-        if ($accepted !== null) {
+        if (null !== $accepted) {
             socket_close($accepted);
         }
 
         socket_close($clientSocket);
         $manager->close();
 
-        $this->assertTrue(true);
+        $this->assertFalse($manager->isListening());
     }
 
     #[Test]
@@ -173,8 +175,6 @@ class SocketManagerTest extends TestCase
         $this->assertNotNull($socket);
 
         unset($manager);
-
-        $this->assertTrue(true);
     }
 
     private function findFreePort(): int

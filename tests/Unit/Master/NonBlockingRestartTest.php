@@ -315,7 +315,6 @@ final class NonBlockingRestartTest extends TestCase
         $ref->setValue($master, $pending);
     }
 
-    /** @return array<int, float> */
     private function getPendingRestarts(TestableAbstractMaster $master): array
     {
         $ref = new ReflectionProperty(AbstractMaster::class, 'pendingRestarts');
@@ -331,7 +330,6 @@ final class NonBlockingRestartTest extends TestCase
 
 final class TestableAbstractMaster extends AbstractMaster
 {
-    /** @var list<int> */
     public array $spawnedWorkers = [];
 
     #[Override]

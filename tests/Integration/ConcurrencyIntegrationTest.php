@@ -35,7 +35,7 @@ final class ConcurrencyIntegrationTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
         parent::tearDown();
     }
 
@@ -73,7 +73,7 @@ final class ConcurrencyIntegrationTest extends TestCase
 
                 $requestId = self::$counter;
 
-                usleep(10000); // Simulate some work
+                usleep(10000);
 
                 $response = "HTTP/1.1 200 OK\r\n\r\nRequest: $requestId";
                 socket_write($clientSocket, $response);
@@ -92,7 +92,7 @@ final class ConcurrencyIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -105,14 +105,18 @@ final class ConcurrencyIntegrationTest extends TestCase
         for ($i = 0; $i < $concurrentRequests; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            if (@socket_connect($client, '127.0.0.1', $port)) {
+            $previousErrorReporting = error_reporting(0);
+            if (socket_connect($client, '127.0.0.1', $port)) {
+                error_reporting($previousErrorReporting);
                 socket_set_nonblock($client);
                 socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
                 $response = '';
                 $attempts = 0;
                 while ($attempts < 100) {
-                    $chunk = @socket_read($client, 1024);
+                    $previousErrorReporting = error_reporting(0);
+                    $chunk = socket_read($client, 1024);
+                    error_reporting($previousErrorReporting);
                     if ($chunk) {
                         $response .= $chunk;
                     }
@@ -128,6 +132,8 @@ final class ConcurrencyIntegrationTest extends TestCase
                 }
 
                 socket_close($client);
+            } else {
+                error_reporting($previousErrorReporting);
             }
 
             usleep(5000);
@@ -195,7 +201,7 @@ final class ConcurrencyIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -207,11 +213,19 @@ final class ConcurrencyIntegrationTest extends TestCase
         for ($i = 0; $i < 4; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            if (@socket_connect($client, '127.0.0.1', $port)) {
+            $previousErrorReporting = error_reporting(0);
+            if (socket_connect($client, '127.0.0.1', $port)) {
+                error_reporting($previousErrorReporting);
                 socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
                 $response = '';
-                while ($chunk = @socket_read($client, 1024)) {
+                while (true) {
+                    $previousErrorReporting = error_reporting(0);
+                    $chunk = socket_read($client, 1024);
+                    error_reporting($previousErrorReporting);
+                    if (false === $chunk || '' === $chunk) {
+                        break;
+                    }
                     $response .= $chunk;
                 }
 
@@ -220,6 +234,8 @@ final class ConcurrencyIntegrationTest extends TestCase
                 }
 
                 socket_close($client);
+            } else {
+                error_reporting($previousErrorReporting);
             }
 
             usleep(50000);
@@ -275,7 +291,7 @@ final class ConcurrencyIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -287,22 +303,28 @@ final class ConcurrencyIntegrationTest extends TestCase
         for ($i = 0; $i < 50; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            if (@socket_connect($client, '127.0.0.1', $port)) {
+            $previousErrorReporting = error_reporting(0);
+            if (socket_connect($client, '127.0.0.1', $port)) {
+                error_reporting($previousErrorReporting);
                 socket_write($client, "GET / HTTP/1.1\r\n\r\n");
-                $response = @socket_read($client, 1024);
+                $previousErrorReporting = error_reporting(0);
+                $response = socket_read($client, 1024);
+                error_reporting($previousErrorReporting);
 
                 if ($response && str_contains($response, 'HTTP')) {
                     ++$successCount;
                 }
 
                 socket_close($client);
+            } else {
+                error_reporting($previousErrorReporting);
             }
         }
 
         posix_kill($pid, SIGTERM);
         pcntl_waitpid($pid, $status);
 
-        if ($successCount === 0) {
+        if (0 === $successCount) {
             $this->markTestSkipped('No successful rapid connections');
         }
 

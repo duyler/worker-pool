@@ -87,12 +87,6 @@ final class CentralizedMaster extends AbstractMaster
     }
 
     #[Override]
-    public function stop(): void
-    {
-        parent::stop();
-    }
-
-    #[Override]
     public function getMetrics(): array
     {
         $aliveWorkers = 0;
@@ -309,7 +303,6 @@ final class CentralizedMaster extends AbstractMaster
         $this->logger->debug('External socket resource set for worker', [
             'worker_id' => $workerId,
             'mode' => 'centralized',
-            'note' => 'Unix socket for IPC - EvTimer fallback recommended',
         ]);
 
         $server->enableNotification();
@@ -355,13 +348,12 @@ final class CentralizedMaster extends AbstractMaster
     {
         $workerShouldStop = false;
 
-        pcntl_signal(SIGTERM, function () use (&$workerShouldStop): void {
+        $signalHandler = function () use (&$workerShouldStop): void {
             $workerShouldStop = true;
-        });
+        };
 
-        pcntl_signal(SIGINT, function () use (&$workerShouldStop): void {
-            $workerShouldStop = true;
-        });
+        pcntl_signal(SIGTERM, $signalHandler);
+        pcntl_signal(SIGINT, $signalHandler);
 
         $this->logger->info('Worker entering receive loop', ['worker_id' => $workerId]);
 

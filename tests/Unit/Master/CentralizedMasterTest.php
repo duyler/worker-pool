@@ -89,7 +89,7 @@ class CentralizedMasterTest extends TestCase
     #[Group('pcntl')]
     public function spawns_configured_number_of_workers(): void
     {
-        if (!function_exists('pcntl_fork')) {
+        if (false === function_exists('pcntl_fork')) {
             $this->markTestSkipped('pcntl_fork not available');
         }
 
@@ -97,16 +97,16 @@ class CentralizedMasterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === -1) {
+        if (-1 === $pid) {
             $this->fail('Failed to fork');
         }
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             sleep(1);
             exit(0);
         }
 
-        $this->assertTrue(true);
+        $this->assertGreaterThan(0, $pid);
 
         pcntl_waitpid($pid, $status);
     }
@@ -129,7 +129,7 @@ class CentralizedMasterTest extends TestCase
 
         $master->stop();
 
-        $this->assertTrue(true);
+        $this->assertFalse($master->isRunning());
     }
 
     #[Test]

@@ -164,7 +164,7 @@ final class CentralizedMasterCallbackTest extends TestCase
         $runCallbackWorker = new ReflectionMethod($master, 'runCallbackWorker');
         $runCallbackWorker->invoke($master, 1, $pair[0]);
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     #[Test]
@@ -200,7 +200,7 @@ final class CentralizedMasterCallbackTest extends TestCase
         $acceptConnections = new ReflectionMethod($master, 'acceptConnections');
         $acceptConnections->invoke($master);
 
-        $this->assertTrue(true);
+        $this->assertTrue($master->isRunning());
     }
 
     #[Test]
@@ -236,6 +236,6 @@ final class CentralizedMasterCallbackTest extends TestCase
         $distributeConnections = new ReflectionMethod($master, 'distributeConnections');
         $distributeConnections->invoke($master);
 
-        $this->assertTrue(true);
+        $this->assertTrue($master->isRunning());
     }
 }

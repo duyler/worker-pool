@@ -67,7 +67,7 @@ final class FdPasserCoverageTest extends TestCase
         socket_close($sock1);
         socket_close($sock2);
         if ($fdToSend instanceof Socket) {
-            @socket_close($fdToSend);
+            socket_close($fdToSend);
         }
     }
 

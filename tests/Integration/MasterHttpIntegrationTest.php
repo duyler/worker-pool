@@ -38,7 +38,7 @@ class MasterHttpIntegrationTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
         parent::tearDown();
     }
 
@@ -80,7 +80,7 @@ class MasterHttpIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -90,7 +90,9 @@ class MasterHttpIntegrationTest extends TestCase
         $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $this->assertNotFalse($client);
 
-        $connected = @socket_connect($client, '127.0.0.1', $port);
+        $previousErrorReporting = error_reporting(0);
+        $connected = socket_connect($client, '127.0.0.1', $port);
+        error_reporting($previousErrorReporting);
 
         if ($connected) {
             $request = "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n";
@@ -98,8 +100,10 @@ class MasterHttpIntegrationTest extends TestCase
 
             $response = '';
             while (true) {
-                $chunk = @socket_read($client, 1024);
-                if ($chunk === false || $chunk === '') {
+                $previousErrorReporting = error_reporting(0);
+                $chunk = socket_read($client, 1024);
+                error_reporting($previousErrorReporting);
+                if (false === $chunk || '' === $chunk) {
                     break;
                 }
                 $response .= $chunk;
@@ -157,7 +161,7 @@ class MasterHttpIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -170,14 +174,20 @@ class MasterHttpIntegrationTest extends TestCase
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
             $this->assertNotFalse($client);
 
-            if (@socket_connect($client, '127.0.0.1', $port)) {
+            $previousErrorReporting = error_reporting(0);
+            $connected = socket_connect($client, '127.0.0.1', $port);
+            error_reporting($previousErrorReporting);
+
+            if ($connected) {
                 $request = "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n";
                 socket_write($client, $request);
 
                 $response = '';
                 while (true) {
-                    $chunk = @socket_read($client, 1024);
-                    if ($chunk === false || $chunk === '') {
+                    $previousErrorReporting = error_reporting(0);
+                    $chunk = socket_read($client, 1024);
+                    error_reporting($previousErrorReporting);
+                    if (false === $chunk || '' === $chunk) {
                         break;
                     }
                     $response .= $chunk;

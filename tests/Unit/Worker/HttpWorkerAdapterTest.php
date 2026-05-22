@@ -39,7 +39,7 @@ class HttpWorkerAdapterTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
         parent::tearDown();
     }
 
@@ -60,7 +60,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
 
             try {
@@ -75,13 +75,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
 
@@ -111,7 +113,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, []);
             exit(0);
@@ -120,13 +122,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);
@@ -145,7 +149,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, []);
             exit(0);
@@ -155,12 +159,14 @@ class HttpWorkerAdapterTest extends TestCase
 
         sleep(1);
 
-        $read = @socket_read($clientSocket, 1);
+        $previousErrorReporting = error_reporting(0);
+        socket_read($clientSocket, 1);
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);
 
-        $this->assertTrue(true);
+        $this->assertTrue(pcntl_wifexited($status));
     }
 
     #[Test]
@@ -173,7 +179,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, []);
             exit(0);
@@ -182,13 +188,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);
@@ -207,7 +215,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, []);
             exit(0);
@@ -216,13 +224,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);
@@ -247,7 +257,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, $metadata);
             exit(0);
@@ -256,13 +266,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);
@@ -289,7 +301,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, []);
             exit(0);
@@ -298,13 +310,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);
@@ -332,7 +346,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, []);
             exit(0);
@@ -341,13 +355,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);
@@ -366,7 +382,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, []);
             exit(0);
@@ -375,13 +391,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);
@@ -399,7 +417,7 @@ class HttpWorkerAdapterTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             socket_close($clientSocket);
             $this->adapter->handleConnection($serverSocket, []);
             exit(0);
@@ -408,13 +426,15 @@ class HttpWorkerAdapterTest extends TestCase
         socket_close($serverSocket);
 
         $response = '';
+        $previousErrorReporting = error_reporting(0);
         while (true) {
-            $chunk = @socket_read($clientSocket, 1024);
-            if ($chunk === false || $chunk === '') {
+            $chunk = socket_read($clientSocket, 1024);
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
         }
+        error_reporting($previousErrorReporting);
 
         socket_close($clientSocket);
         pcntl_waitpid($pid, $status);

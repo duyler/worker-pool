@@ -51,7 +51,7 @@ class SignalManagerTest extends TestCase
     #[Test]
     public function sets_up_master_signals(): void
     {
-        if (!$this->handler->isSignalsSupported()) {
+        if (false === $this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
         }
 
@@ -75,7 +75,7 @@ class SignalManagerTest extends TestCase
     #[Test]
     public function sets_up_worker_signals(): void
     {
-        if (!$this->handler->isSignalsSupported()) {
+        if (false === $this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
         }
 
@@ -120,7 +120,7 @@ class SignalManagerTest extends TestCase
     #[Test]
     public function resets_signal_handlers(): void
     {
-        if (!$this->handler->isSignalsSupported()) {
+        if (false === $this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
         }
 
@@ -141,7 +141,7 @@ class SignalManagerTest extends TestCase
     #[Test]
     public function resets_only_flags(): void
     {
-        if (!$this->handler->isSignalsSupported()) {
+        if (false === $this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
         }
 
@@ -162,13 +162,13 @@ class SignalManagerTest extends TestCase
     {
         $this->manager->dispatch();
 
-        $this->assertTrue(true);
+        $this->assertFalse($this->manager->isShutdownRequested());
     }
 
     #[Test]
     public function handles_multiple_setups(): void
     {
-        if (!$this->handler->isSignalsSupported()) {
+        if (false === $this->handler->isSignalsSupported()) {
             $this->markTestSkipped('Signals not supported');
         }
 

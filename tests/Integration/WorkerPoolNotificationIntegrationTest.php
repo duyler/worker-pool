@@ -58,7 +58,7 @@ class WorkerPoolNotificationIntegrationTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
         parent::tearDown();
     }
 
@@ -150,7 +150,7 @@ class WorkerPoolNotificationIntegrationTest extends TestCase
     public function shared_socket_master_notification_enabled_in_run_event_driven_worker_method(): void
     {
         $reflection = new ReflectionClass(SharedSocketMaster::class);
-        $method = $reflection->getMethod('runEventDrivenWorker');
+        $reflection->getMethod('runEventDrivenWorker');
 
         $source = file_get_contents(__DIR__ . '/../../src/Master/SharedSocketMaster.php');
 
@@ -163,7 +163,7 @@ class WorkerPoolNotificationIntegrationTest extends TestCase
     public function centralized_master_notification_enabled_in_run_event_driven_worker_method(): void
     {
         $reflection = new ReflectionClass(CentralizedMaster::class);
-        $method = $reflection->getMethod('runEventDrivenWorker');
+        $reflection->getMethod('runEventDrivenWorker');
 
         $source = file_get_contents(__DIR__ . '/../../src/Master/CentralizedMaster.php');
 

@@ -121,7 +121,7 @@ final class AbstractMasterCoverageTest extends TestCase
         $waitRef = new ReflectionMethod($master, 'waitForWorkers');
         $waitRef->invoke($master);
 
-        $this->assertTrue(true);
+        $this->assertCount(1, $master->getWorkers());
     }
 
     #[Test]

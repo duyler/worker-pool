@@ -47,7 +47,7 @@ final class UnixSocketChannelUnitTest extends TestCase
     protected function tearDown(): void
     {
         if (file_exists($this->socketPath)) {
-            @unlink($this->socketPath);
+            unlink($this->socketPath);
         }
         parent::tearDown();
     }

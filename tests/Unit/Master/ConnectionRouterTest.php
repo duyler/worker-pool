@@ -57,7 +57,7 @@ final class ConnectionRouterTest extends TestCase
     {
         $clientSocket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-        if ($clientSocket === false) {
+        if (false === $clientSocket) {
             $this->markTestSkipped('Cannot create socket');
         }
 
@@ -75,7 +75,7 @@ final class ConnectionRouterTest extends TestCase
     {
         $clientSocket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-        if ($clientSocket === false) {
+        if (false === $clientSocket) {
             $this->markTestSkipped('Cannot create socket');
         }
 

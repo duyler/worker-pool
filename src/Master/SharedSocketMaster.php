@@ -61,12 +61,6 @@ final class SharedSocketMaster extends AbstractMaster
     }
 
     #[Override]
-    public function stop(): void
-    {
-        parent::stop();
-    }
-
-    #[Override]
     public function getMetrics(): array
     {
         $activeWorkers = 0;
@@ -222,20 +216,14 @@ final class SharedSocketMaster extends AbstractMaster
 
         $workerShouldStop = false;
 
-        pcntl_signal(SIGTERM, function () use (&$workerShouldStop): void {
+        $signalHandler = function () use (&$workerShouldStop): void {
             $workerShouldStop = true;
-        });
+        };
 
-        pcntl_signal(SIGINT, function () use (&$workerShouldStop): void {
-            $workerShouldStop = true;
-        });
+        pcntl_signal(SIGTERM, $signalHandler);
+        pcntl_signal(SIGINT, $signalHandler);
 
-        try {
-            $socket = $this->createReusePortSocket($workerId);
-        } catch (WorkerPoolException $e) {
-            $this->logger->error($e->getMessage(), ['worker_id' => $workerId]);
-            throw $e;
-        }
+        $socket = $this->createReusePortSocket($workerId);
 
         $this->logger->info('Worker listening', [
             'worker_id' => $workerId,

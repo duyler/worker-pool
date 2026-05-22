@@ -162,7 +162,5 @@ final class SharedSocketMasterCallbackTest extends TestCase
 
         $eventDrivenWorkerProp = new ReflectionProperty(AbstractMaster::class, 'eventDrivenWorker');
         $this->assertNull($eventDrivenWorkerProp->getValue($master));
-
-        $this->assertTrue(true);
     }
 }

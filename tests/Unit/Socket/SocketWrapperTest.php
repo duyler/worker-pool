@@ -230,8 +230,6 @@ class SocketWrapperTest extends TestCase
         $this->assertInstanceOf(Socket::class, $socket);
 
         $this->wrapper->close($socket);
-
-        $this->assertTrue(true);
     }
 
     #[Test]
@@ -241,8 +239,6 @@ class SocketWrapperTest extends TestCase
         $this->assertInstanceOf(Socket::class, $socket);
 
         $this->wrapper->setNonBlock($socket);
-
-        $this->assertTrue(true);
 
         socket_close($socket);
     }
