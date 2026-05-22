@@ -51,7 +51,7 @@ use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\Server;
 use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
-use Duyler\WorkerPool\Master\SharedSocketMaster;
+use Duyler\WorkerPool\Master\MasterFactory;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Nyholm\Psr7\Response;
 
@@ -82,7 +82,9 @@ final class MyApp implements EventDrivenWorkerInterface
 $serverConfig = new ServerConfig(host: '0.0.0.0', port: 8080);
 $poolConfig = WorkerPoolConfig::auto($serverConfig);
 
-$master = new SharedSocketMaster(
+// MasterFactory automatically picks the best architecture
+// and creates the required DI wrappers (SocketWrapper, ForkWrapper, etc.)
+$master = MasterFactory::createRecommended(
     config: $poolConfig,
     serverConfig: $serverConfig,
     eventDrivenWorker: new MyApp(),
@@ -98,7 +100,7 @@ For simpler use cases where you handle raw sockets directly.
 ```php
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
-use Duyler\WorkerPool\Master\SharedSocketMaster;
+use Duyler\WorkerPool\Master\MasterFactory;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 
 $callback = new class implements WorkerCallbackInterface
@@ -114,7 +116,7 @@ $callback = new class implements WorkerCallbackInterface
 $serverConfig = new ServerConfig(host: '0.0.0.0', port: 8080);
 $poolConfig = new WorkerPoolConfig(serverConfig: $serverConfig, workerCount: 4);
 
-$master = new SharedSocketMaster(
+$master = MasterFactory::createRecommended(
     config: $poolConfig,
     serverConfig: $serverConfig,
     workerCallback: $callback,
@@ -139,8 +141,8 @@ $config = new WorkerPoolConfig(
     backlog: 128,                      // Socket listen backlog.
     maxQueueSize: 1000,                // Max connections in centralized queue.
     maxIpcMessageSize: 1048576,        // Max IPC message size in bytes (min 1024).
-    enableStickySession: false,        // Sticky session support (not yet implemented).
-    enableGracefulReload: false,       // Graceful reload on SIGUSR1 (not yet implemented).
+    enableStickySession: false,        // Sticky session support (planned).
+    enableGracefulReload: false,       // Graceful reload on SIGUSR1 (planned).
     autoRestart: true,                 // Auto-restart workers on failure.
     restartDelay: 1,                   // Seconds to wait before respawning a dead worker.
     fallbackCpuCores: 4,              // Fallback CPU core count if detection fails.
@@ -175,7 +177,7 @@ Load balancing is used in `CentralizedMaster` mode. The `BalancerType` enum defi
 
 - `BalancerType::LeastConnections` -- picks the worker with the fewest active connections
 - `BalancerType::RoundRobin` -- cycles through workers in order
-- `BalancerType::Weighted` -- reserved for future use
+- `BalancerType::Weighted` -- planned for future implementation
 
 ### Least Connections
 
@@ -274,9 +276,10 @@ Use `CentralizedMaster` when you need custom load balancing, sticky sessions, or
 
 ### Choosing with MasterFactory
 
-`MasterFactory` selects the best architecture automatically based on platform capabilities:
+`MasterFactory` selects the best architecture automatically based on platform capabilities. It also handles creating the required DI wrappers (`SocketWrapper`, `ForkWrapper`, `SocketMsgWrapper`) so you do not have to wire them manually.
 
 ```php
+use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\Master\MasterFactory;
 
 // Automatically picks CentralizedMaster on Linux (FD passing available),
@@ -287,7 +290,7 @@ $master = MasterFactory::createRecommended(
     eventDrivenWorker: new MyApp(),
 );
 
-// Or create with explicit balancer (CentralizedMaster only when FD passing supported)
+// Or create with explicit balancer (CentralizedMaster when FD passing supported)
 $master = MasterFactory::create(
     config: $poolConfig,
     serverConfig: $serverConfig,
@@ -368,12 +371,13 @@ class RawHandler implements WorkerCallbackInterface
 
 ### HttpWorkerAdapter
 
-A ready-made adapter that handles HTTP parsing and PSR-7 conversion for callback-style workers. Useful as a starting point or for simple HTTP endpoints.
+A ready-made adapter that handles HTTP parsing and PSR-7 conversion for callback-style workers. Useful as a starting point or for simple HTTP endpoints. Requires a `SocketWrapperInterface` instance for socket operations.
 
 ```php
+use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\HttpWorkerAdapter;
 
-$adapter = new HttpWorkerAdapter();
+$adapter = new HttpWorkerAdapter(new SocketWrapper());
 $adapter->handleConnection($clientSocket, ['worker_id' => $workerId]);
 // Returns "Hello from Worker Pool!" as a plain text 200 response.
 // Override processRequest() for custom logic.
@@ -383,20 +387,23 @@ $adapter->handleConnection($clientSocket, ['worker_id' => $workerId]);
 
 ### UnixSocketChannel
 
-Point-to-point IPC channel over Unix domain sockets with length-prefixed JSON messages.
+Point-to-point IPC channel over Unix domain sockets with length-prefixed JSON messages. Requires a `SocketWrapperInterface` instance for socket operations.
 
 ```php
 use Duyler\WorkerPool\IPC\UnixSocketChannel;
 use Duyler\WorkerPool\IPC\Message;
 use Duyler\WorkerPool\IPC\MessageType;
+use Duyler\WorkerPool\Socket\SocketWrapper;
+
+$socketWrapper = new SocketWrapper();
 
 // Server side
-$channel = new UnixSocketChannel('/tmp/worker.sock', isServer: true);
+$channel = new UnixSocketChannel('/tmp/worker.sock', socketWrapper: $socketWrapper, isServer: true);
 $channel->connect();
 $channel->send(Message::workerReady(workerId: 1));
 
 // Client side
-$channel = new UnixSocketChannel('/tmp/worker.sock', isServer: false);
+$channel = new UnixSocketChannel('/tmp/worker.sock', socketWrapper: $socketWrapper, isServer: false);
 $channel->connect();
 $msg = $channel->receive();
 // $msg->type === MessageType::WorkerReady
@@ -441,12 +448,14 @@ enum MessageType: string
 
 ### FdPasser
 
-Passes file descriptors between processes via `SCM_RIGHTS`. Used internally by `CentralizedMaster` and `ConnectionRouter`. Requires Linux.
+Passes file descriptors between processes via `SCM_RIGHTS`. Used internally by `CentralizedMaster` and `ConnectionRouter`. Requires Linux. Takes `SocketWrapperInterface` and `SocketMsgWrapperInterface` via constructor injection.
 
 ```php
 use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use Duyler\WorkerPool\Socket\SocketWrapper;
 
-$fdPasser = new FdPasser();
+$fdPasser = new FdPasser(new SocketWrapper(), new SocketMsgWrapper());
 
 // Check platform support
 $supported = $fdPasser->isSupported(); // true on Linux with socket_sendmsg
@@ -539,6 +548,8 @@ final class SharedSocketMaster extends AbstractMaster
     public function __construct(
         WorkerPoolConfig $config,
         ServerConfig $serverConfig,
+        SocketWrapperInterface $socketWrapper,
+        ForkWrapperInterface $forkWrapper,
         ?WorkerCallbackInterface $workerCallback = null,
         ?EventDrivenWorkerInterface $eventDrivenWorker = null,
         ?LoggerInterface $logger = null,
@@ -550,6 +561,8 @@ final class SharedSocketMaster extends AbstractMaster
     public function getMetrics(): array;
 }
 ```
+
+Note: Use `MasterFactory::createRecommended()` to avoid constructing DI wrappers manually.
 
 Metrics returned by `getMetrics()`:
 
@@ -571,6 +584,9 @@ final class CentralizedMaster extends AbstractMaster
     public function __construct(
         WorkerPoolConfig $config,
         BalancerInterface $balancer,
+        SocketWrapperInterface $socketWrapper,
+        SocketMsgWrapperInterface $socketMsgWrapper,
+        ForkWrapperInterface $forkWrapper,
         ?ServerConfig $serverConfig = null,
         ?WorkerCallbackInterface $workerCallback = null,
         ?EventDrivenWorkerInterface $eventDrivenWorker = null,
@@ -584,6 +600,8 @@ final class CentralizedMaster extends AbstractMaster
     public function getBalancer(): BalancerInterface;
 }
 ```
+
+Note: Use `MasterFactory::create()` to avoid constructing DI wrappers manually.
 
 Metrics returned by `getMetrics()`:
 
@@ -610,6 +628,9 @@ final class MasterFactory
         ?EventDrivenWorkerInterface $eventDrivenWorker = null,
         ?BalancerInterface $balancer = null,
         ?LoggerInterface $logger = null,
+        ?SocketWrapperInterface $socketWrapper = null,
+        ?SocketMsgWrapperInterface $socketMsgWrapper = null,
+        ?ForkWrapperInterface $forkWrapper = null,
     ): MasterInterface;
 
     public static function createRecommended(
@@ -618,6 +639,9 @@ final class MasterFactory
         ?WorkerCallbackInterface $workerCallback = null,
         ?EventDrivenWorkerInterface $eventDrivenWorker = null,
         ?LoggerInterface $logger = null,
+        ?SocketWrapperInterface $socketWrapper = null,
+        ?SocketMsgWrapperInterface $socketMsgWrapper = null,
+        ?ForkWrapperInterface $forkWrapper = null,
     ): MasterInterface;
 
     public static function recommendedMaster(): string;
@@ -625,6 +649,8 @@ final class MasterFactory
     public static function getComparison(): array;
 }
 ```
+
+The `socketWrapper`, `socketMsgWrapper`, and `forkWrapper` parameters default to their concrete implementations (`SocketWrapper`, `SocketMsgWrapper`, `ForkWrapper`). Pass custom implementations for testing or when you need to override low-level behavior.
 
 ### BalancerInterface
 
@@ -647,10 +673,14 @@ Immutable value object representing a worker process:
 ```php
 final readonly class ProcessInfo
 {
+    public float $startedAt;
+    public float $lastActivityAt;
+
     public function __construct(
         public int $workerId,
         public int $pid,
         public ProcessState $state,
+        ForkWrapperInterface $forkWrapper,
         public int $connections = 0,
         public int $totalRequests = 0,
         ?float $startedAt = null,
@@ -664,7 +694,7 @@ final readonly class ProcessInfo
     public function withMemoryUsage(int $memoryUsage): self;
     public function getUptime(): float;      // seconds since start
     public function getIdleTime(): float;     // seconds since last activity
-    public function isAlive(): bool;          // checks via posix_kill(pid, 0)
+    public function isAlive(): bool;          // checks via forkWrapper.kill(pid, 0)
     /** @return array<string, mixed> */
     public function toArray(): array;
 }
@@ -695,9 +725,60 @@ enum BalancerType: string
 }
 ```
 
+### DI Wrappers
+
+The refactored codebase uses constructor injection for all low-level system calls. These wrappers enable unit testing without real sockets, processes, or signals.
+
+#### SocketWrapperInterface
+
+```php
+interface SocketWrapperInterface
+{
+    public function create(int $domain, int $type, int $protocol): Socket|false;
+    public function bind(Socket $socket, string $address, int $port = 0): bool;
+    public function listen(Socket $socket, int $backlog = 0): bool;
+    public function accept(Socket $socket): Socket|false;
+    public function read(Socket $socket, int $length, int $type = PHP_BINARY_READ): string|false;
+    public function write(Socket $socket, string $data, ?int $length = null): int|false;
+    public function close(Socket $socket): void;
+    public function setNonBlock(Socket $socket): void;
+    public function setOption(Socket $socket, int $level, int $name, int|array $value): bool;
+    public function getPeerName(Socket $socket, string &$address, ?int &$port = null): bool;
+    public function lastError(?Socket $socket = null): int;
+    public function strerror(int $errorCode): string;
+    public function select(?array &$read, ?array &$write, ?array &$except, int $timeout, int $usec = 0): int|false;
+    public function createPair(int $domain, int $type, int $protocol, array &$pair): bool;
+    public function connect(Socket $socket, string $address, ?int $port = null): bool;
+}
+```
+
+#### SocketMsgWrapperInterface
+
+```php
+interface SocketMsgWrapperInterface
+{
+    public function sendmsg(Socket $socket, array $message, int $flags = 0): int|false;
+    public function recvmsg(Socket $socket, array &$message, int $flags = 0): int|false;
+    public function cmsgSpace(int $level, int $type, int $n = 0): ?int;
+}
+```
+
+#### ForkWrapperInterface
+
+```php
+interface ForkWrapperInterface
+{
+    public function fork(): int;
+    public function waitpid(int $pid, int &$status, int $options = 0): int;
+    public function kill(int $pid, int $signal): bool;
+}
+```
+
 ### SystemInfo
 
 ```php
+use Duyler\WorkerPool\Util\SystemInfo;
+
 final class SystemInfo
 {
     public function getCpuCores(int $fallback = 4): int;
@@ -828,6 +909,27 @@ make coverage   # Run tests with coverage
 make psalm      # Run Psalm static analysis
 make cs-fix     # Run PHP-CS-Fixer
 make rector     # Run Rector refactoring
+```
+
+### Test Groups
+
+Tests are organized into five groups by purpose:
+
+| Group | Directory | Description |
+|-------|-----------|-------------|
+| Unit | `tests/Unit/` | Isolated tests with mocked DI wrappers |
+| Integration | `tests/Integration/` | Cross-component tests with real sockets |
+| Functional | `tests/worker-pool/` | End-to-end worker pool scenarios |
+| Performance | `tests/Performance/` | Baseline benchmarks for throughput, latency, memory |
+| Security | `tests/Security/` | Malformed requests, slowloris, oversized messages, IPC validation |
+
+Run a specific test group:
+
+```bash
+docker-compose run --rm php vendor/bin/phpunit tests/Performance/
+docker-compose run --rm php vendor/bin/phpunit tests/Security/
+docker-compose run --rm php vendor/bin/phpunit tests/Unit/
+docker-compose run --rm php vendor/bin/phpunit tests/Integration/
 ```
 
 ## License
