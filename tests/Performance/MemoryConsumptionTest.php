@@ -8,6 +8,7 @@ use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
 use Duyler\WorkerPool\IPC\Message;
 use Duyler\WorkerPool\IPC\MessageType;
 use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\SocketManager;
 use Duyler\WorkerPool\Socket\SocketWrapper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -28,6 +29,7 @@ use const SOL_TCP;
 #[UsesClass(LeastConnectionsBalancer::class)]
 #[UsesClass(ConnectionQueue::class)]
 #[UsesClass(SocketWrapper::class)]
+#[UsesClass(SocketManager::class)]
 final class MemoryConsumptionTest extends TestCase
 {
     #[Test]
