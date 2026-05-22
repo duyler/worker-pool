@@ -131,9 +131,9 @@ class SocketManagerTest extends TestCase
 
         socket_set_nonblock($clientSocket);
 
-        $previousEr = error_reporting(0);
+        $previousErrorReporting = error_reporting(0);
         socket_connect($clientSocket, $host, $port);
-        error_reporting($previousEr);
+        error_reporting($previousErrorReporting);
 
         usleep(10000);
 
