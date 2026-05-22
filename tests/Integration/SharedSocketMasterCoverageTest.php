@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\ErrorHandler\ErrorHandler;
@@ -26,10 +27,20 @@ use Psr\Log\NullLogger;
 use Duyler\WorkerPool\Process\ForkWrapper;
 use Duyler\WorkerPool\Socket\SocketWrapper;
 
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
+
 use const SIGTERM;
 
 #[Group('pcntl')]
 #[CoversClass(SharedSocketMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class SharedSocketMasterCoverageTest extends TestCase
 {
     private ServerConfig $sc;

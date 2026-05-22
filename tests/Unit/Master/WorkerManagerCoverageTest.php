@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use Duyler\WorkerPool\Process\ProcessInfo;
 use Duyler\WorkerPool\Process\ProcessState;
@@ -15,6 +16,8 @@ use PHPUnit\Framework\TestCase;
 use Duyler\WorkerPool\Process\ForkWrapper;
 
 #[CoversClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
 final class WorkerManagerCoverageTest extends TestCase
 {
     private WorkerManager $manager;

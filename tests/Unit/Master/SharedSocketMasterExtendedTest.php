@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -17,9 +18,16 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 #[Group('pcntl')]
 #[CoversClass(SharedSocketMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 class SharedSocketMasterExtendedTest extends TestCase
 {
     private WorkerPoolConfig $config;
@@ -165,7 +173,7 @@ class SharedSocketMasterExtendedTest extends TestCase
     #[Test]
     public function creates_master_with_logger(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}

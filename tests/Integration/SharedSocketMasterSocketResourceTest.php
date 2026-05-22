@@ -14,11 +14,19 @@ use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 #[CoversClass(SharedSocketMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 class SharedSocketMasterSocketResourceTest extends TestCase
 {
     private SocketWrapper $socketWrapper;

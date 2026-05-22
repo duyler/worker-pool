@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
@@ -16,6 +17,7 @@ use Socket;
 
 use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Socket\SocketMsgWrapper;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 use function defined;
 use function function_exists;
@@ -27,6 +29,9 @@ use const SOCK_STREAM;
 use const SOL_TCP;
 
 #[CoversClass(FdPasser::class)]
+#[UsesClass(SocketMsgWrapper::class)]
+#[UsesClass(SocketWrapper::class)]
+#[AllowMockObjectsWithoutExpectations]
 class FdPasserExtendedTest extends TestCase
 {
     #[Test]

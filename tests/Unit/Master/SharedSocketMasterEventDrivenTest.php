@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -18,8 +19,15 @@ use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 #[CoversClass(SharedSocketMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 class SharedSocketMasterEventDrivenTest extends TestCase
 {
     private ServerConfig $serverConfig;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Worker;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use Duyler\WorkerPool\Worker\HttpWorkerAdapter;
 use Override;
@@ -19,6 +20,7 @@ use const AF_UNIX;
 use const SOCK_STREAM;
 
 #[CoversClass(HttpWorkerAdapter::class)]
+#[UsesClass(SocketWrapper::class)]
 final class HttpWorkerAdapterCoverageTest extends TestCase
 {
     private HttpWorkerAdapter $adapter;

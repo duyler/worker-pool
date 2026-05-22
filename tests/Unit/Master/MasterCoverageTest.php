@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Duyler\WorkerPool\Master\AbstractMaster;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -24,8 +25,27 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionProperty;
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 #[CoversClass(AbstractMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(CentralizedMaster::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SharedSocketMaster::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class MasterCoverageTest extends TestCase
 {
     private ServerConfig $serverConfig;
@@ -55,7 +75,7 @@ final class MasterCoverageTest extends TestCase
         };
 
         $balancer = new RoundRobinBalancer(2);
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $master = new CentralizedMaster(
             config: $this->config,

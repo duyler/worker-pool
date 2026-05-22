@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Tests\Support\PlatformHelper;
@@ -23,6 +24,8 @@ use const SOCK_STREAM;
 use const SOL_TCP;
 
 #[CoversClass(FdPasser::class)]
+#[UsesClass(SocketMsgWrapper::class)]
+#[UsesClass(SocketWrapper::class)]
 class FdPasserTest extends TestCase
 {
     #[Test]
@@ -151,7 +154,7 @@ class FdPasserTest extends TestCase
     #[Test]
     public function accepts_logger_via_constructor(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $passer = new FdPasser(new SocketWrapper(), new SocketMsgWrapper(), $logger);
 
         $this->assertIsBool($passer->isSupported());

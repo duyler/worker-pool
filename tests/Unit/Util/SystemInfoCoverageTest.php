@@ -12,11 +12,13 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 
 use const PHP_OS_FAMILY;
 use const PHP_VERSION;
 
 #[CoversClass(SystemInfo::class)]
+#[AllowMockObjectsWithoutExpectations]
 final class SystemInfoCoverageTest extends TestCase
 {
     private LoggerInterface&MockObject $logger;

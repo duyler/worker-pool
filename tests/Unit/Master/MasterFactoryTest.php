@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -21,12 +22,35 @@ use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\TestCase;
 
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\AbstractMaster;
+
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
+use Duyler\WorkerPool\Util\SystemInfo;
+
 use function defined;
 use function function_exists;
 
 use const PHP_OS_FAMILY;
 
 #[CoversClass(MasterFactory::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(AbstractMaster::class)]
+#[UsesClass(CentralizedMaster::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SharedSocketMaster::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
+#[UsesClass(SystemInfo::class)]
 final class MasterFactoryTest extends TestCase
 {
     private WorkerPoolConfig $config;

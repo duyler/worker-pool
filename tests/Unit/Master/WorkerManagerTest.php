@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -17,6 +18,8 @@ use PHPUnit\Framework\TestCase;
 use Duyler\WorkerPool\Process\ForkWrapper;
 
 #[CoversClass(WorkerManager::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(ProcessInfo::class)]
 final class WorkerManagerTest extends TestCase
 {
     private WorkerPoolConfig $config;

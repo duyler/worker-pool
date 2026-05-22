@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\Util\SystemInfo;
 
 #[CoversClass(WorkerPoolConfig::class)]
+#[UsesClass(SystemInfo::class)]
 class WorkerPoolConfigTest extends TestCase
 {
     #[Test]

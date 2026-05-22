@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Balancer\LeastConnectionsBalancer;
@@ -28,12 +29,31 @@ use ReflectionProperty;
 
 use Duyler\WorkerPool\Process\ForkWrapper;
 
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
+
 use const AF_UNIX;
 use const SOCK_STREAM;
 use const SIGKILL;
 
 #[Group('pcntl')]
 #[CoversClass(CentralizedMaster::class)]
+#[UsesClass(LeastConnectionsBalancer::class)]
+#[UsesClass(RoundRobinBalancer::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
+#[UsesClass(SocketWrapper::class)]
 final class CentralizedMasterSpawnTest extends TestCase
 {
     private ServerConfig $sc;

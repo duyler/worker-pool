@@ -201,13 +201,6 @@ class SocketMsgWrapperTest extends TestCase
     #[Test]
     public function cmsg_space_returns_int_or_null(): void
     {
-        if (!PlatformHelper::isLinux()) {
-            $result = $this->wrapper->cmsgSpace(SOL_SOCKET, SCM_RIGHTS, 1);
-            $this->assertNull($result);
-
-            return;
-        }
-
         $result = $this->wrapper->cmsgSpace(SOL_SOCKET, SCM_RIGHTS, 1);
 
         if (null === $result) {

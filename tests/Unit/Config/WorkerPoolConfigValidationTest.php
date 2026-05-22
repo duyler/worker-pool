@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Config;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -12,8 +13,10 @@ use Duyler\WorkerPool\Config\BalancerType;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\Util\SystemInfo;
 
 #[CoversClass(WorkerPoolConfig::class)]
+#[UsesClass(SystemInfo::class)]
 class WorkerPoolConfigValidationTest extends TestCase
 {
     #[Test]
@@ -296,5 +299,24 @@ class WorkerPoolConfigValidationTest extends TestCase
         );
 
         $this->assertGreaterThanOrEqual(1, $config->workerCount);
+    }
+
+    #[Test]
+    public function single_creates_config_with_one_worker(): void
+    {
+        $serverConfig = new ServerConfig();
+        $config = WorkerPoolConfig::single($serverConfig);
+
+        $this->assertSame(1, $config->workerCount);
+    }
+
+    #[Test]
+    public function single_accepts_balancer(): void
+    {
+        $serverConfig = new ServerConfig();
+        $config = WorkerPoolConfig::single($serverConfig, BalancerType::RoundRobin);
+
+        $this->assertSame(1, $config->workerCount);
+        $this->assertSame(BalancerType::RoundRobin, $config->balancer);
     }
 }

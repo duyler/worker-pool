@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use Duyler\WorkerPool\IPC\FdPasser;
 use Override;
@@ -21,6 +22,8 @@ use const SOCK_STREAM;
 use const SOL_TCP;
 
 #[CoversClass(FdPasser::class)]
+#[UsesClass(SocketMsgWrapper::class)]
+#[UsesClass(SocketWrapper::class)]
 final class FdPasserFullCoverageTest extends TestCase
 {
     private FdPasser $fdPasser;

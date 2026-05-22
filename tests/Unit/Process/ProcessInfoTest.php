@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Process;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\WorkerPool\Process\ProcessInfo;
@@ -13,6 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Duyler\WorkerPool\Process\ForkWrapper;
 
 #[CoversClass(ProcessInfo::class)]
+#[UsesClass(ForkWrapper::class)]
 class ProcessInfoTest extends TestCase
 {
     #[Test]

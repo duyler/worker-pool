@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\IPC;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use Duyler\WorkerPool\Exception\IPCException;
 use Duyler\WorkerPool\IPC\Message;
@@ -18,11 +19,16 @@ use ReflectionProperty;
 
 use Duyler\WorkerPool\Socket\SocketWrapper;
 
+use Duyler\WorkerPool\Exception\WorkerPoolExceptionBase;
+
 use const AF_UNIX;
 use const SOCK_STREAM;
 use const E_WARNING;
 
 #[CoversClass(UnixSocketChannel::class)]
+#[UsesClass(WorkerPoolExceptionBase::class)]
+#[UsesClass(Message::class)]
+#[UsesClass(SocketWrapper::class)]
 final class UnixSocketChannelCoverageTest extends TestCase
 {
     private string $socketPath;

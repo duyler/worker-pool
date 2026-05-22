@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Duyler\WorkerPool\Master\AbstractMaster;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -26,11 +27,26 @@ use Duyler\WorkerPool\Process\ForkWrapper;
 use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Socket\SocketMsgWrapper;
 
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
+
 use const SIGTERM;
 use const SIGINT;
 
 #[Group('pcntl')]
 #[CoversClass(AbstractMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(CentralizedMaster::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class AbstractMasterCoverageTest extends TestCase
 {
     private ServerConfig $sc;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\WorkerPool\Master\SocketManager;
@@ -15,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Duyler\WorkerPool\Socket\SocketWrapper;
 
 #[CoversClass(SocketManager::class)]
+#[UsesClass(SocketWrapper::class)]
 final class SocketManagerCoverageTest extends TestCase
 {
     private ServerConfig $config;
@@ -105,7 +107,7 @@ final class SocketManagerCoverageTest extends TestCase
     #[Test]
     public function constructorWithCustomLogger(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
         $manager = new SocketManager($this->config, new SocketWrapper(), $logger);
 
         $this->assertFalse($manager->isListening());

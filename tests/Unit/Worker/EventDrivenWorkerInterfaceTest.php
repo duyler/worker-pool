@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Duyler\WorkerPool\Tests\Unit\Worker;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 use Throwable;
 use Psr\Log\NullLogger;
 
-#[CoversClass(EventDrivenWorkerInterface::class)]
+#[CoversNothing]
 class EventDrivenWorkerInterfaceTest extends TestCase
 {
     private ?Server $server = null;

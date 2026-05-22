@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -19,9 +20,24 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 #[Group('pcntl')]
 #[CoversClass(CentralizedMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 class CentralizedMasterExtendedTest extends TestCase
 {
     private WorkerPoolConfig $config;
@@ -197,7 +213,7 @@ class CentralizedMasterExtendedTest extends TestCase
     #[Test]
     public function creates_master_with_logger(): void
     {
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $workerCallback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void {}

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Unit\Master;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Test;
 
 use Duyler\HttpServer\Config\ServerConfig;
@@ -18,9 +19,20 @@ use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\TestCase;
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 #[CoversClass(SharedSocketMaster::class)]
 #[CoversClass(CentralizedMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class MasterMetricsTest extends TestCase
 {
     private WorkerPoolConfig $config;

@@ -18,12 +18,21 @@ use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Worker\WorkerCallbackInterface;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
 use Duyler\WorkerPool\Master\AbstractMaster;
+
+use Duyler\WorkerPool\IPC\FdPasser;
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
 
 use const SIGCHLD;
 use const SIGKILL;
@@ -33,6 +42,18 @@ use const WNOHANG;
 #[Group('pcntl')]
 #[CoversClass(SharedSocketMaster::class)]
 #[CoversClass(CentralizedMaster::class)]
+#[UsesClass(RoundRobinBalancer::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
+#[UsesClass(SocketWrapper::class)]
 final class ReliabilityIntegrationTest extends TestCase
 {
     private ServerConfig $serverConfig;

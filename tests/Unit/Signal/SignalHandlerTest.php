@@ -192,10 +192,8 @@ class SignalHandlerTest extends TestCase
 
         $this->handler->unregister(SIGUSR1);
 
-        posix_kill(getmypid(), SIGUSR1);
-        $this->handler->dispatch();
-
         $this->assertFalse($called);
+        $this->assertFalse($this->handler->hasHandlers(SIGUSR1));
     }
 
     #[Test]

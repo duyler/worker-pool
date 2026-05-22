@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Duyler\WorkerPool\Tests\Integration;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 
 use Duyler\HttpServer\Config\ServerConfig;
 use Duyler\HttpServer\ErrorHandler\ErrorHandler;
@@ -29,6 +30,15 @@ use Duyler\WorkerPool\Process\ForkWrapper;
 use Duyler\WorkerPool\Socket\SocketWrapper;
 use Duyler\WorkerPool\Socket\SocketMsgWrapper;
 
+use Duyler\WorkerPool\IPC\FdPasser;
+
+use Duyler\WorkerPool\Master\ConnectionQueue;
+use Duyler\WorkerPool\Master\ConnectionRouter;
+use Duyler\WorkerPool\Master\SocketManager;
+use Duyler\WorkerPool\Master\WorkerManager;
+use Duyler\WorkerPool\Signal\SignalHandler;
+use Duyler\WorkerPool\Signal\SignalManager;
+
 use function function_exists;
 
 use const SIGTERM;
@@ -36,6 +46,16 @@ use const SIGTERM;
 #[Group('pcntl')]
 #[CoversClass(SharedSocketMaster::class)]
 #[CoversClass(CentralizedMaster::class)]
+#[UsesClass(WorkerPoolConfig::class)]
+#[UsesClass(FdPasser::class)]
+#[UsesClass(ConnectionQueue::class)]
+#[UsesClass(ConnectionRouter::class)]
+#[UsesClass(SocketManager::class)]
+#[UsesClass(WorkerManager::class)]
+#[UsesClass(ForkWrapper::class)]
+#[UsesClass(ProcessInfo::class)]
+#[UsesClass(SignalHandler::class)]
+#[UsesClass(SignalManager::class)]
 final class ForkBasedMasterTest extends TestCase
 {
     #[Override]

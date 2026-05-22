@@ -11,6 +11,8 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
+use const PHP_OS_FAMILY;
+
 #[CoversClass(SystemInfo::class)]
 final class SystemInfoFullCoverageTest extends TestCase
 {
@@ -121,6 +123,10 @@ final class SystemInfoFullCoverageTest extends TestCase
     #[Test]
     public function detectCpuCoresWindowsViaReflection(): void
     {
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $this->markTestSkipped('Windows-only: detectCpuCoresWindows()');
+        }
+
         $info = new SystemInfo();
         $ref = new ReflectionMethod($info, 'detectCpuCoresWindows');
         $result = $ref->invoke($info);
@@ -153,7 +159,7 @@ final class SystemInfoFullCoverageTest extends TestCase
     {
         $info = new SystemInfo();
         $ref = new ReflectionMethod($info, 'execCommand');
-        $result = $ref->invoke($info, 'nonexistent_command_xyz');
+        $result = $ref->invoke($info, 'echo notanumber');
 
         $this->assertSame(0, $result);
     }
@@ -163,7 +169,7 @@ final class SystemInfoFullCoverageTest extends TestCase
     {
         $info = new SystemInfo();
         $ref = new ReflectionMethod($info, 'execCommandString');
-        $result = $ref->invoke($info, 'nonexistent_command_xyz_abc');
+        $result = $ref->invoke($info, 'echo notanumber');
 
         $this->assertSame(0, $result);
     }
