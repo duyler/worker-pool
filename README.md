@@ -42,52 +42,26 @@ composer require duyler/worker-pool
 
 ## Quick Start
 
-### Event-Driven Worker Mode (SharedSocketMaster + Server)
+### Event-Driven Worker Mode
 
 This is the recommended mode for production HTTP servers. Each worker runs its own event loop with a full `Server` instance. The kernel distributes connections across workers via `SO_REUSEPORT`.
 
 ```php
 use Duyler\HttpServer\Config\ServerConfig;
-use Duyler\HttpServer\Server;
-use Duyler\HttpServer\ServerInterface;
 use Duyler\WorkerPool\Config\WorkerPoolConfig;
 use Duyler\WorkerPool\Master\MasterFactory;
 use Duyler\WorkerPool\Worker\EventDrivenWorkerInterface;
-use Nyholm\Psr7\Response;
 
-final class MyApp implements EventDrivenWorkerInterface
-{
-    public function run(int $workerId, ServerInterface $server): void
-    {
-        // Do NOT call $server->start(). The master already manages sockets.
-
-        // Enable notification for reactive event loop wakeup
-        $server->enableNotification();
-        $notifySocket = $server->getSocketResource();
-
-        // Polling example (see examples/ for reactive EvIo integration)
-        while (true) {
-            if ($server->hasRequest()) {
-                $requestData = $server->getRequest();
-                if ($requestData !== null) {
-                    $response = new Response(200, [], 'Hello from worker ' . $workerId);
-                    $server->respond($requestData->respond($response));
-                }
-            }
-            usleep(1000);
-        }
-    }
-}
+// Implement EventDrivenWorkerInterface (see Worker Types section for full example)
+$worker = new MyApp(); // implements EventDrivenWorkerInterface
 
 $serverConfig = new ServerConfig(host: '0.0.0.0', port: 8080);
 $poolConfig = WorkerPoolConfig::auto($serverConfig);
 
-// MasterFactory automatically picks the best architecture
-// and creates the required DI wrappers (SocketWrapper, ForkWrapper, etc.)
 $master = MasterFactory::createRecommended(
     config: $poolConfig,
     serverConfig: $serverConfig,
-    eventDrivenWorker: new MyApp(),
+    eventDrivenWorker: $worker,
 );
 
 $master->start(); // blocks until shutdown
