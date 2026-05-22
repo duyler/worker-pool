@@ -26,7 +26,7 @@ Process manager with load balancing for Duyler Framework.
 
 ## Requirements
 
-- PHP 8.4+
+- PHP 8.5+
 - ext-sockets
 - ext-pcntl
 - ext-posix
