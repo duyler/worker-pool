@@ -33,7 +33,7 @@ class EventDrivenWorkerInterfaceTest extends TestCase
             } catch (Throwable) {
             }
         }
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
         parent::tearDown();
     }
 

@@ -39,7 +39,7 @@ class HttpWorkerAdapterTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
         parent::tearDown();
     }
 

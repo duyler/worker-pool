@@ -346,6 +346,6 @@ final class CentralizedMasterRestartTest extends TestCase
         if (null !== $eventWorker->capturedServer) {
             $eventWorker->capturedServer->reset();
         }
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
     }
 }

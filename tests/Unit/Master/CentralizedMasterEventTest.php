@@ -92,7 +92,7 @@ final class CentralizedMasterEventTest extends TestCase
             $this->capturedServer->reset();
             $this->capturedServer = null;
         }
-        (new ErrorHandler(new NullLogger()))->reset();
+        new ErrorHandler(new NullLogger())->reset();
         parent::tearDown();
     }
 
