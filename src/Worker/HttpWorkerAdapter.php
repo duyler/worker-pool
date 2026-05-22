@@ -14,12 +14,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Socket;
 use Throwable;
 
+use function assert;
 use function count;
+use function is_string;
 use function sprintf;
 use function strlen;
-
-use function assert;
-use function is_string;
 
 use const SOL_SOCKET;
 use const SO_RCVTIMEO;

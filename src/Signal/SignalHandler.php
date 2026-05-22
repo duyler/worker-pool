@@ -23,9 +23,9 @@ final class SignalHandler
 
     public function register(int $signal, Closure $handler): void
     {
-        $needsInstall = !isset($this->handlers[$signal]);
+        $needsInstall = false === isset($this->handlers[$signal]);
 
-        if (false === isset($this->handlers[$signal])) {
+        if ($needsInstall) {
             $this->handlers[$signal] = [];
         }
 
