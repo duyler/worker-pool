@@ -106,7 +106,7 @@ final class SharedSocketMasterStartTest extends TestCase
         $uninstallSigchld = new ReflectionMethod(AbstractMaster::class, 'uninstallSigchldHandler');
         $uninstallSigchld->invoke($master);
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     #[Test]

@@ -78,7 +78,7 @@ final class CentralizedMasterFdTest extends TestCase
     #[Test]
     public function run_callback_worker_receives_fd_and_calls_handle(): void
     {
-        if (!function_exists('socket_sendmsg')) {
+        if (false === function_exists('socket_sendmsg')) {
             $this->markTestSkipped('socket_sendmsg not available');
         }
 
@@ -151,7 +151,7 @@ final class CentralizedMasterFdTest extends TestCase
     #[Test]
     public function run_callback_worker_no_callback_logs_warning(): void
     {
-        if (!function_exists('socket_sendmsg')) {
+        if (false === function_exists('socket_sendmsg')) {
             $this->markTestSkipped('socket_sendmsg not available');
         }
 

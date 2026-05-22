@@ -265,7 +265,7 @@ final class CentralizedMasterFullTest extends TestCase
         $acceptConnections = new ReflectionMethod($master, 'acceptConnections');
         $acceptConnections->invoke($master);
 
-        $this->assertTrue(true);
+        $this->assertTrue($master->isRunning());
     }
 
     #[Test]
@@ -289,7 +289,7 @@ final class CentralizedMasterFullTest extends TestCase
         $distributeConnections = new ReflectionMethod($master, 'distributeConnections');
         $distributeConnections->invoke($master);
 
-        $this->assertTrue(true);
+        $this->assertTrue($master->isRunning());
     }
 
     #[Test]

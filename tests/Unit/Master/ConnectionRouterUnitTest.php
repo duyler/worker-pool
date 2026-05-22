@@ -114,7 +114,7 @@ final class ConnectionRouterUnitTest extends TestCase
     #[Test]
     public function route_passes_fd_to_alive_worker(): void
     {
-        if (!function_exists('socket_sendmsg') || !defined('SCM_RIGHTS')) {
+        if (false === function_exists('socket_sendmsg') || false === defined('SCM_RIGHTS')) {
             $this->markTestSkipped('SCM_RIGHTS not available');
         }
 
@@ -133,7 +133,7 @@ final class ConnectionRouterUnitTest extends TestCase
     #[Test]
     public function route_returns_false_on_fd_pass_error(): void
     {
-        if (!function_exists('socket_sendmsg') || !defined('SCM_RIGHTS')) {
+        if (false === function_exists('socket_sendmsg') || false === defined('SCM_RIGHTS')) {
             $this->markTestSkipped('SCM_RIGHTS not available');
         }
 

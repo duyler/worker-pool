@@ -140,7 +140,7 @@ final class CentralizedMasterEventTest extends TestCase
 
         $runEventDrivenWorker->invoke($master, 1, $sockets[0]);
 
-        $this->assertTrue(true);
+        $this->assertNotNull($this->capturedServer);
     }
 
     #[Test]

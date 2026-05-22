@@ -88,7 +88,7 @@ final class LoadBalancingIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -101,15 +101,25 @@ final class LoadBalancingIntegrationTest extends TestCase
         for ($i = 0; $i < $requestCount; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            if (@socket_connect($client, '127.0.0.1', $port)) {
+            $previousEr = error_reporting(0);
+            if (socket_connect($client, '127.0.0.1', $port)) {
+                error_reporting($previousEr);
                 socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
                 $response = '';
-                while ($chunk = @socket_read($client, 1024)) {
+                while (true) {
+                    $previousEr = error_reporting(0);
+                    $chunk = socket_read($client, 1024);
+                    error_reporting($previousEr);
+                    if (false === $chunk || '' === $chunk) {
+                        break;
+                    }
                     $response .= $chunk;
                 }
                 $responses[] = $response;
                 socket_close($client);
+            } else {
+                error_reporting($previousEr);
             }
 
             usleep(10000);
@@ -168,7 +178,7 @@ final class LoadBalancingIntegrationTest extends TestCase
         $callback = new class implements WorkerCallbackInterface {
             public function handle(mixed $clientSocket, array $metadata): void
             {
-                usleep(50000); // Simulate work
+                usleep(50000);
 
                 $response = "HTTP/1.1 200 OK\r\n\r\nOK";
                 socket_write($clientSocket, $response);
@@ -187,7 +197,7 @@ final class LoadBalancingIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -200,22 +210,28 @@ final class LoadBalancingIntegrationTest extends TestCase
         for ($i = 0; $i < $concurrentRequests; $i++) {
             $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-            if (@socket_connect($client, '127.0.0.1', $port)) {
+            $previousEr = error_reporting(0);
+            if (socket_connect($client, '127.0.0.1', $port)) {
+                error_reporting($previousEr);
                 socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
-                $response = @socket_read($client, 1024);
+                $previousEr = error_reporting(0);
+                $response = socket_read($client, 1024);
+                error_reporting($previousEr);
                 if ($response && str_contains($response, 'HTTP/1.1 200 OK')) {
                     ++$successfulConnections;
                 }
 
                 socket_close($client);
+            } else {
+                error_reporting($previousEr);
             }
         }
 
         posix_kill($pid, SIGTERM);
         pcntl_waitpid($pid, $status);
 
-        if ($successfulConnections === 0) {
+        if (0 === $successfulConnections) {
             $this->markTestSkipped('No successful connections');
         }
 

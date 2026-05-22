@@ -144,7 +144,7 @@ final class WorkerCrashIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -153,25 +153,38 @@ final class WorkerCrashIntegrationTest extends TestCase
 
         $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
-        if (@socket_connect($client, '127.0.0.1', $port)) {
+        $previousEr = error_reporting(0);
+        if (socket_connect($client, '127.0.0.1', $port)) {
+            error_reporting($previousEr);
             socket_write($client, "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
 
             $response = '';
-            while ($chunk = @socket_read($client, 1024)) {
+            while (true) {
+                $previousEr = error_reporting(0);
+                $chunk = socket_read($client, 1024);
+                error_reporting($previousEr);
+                if (false === $chunk || '' === $chunk) {
+                    break;
+                }
                 $response .= $chunk;
             }
 
             socket_close($client);
 
             $this->assertStringContainsString('HTTP/1.1 200 OK', $response);
+        } else {
+            error_reporting($previousEr);
         }
 
         posix_kill($pid, SIGTERM);
         pcntl_waitpid($pid, $status);
 
-        if (!@socket_connect($client, '127.0.0.1', $port)) {
+        $previousEr = error_reporting(0);
+        if (!socket_connect($client, '127.0.0.1', $port)) {
+            error_reporting($previousEr);
             $this->markTestSkipped('Could not connect to server');
         }
+        error_reporting($previousEr);
     }
 
     private function findFreePort(): int

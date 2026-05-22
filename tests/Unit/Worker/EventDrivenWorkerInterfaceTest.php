@@ -75,15 +75,13 @@ class EventDrivenWorkerInterfaceTest extends TestCase
 
             public function run(int $workerId, ServerInterface $server): void
             {
-                // NOTE: Do NOT call $server->start() in Worker Pool mode!
-                // Server is marked as running when setWorkerId() is called.
                 $this->hasRequestCalled = $server->hasRequest();
             }
         };
 
         $config = new ServerConfig(host: '127.0.0.1', port: 8081);
         $this->server = new Server($config);
-        $this->server->setWorkerId(1); // This marks server as running
+        $this->server->setWorkerId(1);
 
         $worker->run(1, $this->server);
 
@@ -108,7 +106,6 @@ class EventDrivenWorkerInterfaceTest extends TestCase
 
         $config = new ServerConfig(host: '127.0.0.1', port: 8082);
 
-        // Simulate multiple workers
         for ($i = 1; $i <= 5; $i++) {
             if (null !== $this->server) {
                 $this->server->reset();
@@ -161,15 +158,11 @@ class EventDrivenWorkerInterfaceTest extends TestCase
 
             public function run(int $workerId, ServerInterface $server): void
             {
-                // Just verify we can call server methods without errors
-                // NOTE: Do NOT call $server->start() in Worker Pool mode!
-
-                // Check for requests (none expected in this test)
                 $hasRequest = $server->hasRequest();
 
                 if ($hasRequest) {
                     $request = $server->getRequest();
-                    if ($request !== null) {
+                    if (null !== $request) {
                         $response = new Response(200, [], 'OK');
                         $server->respond($response);
                         $this->requestHandled = true;
@@ -180,12 +173,10 @@ class EventDrivenWorkerInterfaceTest extends TestCase
 
         $config = new ServerConfig(host: '127.0.0.1', port: 8084);
         $this->server = new Server($config);
-        $this->server->setWorkerId(1); // Mark as running in Worker Pool mode
+        $this->server->setWorkerId(1);
 
         $worker->run(1, $this->server);
 
-        // Request was not handled because we didn't send any
-        // This is just testing the interface works correctly
         $this->assertFalse($requestHandled);
     }
 

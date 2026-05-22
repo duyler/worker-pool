@@ -87,7 +87,7 @@ final class MasterLifecycleIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }
@@ -97,7 +97,9 @@ final class MasterLifecycleIntegrationTest extends TestCase
         $client = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         $this->assertNotFalse($client);
 
-        $connected = @socket_connect($client, '127.0.0.1', $port);
+        $previousEr = error_reporting(0);
+        $connected = socket_connect($client, '127.0.0.1', $port);
+        error_reporting($previousEr);
 
         if ($connected) {
             $request = "GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n";
@@ -105,8 +107,10 @@ final class MasterLifecycleIntegrationTest extends TestCase
 
             $response = '';
             while (true) {
-                $chunk = @socket_read($client, 1024);
-                if ($chunk === false || $chunk === '') {
+                $previousEr = error_reporting(0);
+                $chunk = socket_read($client, 1024);
+                error_reporting($previousEr);
+                if (false === $chunk || '' === $chunk) {
                     break;
                 }
                 $response .= $chunk;
@@ -165,7 +169,7 @@ final class MasterLifecycleIntegrationTest extends TestCase
 
         $pid = pcntl_fork();
 
-        if ($pid === 0) {
+        if (0 === $pid) {
             $master->start();
             exit(0);
         }

@@ -66,7 +66,9 @@ final class FdPasserFullCoverageTest extends TestCase
 
         socket_close($sender);
         socket_close($receiver);
-        @socket_close($fdToSend);
+        if ($fdToSend instanceof Socket) {
+            socket_close($fdToSend);
+        }
     }
 
     #[Test]
@@ -83,7 +85,9 @@ final class FdPasserFullCoverageTest extends TestCase
         $this->assertIsBool($result);
 
         socket_close($sender);
-        @socket_close($fdToSend);
+        if ($fdToSend instanceof Socket) {
+            socket_close($fdToSend);
+        }
     }
 
     #[Test]
@@ -114,6 +118,8 @@ final class FdPasserFullCoverageTest extends TestCase
         $this->assertIsBool($result);
 
         socket_close($sender);
-        @socket_close($fdToSend);
+        if ($fdToSend instanceof Socket) {
+            socket_close($fdToSend);
+        }
     }
 }

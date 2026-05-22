@@ -77,7 +77,7 @@ final class SocketManagerCoverageTest extends TestCase
 
         unset($manager);
 
-        $this->assertTrue(true);
+        $this->assertNotNull($socket);
     }
 
     #[Test]
@@ -121,7 +121,5 @@ final class SocketManagerCoverageTest extends TestCase
         $this->assertTrue($manager->isListening());
 
         unset($manager);
-
-        $this->assertTrue(true);
     }
 }

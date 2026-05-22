@@ -55,7 +55,7 @@ final class HttpWorkerAdapterCoverageTest extends TestCase
         $start = microtime(true);
         while (microtime(true) - $start < 1.0) {
             $chunk = socket_read($clientSocket, 4096);
-            if ($chunk === false || $chunk === '') {
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
@@ -86,7 +86,7 @@ final class HttpWorkerAdapterCoverageTest extends TestCase
         $start = microtime(true);
         while (microtime(true) - $start < 1.0) {
             $chunk = socket_read($clientSocket, 4096);
-            if ($chunk === false || $chunk === '') {
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
@@ -114,7 +114,7 @@ final class HttpWorkerAdapterCoverageTest extends TestCase
         $start = microtime(true);
         while (microtime(true) - $start < 1.0) {
             $chunk = socket_read($clientSocket, 4096);
-            if ($chunk === false || $chunk === '') {
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
@@ -142,7 +142,7 @@ final class HttpWorkerAdapterCoverageTest extends TestCase
         $start = microtime(true);
         while (microtime(true) - $start < 1.0) {
             $chunk = socket_read($clientSocket, 4096);
-            if ($chunk === false || $chunk === '') {
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;
@@ -169,7 +169,7 @@ final class HttpWorkerAdapterCoverageTest extends TestCase
         $start = microtime(true);
         while (microtime(true) - $start < 1.0) {
             $chunk = socket_read($clientSocket, 4096);
-            if ($chunk === false || $chunk === '') {
+            if (false === $chunk || '' === $chunk) {
                 break;
             }
             $response .= $chunk;

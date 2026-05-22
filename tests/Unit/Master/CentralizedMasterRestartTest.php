@@ -261,7 +261,7 @@ final class CentralizedMasterRestartTest extends TestCase
     #[Test]
     public function run_event_driven_worker_receives_fd_in_fiber(): void
     {
-        if (!function_exists('socket_sendmsg')) {
+        if (false === function_exists('socket_sendmsg')) {
             $this->markTestSkipped('socket_sendmsg not available');
         }
 

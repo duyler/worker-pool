@@ -173,7 +173,7 @@ final class SharedSocketMasterSocketTest extends TestCase
 
         pcntl_signal(SIGALRM, SIG_DFL);
 
-        $this->assertTrue($master->isRunning() === false);
+        $this->assertFalse($master->isRunning());
     }
 
     #[Test]
